@@ -1,65 +1,99 @@
-import Image from "next/image";
+
+"use client"
+
+import { DashboardCard } from "@/components/dashboard-card"
+import { ExternalLinks } from "@/components/external-links"
+import { DynamicStats } from "@/components/dynamic-stats"
+import { GithubActivity } from "@/components/github-activity"
+import { ProjectGrid } from "@/components/project-grid"
+import { Badge } from "@/components/ui/badge"
+import { useStatsConfig } from "@/hooks/use-stats-config"
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    const { stats, loading } = useStatsConfig()
+
+    return (
+        <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
+            {/* Header Grid */}
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Profile Card */}
+                <DashboardCard className="md:col-span-3 flex flex-col justify-between relative overflow-hidden min-h-[300px]">
+                    <div className="absolute top-0 right-0 p-8 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+
+                    <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div>
+                            <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4">
+                                GUCHI<span className="text-blue-300">.WORK</span>
+                            </h1>
+
+                            <p className="text-sm md:text-base text-blue-100 max-w-2xl font-light leading-relaxed">
+                                2018年に大学祭のWEBサイト作成を担当。以降、大学祭のWEBサイト・団体管理システムの運用を担当。
+                                2020年にはQRコードで接触履歴を追跡できるシステムを開発し、コロナ禍でも対面でのイベント開催を実現。
+                                メーカー勤務の現在は、趣味でWebアプリを作成・運用。
+                            </p>
+                        </div>
+
+                        <div className="mt-8 flex gap-8 items-end">
+                            <div className="flex flex-col">
+                                {loading ? (
+                                    <div className="h-10 w-16 bg-white/20 animate-pulse rounded" />
+                                ) : (
+                                    <span className="text-4xl font-bold">{stats?.yearsDetail}</span>
+                                )}
+                                <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Years Experience</span>
+                            </div>
+                            <div className="w-px h-12 bg-white/20" />
+                            <div className="flex flex-col">
+                                {loading ? (
+                                    <div className="h-10 w-16 bg-white/20 animate-pulse rounded" />
+                                ) : (
+                                    <span className="text-4xl font-bold">{stats?.projectsDetail}</span>
+                                )}
+                                <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Projects Shipped</span>
+                            </div>
+                        </div>
+                    </div>
+                </DashboardCard>
+
+                {/* External Links */}
+                <div className="md:col-span-1 h-full">
+                    <ExternalLinks />
+                </div>
+            </div>
+
+            {/* Dynamic Stats Row */}
+            <section>
+                <DynamicStats />
+            </section>
+
+
+
+            {/* Github Activity */}
+            <section className="grid grid-cols-1">
+                <DashboardCard className="bg-blue-600 dark:bg-slate-950 border-none" live>
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="font-bold text-lg text-white dark:text-slate-100 uppercase tracking-wider text-sm opacity-80">Contribution Activity</h2>
+                    </div>
+                    <GithubActivity />
+                </DashboardCard>
+            </section>
+
+            {/* Projects Section */}
+            <section className="pt-8 space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="h-8 w-1 bg-blue-600 rounded-full" />
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        Featured Projects
+                    </h2>
+                </div>
+                <ProjectGrid />
+            </section>
+
+
+            <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
+                <p>© 2026 MINAGU.WORK. Next.js, Tailwind & shadcn/ui で構築。</p>
+            </footer>
+        </main>
+    )
 }
