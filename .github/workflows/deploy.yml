@@ -27,7 +27,7 @@ jobs:
         env:
           # UptimeRobot API Keys for build-time data fetching
           # Add these secrets in GitHub Settings -> Secrets and variables -> Actions
-          UPTIMEROBOT_MK_PROFILE: ${{ secrets.UPTIMEROBOT_MK_PROFILE }}
+          UPTIMEROBOT_MK_PORTFOLIO: ${{ secrets.UPTIMEROBOT_MK_PORTFOLIO }}
           UPTIMEROBOT_MK_BLOG: ${{ secrets.UPTIMEROBOT_MK_BLOG }}
           UPTIMEROBOT_MK_ASSET: ${{ secrets.UPTIMEROBOT_MK_ASSET }}
           # If you use multiple keys like UPTIMEROBOT_MK_SITE_A, add them here:
