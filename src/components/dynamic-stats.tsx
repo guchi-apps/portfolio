@@ -2,35 +2,74 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion, useSpring, useTransform } from "framer-motion"
-import { MapPin, Sun, Loader2 } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
+import { StatsConfig } from "@/lib/site-config"
+import { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import { useStatsConfig } from "@/hooks/use-stats-config"
-import { useWeather } from "@/hooks/use-weather"
 
-function Counter({ value }: { value: number }) {
-    const spring = useSpring(0, { bounce: 0, duration: 2000 })
-    const display = useTransform(spring, (current) =>
-        Math.round(current).toLocaleString()
-    )
-
-    useEffect(() => {
-        spring.set(value)
-    }, [value, spring])
-
-    return <motion.span>{display}</motion.span>
+interface DynamicStatsProps {
+    initialStats?: StatsConfig | null
+    monitors?: UptimeRobotMonitor[]
 }
 
 
-export function DynamicStats() {
-    const { stats, loading: statsLoading } = useStatsConfig()
-    const { data: weather, loading: weatherLoading, error: weatherError } = useWeather(34.6937, 135.5023)
-    const [uptime, setUptime] = useState<string>("")
+function UptimeCard({ monitor }: { monitor: UptimeRobotMonitor }) {
+    const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
+    const ratio = parseFloat(ratioStr.split('-')[0])
+
+    // Status mapping
+    // 0: paused, 1: not checked yet, 2: up, 8: seems down, 9: down
+    let statusText = "Unknown"
+    let statusColor = "text-slate-400"
+    let isLive = false
+
+    switch (monitor.status) {
+        case 2:
+            statusText = "Running"
+            statusColor = "text-emerald-500 dark:text-emerald-400"
+            isLive = true
+            break
+        case 8:
+        case 9:
+            statusText = "Down"
+            statusColor = "text-red-500 dark:text-red-400"
+            break
+        case 0:
+            statusText = "Paused"
+            statusColor = "text-yellow-500 dark:text-yellow-400"
+            break
+        case 1:
+            statusText = "Checking..."
+            statusColor = "text-blue-500 dark:text-blue-400"
+            break
+    }
+
+    return (
+        <DashboardCard className="flex flex-col justify-center items-center text-center" live={isLive}>
+            <span className="text-xs opacity-70 uppercase tracking-widest mb-2 truncate w-full px-2" title={monitor.friendly_name}>
+                {monitor.friendly_name}
+            </span>
+
+            {/* Main: Current Status */}
+            <div className={`text-2xl font-bold font-mono ${statusColor} mb-2`}>
+                {statusText}
+            </div>
+
+            {/* Sub: Uptime Ratio (Smaller) */}
+            <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
+                {ratio}% uptime (30d)
+            </div>
+        </DashboardCard>
+    )
+}
+
+function LiveSinceCard({ startString }: { startString: string }) {
+    const [uptimeString, setUptimeString] = useState<string>("")
 
     useEffect(() => {
-        if (!stats?.launchDate) return
+        if (!startString) return
 
-        const launchDate = new Date(stats.launchDate)
+        const launchDate = new Date(startString)
         const updateUptime = () => {
             const now = new Date()
             const diff = now.getTime() - launchDate.getTime()
@@ -44,67 +83,54 @@ export function DynamicStats() {
             const formattedMinutes = minutes.toString().padStart(2, '0')
             const formattedSeconds = seconds.toString().padStart(2, '0')
 
-            setUptime(`${days}d ${formattedHours}:${formattedMinutes}:${formattedSeconds}`)
+            setUptimeString(`${days}d ${formattedHours}:${formattedMinutes}:${formattedSeconds}`)
         }
 
         updateUptime()
-        const interval = setInterval(updateUptime, 1000) // Update every second
+        const interval = setInterval(updateUptime, 1000)
         return () => clearInterval(interval)
-    }, [stats?.launchDate])
+    }, [startString])
 
-    if (statsLoading || !stats) {
+    return (
+        <DashboardCard className="flex flex-col justify-center items-center text-center" live>
+            <span className="text-xs opacity-70 uppercase tracking-widest mb-1">System Live Since</span>
+            <div className="text-xl font-bold font-mono text-emerald-300 dark:text-emerald-400">
+                {uptimeString || "CALCULATING..."}
+            </div>
+        </DashboardCard>
+    )
+}
+
+export function DynamicStats({ initialStats, monitors = [] }: DynamicStatsProps) {
+    const { stats: fetchedStats, loading: statsLoading } = useStatsConfig()
+    // Prefer initialStats (server-side) over fetchedStats (client-side) if available
+    const stats = initialStats || fetchedStats
+
+    if (!stats && (statsLoading && !initialStats)) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full animate-pulse">
-                {[1, 2, 3].map((i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full animate-pulse">
+                {[1, 2].map((i) => (
                     <div key={i} className="h-24 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                 ))}
             </div>
         )
     }
 
-    const WeatherIcon = weather?.icon || Sun
+    // Determine grid columns based on number of items
+    // Monitors (N) or Default Uptime (1)
+    const totalItems = monitors.length > 0 ? monitors.length : 1;
+    const gridCols = totalItems === 1 ? 'grid-cols-1' : totalItems === 2 ? 'md:grid-cols-2' : totalItems === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4';
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-            {/* Assets */}
-            <DashboardCard className="flex flex-col justify-center items-center text-center" live>
-                <span className="text-xs opacity-70 uppercase tracking-widest mb-1">Total Assets</span>
-                <div className="text-2xl font-bold font-mono">
-                    ¥ <Counter value={stats.totalAssets} />
-                </div>
-            </DashboardCard>
-
-            {/* Uptime */}
-            <DashboardCard className="flex flex-col justify-center items-center text-center" live>
-                <span className="text-xs opacity-70 uppercase tracking-widest mb-1">System Live Since</span>
-                <div className="text-xl font-bold font-mono text-emerald-300 dark:text-emerald-400">
-                    {uptime || "CALCULATING..."}
-                </div>
-            </DashboardCard>
-
-            {/* Location */}
-            <DashboardCard className="flex flex-col justify-center items-center text-center" live>
-                <span className="text-xs opacity-70 uppercase tracking-widest mb-1">Location</span>
-                <div className="flex items-center gap-3 mt-1">
-                    <div className="flex items-center gap-1 text-sm font-medium">
-                        <MapPin className="h-4 w-4 text-red-300 dark:text-red-400" />
-                        <span>{stats.location}</span>
-                    </div>
-                    <div className="w-px h-4 bg-white/20 mx-1" />
-                    <div className="flex items-center gap-1 text-sm text-yellow-300 dark:text-yellow-400">
-                        {weatherLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : weatherError ? (
-                            <span className="text-xs text-red-400">Error</span>
-                        ) : (
-                            <>
-                                <WeatherIcon className="h-4 w-4" />
-                                <span>{Math.round(weather!.temperature)}°C</span>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </DashboardCard>
+        <div className={`grid grid-cols-1 ${gridCols} gap-4 h-full`}>
+            {/* Monitors or Fallback Uptime */}
+            {monitors.length > 0 ? (
+                monitors.map((m) => (
+                    <UptimeCard key={m.id} monitor={m} />
+                ))
+            ) : (
+                <LiveSinceCard startString={stats?.launchDate || ""} />
+            )}
         </div>
     )
 }

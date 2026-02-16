@@ -1,16 +1,41 @@
 
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { GitHubCalendar } from 'react-github-calendar';
 import { Loader2 } from "lucide-react";
 
 export function GithubActivity() {
     const [mounted, setMounted] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        // Scroll to the right end after mounted
+        // We use a timeout to ensure the calendar data has loaded and rendered
+        if (mounted && scrollRef.current) {
+            const scrollToBottom = () => {
+                if (scrollRef.current) {
+                    scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+                }
+            };
+
+            // Attempt immediately
+            scrollToBottom();
+
+            // Retry after delays to handle data fetching time
+            const timer1 = setTimeout(scrollToBottom, 500);
+            const timer2 = setTimeout(scrollToBottom, 1500);
+
+            return () => {
+                clearTimeout(timer1);
+                clearTimeout(timer2);
+            };
+        }
+    }, [mounted]);
 
     if (!mounted) {
         return (
@@ -21,9 +46,10 @@ export function GithubActivity() {
     }
 
     return (
-
-        <div className="w-full flex justify-center py-4 overflow-hidden">
-
+        <div
+            ref={scrollRef}
+            className="w-full flex justify-start lg:justify-center py-4 overflow-x-auto scrollbar-hide"
+        >
             <GitHubCalendar
                 username="m-guchi"
                 colorScheme="dark"
