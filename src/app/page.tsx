@@ -1,16 +1,15 @@
 
-"use client"
-
 import { DashboardCard } from "@/components/dashboard-card"
 import { ExternalLinks } from "@/components/external-links"
 import { DynamicStats } from "@/components/dynamic-stats"
 import { GithubActivity } from "@/components/github-activity"
 import { ProjectGrid } from "@/components/project-grid"
-import { Badge } from "@/components/ui/badge"
-import { useStatsConfig } from "@/hooks/use-stats-config"
+import { getStatsConfig } from "@/lib/site-config"
+import { getUptimeRobotMonitors } from "@/lib/uptimerobot"
 
-export default function Home() {
-    const { stats, loading } = useStatsConfig()
+export default async function Home() {
+    const stats = getStatsConfig()
+    const monitors = await getUptimeRobotMonitors()
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
@@ -36,20 +35,12 @@ export default function Home() {
 
                         <div className="mt-8 flex gap-8 items-end">
                             <div className="flex flex-col">
-                                {loading ? (
-                                    <div className="h-10 w-16 bg-white/20 animate-pulse rounded" />
-                                ) : (
-                                    <span className="text-4xl font-bold">{stats?.yearsDetail}</span>
-                                )}
+                                <span className="text-4xl font-bold">{stats?.yearsDetail || "-"}</span>
                                 <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Years Experience</span>
                             </div>
                             <div className="w-px h-12 bg-white/20" />
                             <div className="flex flex-col">
-                                {loading ? (
-                                    <div className="h-10 w-16 bg-white/20 animate-pulse rounded" />
-                                ) : (
-                                    <span className="text-4xl font-bold">{stats?.projectsDetail}</span>
-                                )}
+                                <span className="text-4xl font-bold">{stats?.projectsDetail || "-"}</span>
                                 <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Projects Shipped</span>
                             </div>
                         </div>
@@ -64,7 +55,7 @@ export default function Home() {
 
             {/* Dynamic Stats Row */}
             <section>
-                <DynamicStats />
+                <DynamicStats initialStats={stats} monitors={monitors} />
             </section>
 
 
