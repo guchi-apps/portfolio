@@ -56,7 +56,7 @@ function UptimeCard({ monitor }: { monitor: UptimeRobotMonitor }) {
             </div>
 
             {/* Sub: Uptime Ratio (Smaller) */}
-            <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
                 {ratio}% uptime (30d)
             </div>
         </DashboardCard>
