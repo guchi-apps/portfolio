@@ -10,8 +10,8 @@ export function ExternalLinks() {
     const links = [
         { name: "GitHub", icon: Github, url: "https://github.com/m-guchi" },
         { name: "Qiita", icon: Code2, url: "https://qiita.com/minagu" },
-        { name: "Blog", icon: PenBox, url: "https://tech.gucchii.com" },
-        { name: "X (Twitter)", icon: Twitter, url: "https://twitter.com/minagu_work" },
+        { name: "Blog", icon: PenBox, url: "https://blog.gucchii.com" },
+        // { name: "X (Twitter)", icon: Twitter, url: "https://twitter.com/minagu_work" },
     ]
 
     return (
