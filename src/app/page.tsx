@@ -17,7 +17,7 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Profile Card */}
-                <DashboardCard className="md:col-span-3 flex flex-col justify-between relative overflow-hidden min-h-[300px]">
+                <DashboardCard className="md:col-span-4 flex flex-col justify-between relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 right-0 p-8 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
                     <div className="relative z-10 h-full flex flex-col justify-between">
@@ -33,32 +33,17 @@ export default async function Home() {
                             </p>
                         </div>
 
-                        <div className="mt-8 flex gap-8 items-end">
-                            <div className="flex flex-col">
-                                <span className="text-4xl font-bold">{stats?.yearsDetail || "-"}</span>
-                                <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Years Experience</span>
-                            </div>
-                            <div className="w-px h-12 bg-white/20" />
-                            <div className="flex flex-col">
-                                <span className="text-4xl font-bold">{stats?.projectsDetail || "-"}</span>
-                                <span className="text-xs text-blue-200 uppercase tracking-widest font-medium mt-1">Projects Shipped</span>
-                            </div>
+                        <div className="mt-8">
+                            <ExternalLinks noCard />
                         </div>
                     </div>
                 </DashboardCard>
-
-                {/* External Links */}
-                <div className="md:col-span-1 h-full">
-                    <ExternalLinks />
-                </div>
             </div>
 
             {/* Dynamic Stats Row */}
             <section>
                 <DynamicStats initialStats={stats} monitors={monitors} />
             </section>
-
-
 
             {/* Github Activity */}
             <section className="grid grid-cols-1">
@@ -80,7 +65,6 @@ export default async function Home() {
                 </div>
                 <ProjectGrid />
             </section>
-
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
                 <p>© 2026 GUCCHII.COM. Next.js, Tailwind & shadcn/ui で構築。</p>

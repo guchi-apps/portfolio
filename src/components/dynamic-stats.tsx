@@ -2,7 +2,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion, useSpring, useTransform } from "framer-motion"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
 import { UptimeRobotMonitor } from "@/lib/uptimerobot"
@@ -13,18 +12,6 @@ interface DynamicStatsProps {
     monitors?: UptimeRobotMonitor[]
 }
 
-function Counter({ value }: { value: number }) {
-    const spring = useSpring(0, { bounce: 0, duration: 2000 })
-    const display = useTransform(spring, (current) =>
-        Math.round(current).toLocaleString()
-    )
-
-    useEffect(() => {
-        spring.set(value)
-    }, [value, spring])
-
-    return <motion.span>{display}</motion.span>
-}
 
 function UptimeCard({ monitor }: { monitor: UptimeRobotMonitor }) {
     const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
@@ -130,20 +117,12 @@ export function DynamicStats({ initialStats, monitors = [] }: DynamicStatsProps)
     }
 
     // Determine grid columns based on number of items
-    // Always show Assets card (1) + Monitors (N) or Default Uptime (1)
-    const totalItems = 1 + (monitors.length > 0 ? monitors.length : 1);
-    const gridCols = totalItems === 2 ? 'md:grid-cols-2' : totalItems === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4';
+    // Monitors (N) or Default Uptime (1)
+    const totalItems = monitors.length > 0 ? monitors.length : 1;
+    const gridCols = totalItems === 1 ? 'grid-cols-1' : totalItems === 2 ? 'md:grid-cols-2' : totalItems === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4';
 
     return (
         <div className={`grid grid-cols-1 ${gridCols} gap-4 h-full`}>
-            {/* Assets */}
-            <DashboardCard className="flex flex-col justify-center items-center text-center" live>
-                <span className="text-xs opacity-70 uppercase tracking-widest mb-1">Total Assets</span>
-                <div className="text-2xl font-bold font-mono">
-                    ¥ <Counter value={stats?.totalAssets || 0} />
-                </div>
-            </DashboardCard>
-
             {/* Monitors or Fallback Uptime */}
             {monitors.length > 0 ? (
                 monitors.map((m) => (

@@ -6,7 +6,12 @@ import { Github, Twitter, Chrome, Code2, PenBox } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DashboardCard } from "@/components/dashboard-card"
 
-export function ExternalLinks() {
+interface ExternalLinksProps {
+    className?: string
+    noCard?: boolean
+}
+
+export function ExternalLinks({ className, noCard = false }: ExternalLinksProps) {
     const links = [
         { name: "GitHub", icon: Github, url: "https://github.com/m-guchi" },
         { name: "Qiita", icon: Code2, url: "https://qiita.com/minagu" },
@@ -14,10 +19,12 @@ export function ExternalLinks() {
         // { name: "X (Twitter)", icon: Twitter, url: "https://twitter.com/minagu_work" },
     ]
 
+    const Wrapper = noCard ? "div" : DashboardCard
+
     return (
-        <DashboardCard className="h-full flex flex-col justify-center">
+        <Wrapper className={noCard ? className : `h-full flex flex-col justify-center ${className || ""}`}>
             <h3 className="text-sm font-medium opacity-70 mb-4 uppercase tracking-wider">Connect</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {links.map((link) => (
                     <Button
                         key={link.name}
@@ -32,6 +39,6 @@ export function ExternalLinks() {
                     </Button>
                 ))}
             </div>
-        </DashboardCard>
+        </Wrapper>
     )
 }
