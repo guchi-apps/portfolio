@@ -24,7 +24,7 @@ export default function Home() {
                     <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>
                             <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4">
-                                GUCHI<span className="text-blue-300">.WORK</span>
+                                GUCCHII<span className="text-blue-300">.COM</span>
                             </h1>
 
                             <p className="text-sm md:text-base text-blue-100 max-w-2xl font-light leading-relaxed">
@@ -92,7 +92,7 @@ export default function Home() {
 
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p>© 2026 MINAGU.WORK. Next.js, Tailwind & shadcn/ui で構築。</p>
+                <p>© 2026 GUCCHII.COM. Next.js, Tailwind & shadcn/ui で構築。</p>
             </footer>
         </main>
     )

@@ -28,35 +28,35 @@ export const projects: Project[] = [
         period: '2026.02',
         githubUrl: 'https://github.com/m-guchi/asset-manager',
         links: [
-            { label: '本番環境', url: 'https://asset.minagu.work/' }
+            { label: '本番環境', url: 'https://asset.gucchii.com/' }
         ],
     },
-    {
-        id: '2',
-        title: '入退場管理システム',
+    // {
+    //     id: '2',
+    //     title: '入退場管理システム',
 
-        description: 'QRコードを用いて建物・部屋内の出入りを管理できるシステム。ログインに必要なユーザー情報はGithubで確認してください。',
+    //     description: 'QRコードを用いて建物・部屋内の出入りを管理できるシステム。ログインに必要なユーザー情報はGithubで確認してください。',
 
-        techStack: ['PHP', 'MySQL', 'React'],
-        period: '2020.08 ~ 2022.10',
-        githubUrl: 'https://github.com/m-guchi/access_controll_system',
-        links: [
-            { label: 'デモサイト', url: 'https://app.minagu.work/access_controll/' }
-        ],
-    },
-    {
-        id: '3',
-        title: 'O-1投票システム',
+    //     techStack: ['PHP', 'MySQL', 'React'],
+    //     period: '2020.08 ~ 2022.10',
+    //     githubUrl: 'https://github.com/m-guchi/access_controll_system',
+    //     links: [
+    //         { label: 'デモサイト', url: 'https://app.gucchii.com/access_controll/' }
+    //     ],
+    // },
+    // {
+    //     id: '3',
+    //     title: 'O-1投票システム',
 
-        description: '大学祭で使用する予定だったO-1グランプリの投票システム。投票画面・管理画面で投票結果をリアルタイムに確認できる。',
+    //     description: '大学祭で使用する予定だったO-1グランプリの投票システム。投票画面・管理画面で投票結果をリアルタイムに確認できる。',
 
-        techStack: ['PHP', 'MySQL', 'React'],
-        period: '2020.08 ~ 2020.10',
-        links: [
-            { label: 'Github 投票画面', url: 'https://github.com/m-guchi/o1_vote_viewer' },
-            { label: '投票デモサイト', url: 'https://app.minagu.work/o1-vote/viewer/' },
-            { label: 'Github 管理画面', url: 'https://github.com/m-guchi/o1_vote_admin' },
-            { label: '管理デモサイト', url: 'https://app.minagu.work/o1-vote/admin/' },
-        ],
-    },
+    //     techStack: ['PHP', 'MySQL', 'React'],
+    //     period: '2020.08 ~ 2020.10',
+    //     links: [
+    //         { label: 'Github 投票画面', url: 'https://github.com/m-guchi/o1_vote_viewer' },
+    //         { label: '投票デモサイト', url: 'https://app.gucchii.com/o1-vote/viewer/' },
+    //         { label: 'Github 管理画面', url: 'https://github.com/m-guchi/o1_vote_admin' },
+    //         { label: '管理デモサイト', url: 'https://app.gucchii.com/o1-vote/admin/' },
+    //     ],
+    // },
 ];
