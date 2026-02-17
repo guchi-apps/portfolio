@@ -16,7 +16,7 @@ export function ExternalLinks({ className, noCard = false }: ExternalLinksProps)
         { name: "GitHub", icon: Github, url: "https://github.com/m-guchi" },
         { name: "Qiita", icon: Code2, url: "https://qiita.com/minagu" },
         { name: "Blog", icon: PenBox, url: "https://blog.gucchii.com" },
-        // { name: "X (Twitter)", icon: Twitter, url: "https://twitter.com/minagu_work" },
+        { name: "X (Twitter)", icon: Twitter, url: "https://x.com/gucchii_xx" },
     ]
 
     const Wrapper = noCard ? "div" : DashboardCard
