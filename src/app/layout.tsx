@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "System Dashboard Portfolio",
-    description: "Engineer Portfolio Dashboard",
+    title: "gucchii.com - System Dashboard Portfolio",
+    description: "Engineer Portfolio Dashboard hosted on gucchii.com",
 };
 
 export default function RootLayout({
