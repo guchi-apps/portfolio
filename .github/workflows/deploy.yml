@@ -25,13 +25,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # UptimeRobot API Keys for build-time data fetching
-          # Add these secrets in GitHub Settings -> Secrets and variables -> Actions
-          UPTIMEROBOT_MK_PORTFOLIO: ${{ secrets.UPTIMEROBOT_MK_PORTFOLIO }}
-          UPTIMEROBOT_MK_BLOG: ${{ secrets.UPTIMEROBOT_MK_BLOG }}
-          UPTIMEROBOT_MK_ASSET: ${{ secrets.UPTIMEROBOT_MK_ASSET }}
-          # If you use multiple keys like UPTIMEROBOT_MK_SITE_A, add them here:
-          # UPTIMEROBOT_MK_SITE_A: ${{ secrets.UPTIMEROBOT_MK_SITE_A }}
+          # UptimeRobot Read-Only API Key for client-side fetching
+          NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY: ${{ secrets.NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY }}
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main

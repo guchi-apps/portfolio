@@ -5,11 +5,9 @@ import { DynamicStats } from "@/components/dynamic-stats"
 import { GithubActivity } from "@/components/github-activity"
 import { ProjectGrid } from "@/components/project-grid"
 import { getStatsConfig } from "@/lib/site-config"
-import { getUptimeRobotMonitors } from "@/lib/uptimerobot"
 
 export default async function Home() {
     const stats = getStatsConfig()
-    const monitors = await getUptimeRobotMonitors()
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
@@ -42,7 +40,7 @@ export default async function Home() {
 
             {/* Dynamic Stats Row */}
             <section>
-                <DynamicStats initialStats={stats} monitors={monitors} />
+                <DynamicStats initialStats={stats} />
             </section>
 
             {/* Github Activity */}

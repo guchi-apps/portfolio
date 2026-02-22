@@ -4,14 +4,12 @@
 import { useEffect, useState } from "react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
-import { UptimeRobotMonitor } from "@/lib/uptimerobot"
+import { UptimeRobotMonitor, fetchUptimeRobotMonitorsClient } from "@/lib/uptimerobot"
 import { useStatsConfig } from "@/hooks/use-stats-config"
 
 interface DynamicStatsProps {
     initialStats?: StatsConfig | null
-    monitors?: UptimeRobotMonitor[]
 }
-
 
 function UptimeCard({ monitor }: { monitor: UptimeRobotMonitor }) {
     const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
@@ -101,12 +99,24 @@ function LiveSinceCard({ startString }: { startString: string }) {
     )
 }
 
-export function DynamicStats({ initialStats, monitors = [] }: DynamicStatsProps) {
+export function DynamicStats({ initialStats }: DynamicStatsProps) {
     const { stats: fetchedStats, loading: statsLoading } = useStatsConfig()
     // Prefer initialStats (server-side) over fetchedStats (client-side) if available
     const stats = initialStats || fetchedStats
 
-    if (!stats && (statsLoading && !initialStats)) {
+    const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
+    const [monitorsLoading, setMonitorsLoading] = useState(true)
+
+    useEffect(() => {
+        const loadMonitors = async () => {
+            const data = await fetchUptimeRobotMonitorsClient()
+            setMonitors(data)
+            setMonitorsLoading(false)
+        }
+        loadMonitors()
+    }, [])
+
+    if (!stats && statsLoading && monitorsLoading) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full animate-pulse">
                 {[1, 2].map((i) => (

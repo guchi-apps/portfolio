@@ -45,13 +45,8 @@ npm install
 UptimeRobotのAPIキーは、サーバーの稼働状況を表示するために必要です。設定しない場合、ステータス表示はスキップされます。
 
 ```env
-# UptimeRobot API Key (Single Monitor or All Monitors)
-UPTIMEROBOT_API_KEY=your_uptimerobot_api_key
-
-# または、複数のモニターキーを指定する場合
-UPTIMEROBOT_MK_PORTFOLIO=monitor_specific_key_portfolio
-UPTIMEROBOT_MK_BLOG=monitor_specific_key_blog
-UPTIMEROBOT_MK_ASSET=monitor_specific_key_asset
+# UptimeRobot Read-Only API Key
+NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY=your_read_only_api_key_here
 ```
 
 ### 開発サーバーの起動
@@ -88,11 +83,9 @@ npm run build
 | `SSH_PORT` | SSH接続に使用するポート番号 (例: `22`) |
 | `SSH_PRIVATE_KEY` | SSH秘密鍵の内容 (改行コードを含めてコピー) |
 | `DEPLOY_PATH` | 公開ディレクトリのフルパス (例: `/var/www/html/portfolio`) |
-| `UPTIMEROBOT_MK_PORTFOLIO` | ポートフォリオサイト監視用のUptimeRobot APIキー |
-| `UPTIMEROBOT_MK_BLOG` | ブログ監視用のUptimeRobot APIキー |
-| `UPTIMEROBOT_MK_ASSET` | 資産管理アプリ監視用のUptimeRobot APIキー |
+| `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot全体を取得するためのRead-Only APIキー |
 
-※ UptimeRobotのキーは `.github/workflows/deploy.yml` 内で使用されています。必要に応じてワークフローファイル内のキー名も変更してください。
+※ UptimeRobotのキーは `.github/workflows/deploy.yml` およびクライアントサイド・フェッチで使用されています。
 
 ## 📄 ライセンス
 
