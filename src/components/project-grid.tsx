@@ -2,13 +2,12 @@
 "use client"
 
 import { useState } from "react"
-import { Project, projects } from "@/constants/projects"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-
-import { Github, Globe, ExternalLink, FileText, Youtube, PlayCircle } from "lucide-react"
+import { Github, Globe, ExternalLink, FileText, Youtube } from "lucide-react"
+import type { Project } from "@/types/site-content"
 
 function getLinkIcon(label: string) {
     const l = label.toLowerCase();
@@ -19,7 +18,11 @@ function getLinkIcon(label: string) {
     return ExternalLink;
 }
 
-export function ProjectGrid() {
+interface ProjectGridProps {
+    projects: Project[]
+}
+
+export function ProjectGrid({ projects }: ProjectGridProps) {
     const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
     return (

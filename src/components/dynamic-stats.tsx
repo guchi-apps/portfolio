@@ -4,61 +4,121 @@
 import { useEffect, useState } from "react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
-import { UptimeRobotMonitor, fetchUptimeRobotMonitorsClient } from "@/lib/uptimerobot"
+import { getMonitorLinkUrl, getVisibleMonitors } from "@/lib/monitor-settings"
+import { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import { useStatsConfig } from "@/hooks/use-stats-config"
+import { cn } from "@/lib/utils"
+import type { MonitorDisplayMode, MonitorSetting } from "@/types/site-content"
 
 interface DynamicStatsProps {
     initialStats?: StatsConfig | null
+    monitorSettings: MonitorSetting[]
+    monitorDisplayMode: MonitorDisplayMode
 }
 
-function UptimeCard({ monitor }: { monitor: UptimeRobotMonitor }) {
-    const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
-    const ratio = parseFloat(ratioStr.split('-')[0])
-
-    // Status mapping
-    // 0: paused, 1: not checked yet, 2: up, 8: seems down, 9: down
-    let statusText = "Unknown"
-    let statusColor = "text-slate-400"
-    let isLive = false
-
-    switch (monitor.status) {
+function getStatusInfo(status: number) {
+    switch (status) {
         case 2:
-            statusText = "Running"
-            statusColor = "text-emerald-500 dark:text-emerald-400"
-            isLive = true
-            break
+            return { text: "Running", color: "text-emerald-500 dark:text-emerald-400" }
         case 8:
         case 9:
-            statusText = "Down"
-            statusColor = "text-red-500 dark:text-red-400"
-            break
+            return { text: "Down", color: "text-red-500 dark:text-red-400" }
         case 0:
-            statusText = "Paused"
-            statusColor = "text-yellow-500 dark:text-yellow-400"
-            break
+            return { text: "Paused", color: "text-yellow-500 dark:text-yellow-400" }
         case 1:
-            statusText = "Checking..."
-            statusColor = "text-blue-500 dark:text-blue-400"
-            break
+            return { text: "Checking...", color: "text-blue-500 dark:text-blue-400" }
+        default:
+            return { text: "Unknown", color: "text-slate-400" }
     }
+}
+
+function UptimeCardLink({
+    href,
+    children,
+}: {
+    href?: string
+    children: React.ReactNode
+}) {
+    if (!href) return <>{children}</>
 
     return (
-        <DashboardCard className="flex flex-col justify-center items-center text-center" live={isLive}>
-            <span className="text-xs opacity-70 uppercase tracking-widest mb-2 truncate w-full px-2" title={monitor.friendly_name}>
-                {monitor.friendly_name}
-            </span>
-
-            {/* Main: Current Status */}
-            <div className={`text-2xl font-bold font-mono ${statusColor} mb-2`}>
-                {statusText}
-            </div>
-
-            {/* Sub: Uptime Ratio (Smaller) */}
-            <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
-                {ratio}% uptime (30d)
-            </div>
-        </DashboardCard>
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-xl transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+        >
+            {children}
+        </a>
     )
+}
+
+function UptimeCard({
+    monitor,
+    label,
+    displayMode,
+    href,
+}: {
+    monitor: UptimeRobotMonitor
+    label: string
+    displayMode: MonitorDisplayMode
+    href?: string
+}) {
+    const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
+    const ratio = parseFloat(ratioStr.split("-")[0])
+    const status = getStatusInfo(monitor.status)
+
+    const content =
+        displayMode === "badge" ? (
+            <DashboardCard
+                className={cn(
+                    "flex items-center justify-between px-4 py-3",
+                    href && "cursor-pointer"
+                )}
+            >
+                <span className="text-sm font-medium truncate">{label}</span>
+                <span className={`text-sm font-bold ${status.color}`}>{status.text}</span>
+            </DashboardCard>
+        ) : displayMode === "compact" ? (
+            <DashboardCard
+                className={cn(
+                    "flex items-center justify-between px-4 py-4",
+                    href && "cursor-pointer"
+                )}
+            >
+                <div className="min-w-0">
+                    <span className="text-xs opacity-70 uppercase tracking-widest block truncate">
+                        {label}
+                    </span>
+                    <span className={`text-lg font-bold font-mono ${status.color}`}>{status.text}</span>
+                </div>
+                <span className="text-sm text-blue-100 dark:text-slate-400 shrink-0 ml-2">
+                    {ratio}%
+                </span>
+            </DashboardCard>
+        ) : (
+            <DashboardCard
+                className={cn(
+                    "flex flex-col justify-center items-center text-center",
+                    href && "cursor-pointer"
+                )}
+            >
+                <span
+                    className="text-xs opacity-70 uppercase tracking-widest mb-2 truncate w-full px-2"
+                    title={label}
+                >
+                    {label}
+                </span>
+                <div className={`text-2xl font-bold font-mono ${status.color} mb-2`}>
+                    {status.text}
+                </div>
+                <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
+                    {ratio}% uptime (30d)
+                </div>
+            </DashboardCard>
+        )
+
+    return <UptimeCardLink href={href}>{content}</UptimeCardLink>
 }
 
 function LiveSinceCard({ startString }: { startString: string }) {
@@ -77,9 +137,9 @@ function LiveSinceCard({ startString }: { startString: string }) {
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
             const seconds = Math.floor((diff % (1000 * 60)) / 1000)
 
-            const formattedHours = hours.toString().padStart(2, '0')
-            const formattedMinutes = minutes.toString().padStart(2, '0')
-            const formattedSeconds = seconds.toString().padStart(2, '0')
+            const formattedHours = hours.toString().padStart(2, "0")
+            const formattedMinutes = minutes.toString().padStart(2, "0")
+            const formattedSeconds = seconds.toString().padStart(2, "0")
 
             setUptimeString(`${days}d ${formattedHours}:${formattedMinutes}:${formattedSeconds}`)
         }
@@ -90,7 +150,7 @@ function LiveSinceCard({ startString }: { startString: string }) {
     }, [startString])
 
     return (
-        <DashboardCard className="flex flex-col justify-center items-center text-center" live>
+        <DashboardCard className="flex flex-col justify-center items-center text-center">
             <span className="text-xs opacity-70 uppercase tracking-widest mb-1">System Live Since</span>
             <div className="text-xl font-bold font-mono text-emerald-300 dark:text-emerald-400">
                 {uptimeString || "CALCULATING..."}
@@ -99,9 +159,12 @@ function LiveSinceCard({ startString }: { startString: string }) {
     )
 }
 
-export function DynamicStats({ initialStats }: DynamicStatsProps) {
+export function DynamicStats({
+    initialStats,
+    monitorSettings,
+    monitorDisplayMode,
+}: DynamicStatsProps) {
     const { stats: fetchedStats, loading: statsLoading } = useStatsConfig()
-    // Prefer initialStats (server-side) over fetchedStats (client-side) if available
     const stats = initialStats || fetchedStats
 
     const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
@@ -109,12 +172,19 @@ export function DynamicStats({ initialStats }: DynamicStatsProps) {
 
     useEffect(() => {
         const loadMonitors = async () => {
-            const data = await fetchUptimeRobotMonitorsClient()
-            setMonitors(data)
+            try {
+                const res = await fetch("/api/uptime", { cache: "no-store" })
+                const data = await res.json()
+                setMonitors(data.monitors ?? [])
+            } catch (err) {
+                console.error("Failed to fetch uptime data:", err)
+            }
             setMonitorsLoading(false)
         }
         loadMonitors()
     }, [])
+
+    const visibleMonitors = getVisibleMonitors(monitors, monitorSettings)
 
     if (!stats && statsLoading && monitorsLoading) {
         return (
@@ -126,17 +196,27 @@ export function DynamicStats({ initialStats }: DynamicStatsProps) {
         )
     }
 
-    // Determine grid columns based on number of items
-    // Monitors (N) or Default Uptime (1)
-    const totalItems = monitors.length > 0 ? monitors.length : 1;
-    const gridCols = totalItems === 1 ? 'grid-cols-1' : totalItems === 2 ? 'md:grid-cols-2' : totalItems === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4';
+    const totalItems = visibleMonitors.length > 0 ? visibleMonitors.length : 1
+    const gridCols =
+        totalItems === 1
+            ? "grid-cols-1"
+            : totalItems === 2
+              ? "md:grid-cols-2"
+              : totalItems === 3
+                ? "md:grid-cols-3"
+                : "md:grid-cols-2 lg:grid-cols-4"
 
     return (
         <div className={`grid grid-cols-1 ${gridCols} gap-4 h-full`}>
-            {/* Monitors or Fallback Uptime */}
-            {monitors.length > 0 ? (
-                monitors.map((m) => (
-                    <UptimeCard key={m.id} monitor={m} />
+            {visibleMonitors.length > 0 ? (
+                visibleMonitors.map((m) => (
+                    <UptimeCard
+                        key={m.id}
+                        monitor={m}
+                        label={m.setting.customLabel || m.friendly_name}
+                        displayMode={monitorDisplayMode}
+                        href={getMonitorLinkUrl(m.setting)}
+                    />
                 ))
             ) : (
                 <LiveSinceCard startString={stats?.launchDate || ""} />

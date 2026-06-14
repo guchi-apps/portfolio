@@ -37,13 +37,60 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare standalone bundle
+        run: |
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+          mkdir -p .next/standalone/data
+          cp data/site-content.json .next/standalone/data/site-content.default.json
+
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
           ARGS: "-rlDzvc -i --delete"
-          SOURCE: "out/"
+          SOURCE: ".next/standalone/"
           REMOTE_HOST: ${{ env.SSH_HOST }}
           REMOTE_USER: ${{ env.SSH_USERNAME }}
           TARGET: ${{ env.DEPLOY_PATH }}
           REMOTE_PORT: ${{ env.SSH_PORT }}
+          EXCLUDE: "/data/site-content.json"
+
+      - name: Configure and restart application
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
+          SESSION_SECRET: ${{ env.SESSION_SECRET }}
+          DISCORD_WEBHOOK_URL: ${{ env.DISCORD_WEBHOOK_URL }}
+          UPTIMEROBOT_READ_ONLY_KEY: ${{ env.UPTIMEROBOT_READ_ONLY_KEY }}
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          port: ${{ env.SSH_PORT }}
+          envs: ADMIN_PASSWORD,SESSION_SECRET,DISCORD_WEBHOOK_URL,UPTIMEROBOT_READ_ONLY_KEY,DEPLOY_PATH
+          script: |
+            cd "$DEPLOY_PATH"
+            cat > .env.production.local << EOF
+            ADMIN_PASSWORD=$ADMIN_PASSWORD
+            SESSION_SECRET=$SESSION_SECRET
+            DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL
+            UPTIMEROBOT_READ_ONLY_KEY=$UPTIMEROBOT_READ_ONLY_KEY
+            SITE_CONTENT_PATH=$DEPLOY_PATH/data/site-content.json
+            NODE_ENV=production
+            PORT=3000
+            HOSTNAME=127.0.0.1
+            EOF
+            mkdir -p data
+            if [ ! -f data/site-content.json ]; then
+              cp data/site-content.default.json data/site-content.json
+            fi
+            if command -v pm2 >/dev/null; then
+              pm2 delete portfolio 2>/dev/null || true
+              pm2 start server.js --name portfolio
+              pm2 save
+            else
+              echo "pm2 is required on the server. Install: npm install -g pm2"
+              exit 1
+            fi

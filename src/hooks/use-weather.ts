@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, Loader2 } from "lucide-react"
+import { Sun, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle } from "lucide-react"
 
 export interface WeatherData {
     temperature: number
@@ -32,8 +32,8 @@ export const useWeather = (latitude: number, longitude: number) => {
                     icon: getWeatherIcon(current.weather_code),
                     text: getWeatherText(current.weather_code)
                 })
-            } catch (err: any) {
-                setError(err.message)
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Unknown error")
             } finally {
                 setLoading(false)
             }
