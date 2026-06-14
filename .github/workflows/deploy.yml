@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,6 +16,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Load secrets from 1Password
+        uses: 1password/load-secrets-action@v4
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OP_ENV_FILE: .env.tpl
+          SSH_PRIVATE_KEY: op://apps/Server/private key?ssh-format=openssh
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,18 +37,14 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          # UptimeRobot Read-Only API Key for client-side fetching
-          NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY: ${{ secrets.NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY }}
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
           ARGS: "-rlDzvc -i --delete"
           SOURCE: "out/"
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
-          TARGET: ${{ secrets.DEPLOY_PATH }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          # EXCLUDE: "/node_modules/"
+          REMOTE_HOST: ${{ env.SSH_HOST }}
+          REMOTE_USER: ${{ env.SSH_USERNAME }}
+          TARGET: ${{ env.DEPLOY_PATH }}
+          REMOTE_PORT: ${{ env.SSH_PORT }}
