@@ -1,0 +1,37 @@
+# Application files must not be browsable directly.
+# Serve the site via reverse proxy to Node.js (pm2 on port 3000).
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+  <Files ".env.production.local">
+    Require all denied
+  </Files>
+  <Files "server.js">
+    Require all denied
+  </Files>
+  <Files "package.json">
+    Require all denied
+  </Files>
+  <FilesMatch "^\.">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+  <Files ".env.production.local">
+    Order allow,deny
+    Deny from all
+  </Files>
+  <Files "server.js">
+    Order allow,deny
+    Deny from all
+  </Files>
+  <Files "package.json">
+    Order allow,deny
+    Deny from all
+  </Files>
+</IfModule>
+
+RedirectMatch 403 (?i)/\.env
+RedirectMatch 403 ^/data/
+RedirectMatch 403 ^/\.next/
