@@ -10,3 +10,4 @@ SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
 SSH_PORT=op://apps/Server/ssh-port
 DEPLOY_PATH=op://apps/portfolio/DEPLOY_PATH
+SSH_PRIVATE_KEY=op://apps/githubaction-sshkey/PRIVATE_KEY

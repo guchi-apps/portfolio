@@ -24,7 +24,6 @@ jobs:
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           OP_ENV_FILE: .env.tpl
-          SSH_PRIVATE_KEY: op://apps/Server/private key?ssh-format=openssh
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
