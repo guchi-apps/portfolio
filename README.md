@@ -51,12 +51,12 @@ npm install
 | :--- | :--- | :--- |
 | `portfolio` | `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー |
 | `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
+| `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
 | `Server` | `ssh-port` | SSHポート番号（例: `22`） |
-| `Server` | `private key` | SSH秘密鍵 |
 
-ボールト名やアイテム名を変更した場合は、`.env.tpl` と `.github/workflows/deploy.yml` 内の `op://` 参照も合わせて更新してください。
+ボールト名やアイテム名を変更した場合は、`.env.tpl` 内の `op://` 参照を合わせて更新してください。
 
 #### 2. ローカル開発
 
@@ -122,7 +122,7 @@ git push origin develop
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.1`）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.2`）
 
 ## 📄 ライセンス
 
