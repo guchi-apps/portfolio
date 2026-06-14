@@ -5,6 +5,7 @@ import { DynamicStats } from "@/components/dynamic-stats"
 import { GithubActivity } from "@/components/github-activity"
 import { ProjectGrid } from "@/components/project-grid"
 import { getStatsConfig } from "@/lib/site-config"
+import { appVersion } from "@/lib/version"
 
 export default async function Home() {
     const stats = getStatsConfig()
@@ -66,6 +67,7 @@ export default async function Home() {
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
                 <p>© 2026 GUCCHII.COM. Next.js, Tailwind & shadcn/ui で構築。</p>
+                <p className="mt-1 font-mono text-xs">v{appVersion}</p>
             </footer>
         </main>
     )

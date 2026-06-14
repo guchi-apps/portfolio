@@ -39,15 +39,44 @@ cd portfolio
 npm install
 ```
 
-### 環境変数の設定
+### 環境変数の設定（1Password）
 
-プロジェクトのルートに `.env.local` ファイルを作成し、以下の環境変数を設定してください。
-UptimeRobotのAPIキーは、サーバーの稼働状況を表示するために必要です。設定しない場合、ステータス表示はスキップされます。
+秘密情報は `.env.local` ではなく **1Password** から取得します。リポジトリに含まれる `.env.tpl` に secret reference が定義されています。
 
-```env
-# UptimeRobot Read-Only API Key
-NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY=your_read_only_api_key_here
+#### 1. 1Password にシークレットを登録
+
+`apps` ボールトに以下のアイテムを作成し、フィールドを登録してください。
+
+| アイテム | フィールド名 | 説明 |
+| :--- | :--- | :--- |
+| `portfolio-deploy` | `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー |
+| `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
+| `Server` | `username` | SSH接続ユーザー名 |
+| `Server` | `ssh-port` | SSHポート番号（例: `22`） |
+| `Server` | `private key` | SSH秘密鍵 |
+| `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
+
+ボールト名やアイテム名を変更した場合は、`.env.tpl` と `.github/workflows/deploy.yml` 内の `op://` 参照も合わせて更新してください。
+
+#### 2. ローカル開発
+
+[1Password CLI](https://developer.1password.com/docs/cli/) をインストールし、サインインしたうえで以下を実行します。
+
+```bash
+npm run dev
 ```
+
+`npm run dev` は内部で `op run --env-file=.env.tpl` を使い、1Password から環境変数を注入します。ローカルビルドは `npm run build:local` を使用してください。
+
+#### 3. GitHub Actions（CI/CD）
+
+GitHub リポジトリには **1つだけ** シークレットを登録します。
+
+| Secret Name | 説明 |
+| :--- | :--- |
+| `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`portfolio-deploy` アイテムへのアクセス権限を付与） |
+
+`main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
 
 ### 開発サーバーの起動
 
@@ -67,25 +96,13 @@ npm run dev
 npm run build
 ```
 
-## 📦 デプロイとGitHub Secrets
+## 📦 デプロイとバージョン表示
 
 このプロジェクトは GitHub Actions による自動デプロイに対応しています。
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
-自動デプロイを有効にするには、リポジトリの **Settings > Secrets and variables > Actions** に以下の変数を設定してください。
-
-### 必須のSecrets
-
-| Secret Name | 説明 |
-| :--- | :--- |
-| `SSH_HOST` | デプロイ先サーバーのホスト名またはIPアドレス |
-| `SSH_USERNAME` | SSH接続に使用するユーザー名 |
-| `SSH_PORT` | SSH接続に使用するポート番号 (例: `22`) |
-| `SSH_PRIVATE_KEY` | SSH秘密鍵の内容 (改行コードを含めてコピー) |
-| `DEPLOY_PATH` | 公開ディレクトリのフルパス (例: `/var/www/html/portfolio`) |
-| `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot全体を取得するためのRead-Only APIキー |
-
-※ UptimeRobotのキーは `.github/workflows/deploy.yml` およびクライアントサイド・フェッチで使用されています。
+- **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.0`）
 
 ## 📄 ライセンス
 
