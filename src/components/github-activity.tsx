@@ -1,17 +1,17 @@
 
 "use client"
 
-import { useEffect, useState, useRef } from "react";
-import { GitHubCalendar } from 'react-github-calendar';
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { GitHubCalendar, type Activity } from 'react-github-calendar';
 import { Loader2 } from "lucide-react";
 
 export function GithubActivity() {
-    const [mounted, setMounted] = useState(false);
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    );
     const scrollRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     useEffect(() => {
         // Scroll to the right end after mounted
@@ -72,7 +72,7 @@ export function GithubActivity() {
     )
 }
 
-const selectLastHalfYear = (contributions: any[]) => {
+const selectLastHalfYear = (contributions: Activity[]) => {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
     const shownMonths = 6;

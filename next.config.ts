@@ -7,7 +7,7 @@ const packageJson = JSON.parse(
 ) as { version: string };
 
 const nextConfig: NextConfig = {
-    output: "export",
+    output: "standalone",
     images: {
         unoptimized: true,
     },

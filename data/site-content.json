@@ -1,0 +1,56 @@
+{
+  "intro": "2018年に大学祭のWEBサイト作成を担当。以降、大学祭のWEBサイト・団体管理システムの運用を担当。\nコロナ禍ではQRコードで接触履歴を追跡できるシステムを開発し、対面でのイベント開催を実現。\n2024年からメーカーで勤務し、現在は趣味でWebアプリを作成・運用。",
+  "connectLinks": [
+    {
+      "name": "GitHub",
+      "icon": "Github",
+      "url": "https://github.com/m-guchi"
+    },
+    {
+      "name": "Blog",
+      "icon": "PenBox",
+      "url": "https://blog.gucchii.com"
+    }
+  ],
+  "monitorDisplayMode": "compact",
+  "monitorSettings": [
+    {
+      "monitorId": 802361344,
+      "visible": true
+    },
+    {
+      "monitorId": 802361377,
+      "visible": true
+    },
+    {
+      "monitorId": 802362180,
+      "visible": true
+    },
+    {
+      "monitorId": 802382928,
+      "visible": false
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "title": "Asset Manager",
+      "description": "Next.jsを使用した資産管理アプリケーション。資産の記録、カテゴリー分け、総資産の可視化を行い、NextAuth.jsによる認証とPrismaを用いたデータ永続化を実現しています。",
+      "techStack": [
+        "Next.js",
+        "TypeScript",
+        "NextAuth.js",
+        "Prisma",
+        "Tailwind CSS"
+      ],
+      "period": "2026.02",
+      "githubUrl": "https://github.com/m-guchi/asset-manager",
+      "links": [
+        {
+          "label": "本番環境",
+          "url": "https://asset.gucchii.com/"
+        }
+      ]
+    }
+  ]
+}

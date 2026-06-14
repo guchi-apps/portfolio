@@ -17,9 +17,7 @@ export interface UptimeRobotMonitor {
     custom_uptime_ratio?: string;
 }
 
-export async function fetchUptimeRobotMonitorsClient(): Promise<UptimeRobotMonitor[]> {
-    const apiKey = process.env.NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY;
-
+async function fetchUptimeRobotMonitors(apiKey: string | undefined): Promise<UptimeRobotMonitor[]> {
     if (!apiKey) {
         return [];
     }
@@ -30,9 +28,7 @@ export async function fetchUptimeRobotMonitorsClient(): Promise<UptimeRobotMonit
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            // logs=0: no logs, custom_uptime_ratios=30: last 30 days
             body: `api_key=${apiKey}&format=json&logs=0&custom_uptime_ratios=30`,
-            // Disable caching on client-side fetch to ensure fresh data
             cache: 'no-store'
         });
 
@@ -46,6 +42,10 @@ export async function fetchUptimeRobotMonitorsClient(): Promise<UptimeRobotMonit
     } catch (err) {
         console.error('Failed to fetch UptimeRobot data:', err);
     }
-    
+
     return [];
+}
+
+export async function fetchUptimeRobotMonitorsServer(): Promise<UptimeRobotMonitor[]> {
+    return fetchUptimeRobotMonitors(process.env.UPTIMEROBOT_READ_ONLY_KEY);
 }

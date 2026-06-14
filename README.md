@@ -49,8 +49,11 @@ npm install
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
-| `portfolio` | `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー |
+| `portfolio` | `UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー（サーバー専用） |
 | `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
+| `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
+| `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
+| `portfolio` | `DISCORD_WEBHOOK_URL` | ログイン通知用 Discord Webhook URL |
 | `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
@@ -116,13 +119,53 @@ git push origin develop
 
 `main` へのマージ後、GitHub Actions により自動デプロイが実行されます。
 
+### PR 時の検証（CI）
+
+`main` / `develop` 向けの Pull Request では、GitHub Actions で以下を自動実行します。
+
+- `npm run lint`
+- `npm run build`
+
+デプロイは行わず、ビルドが通るかどうかの検証のみです。
+
 ## 📦 デプロイとバージョン表示
 
-このプロジェクトは GitHub Actions による自動デプロイに対応しています。
+このプロジェクトは **Next.js standalone** モードでビルドし、サーバー上で Node.js（pm2）として稼働します。
+Apache などのリバースプロキシから `http://127.0.0.1:3000` へ転送してください。
+
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.2`）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.0`）
+- **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
+
+### サーバー要件
+
+- Node.js 20+
+- [pm2](https://pm2.keymetrics.io/)（プロセス管理）
+- Apache 等でのリバースプロキシ設定例:
+
+```apache
+ProxyPass / http://127.0.0.1:3000/
+ProxyPassReverse / http://127.0.0.1:3000/
+```
+
+## 🔧 管理画面
+
+`/admin` でサイトコンテンツを編集できます（要ログイン）。
+
+| 編集項目 | 説明 |
+| :--- | :--- |
+| 自己紹介 | トップページのプロフィール文 |
+| Connect リンク | 名前・アイコン・URL |
+| UptimeRobot | モニターごとの表示/非表示・表示方法（カード/コンパクト/バッジ） |
+| Featured Projects | プロジェクト一覧 |
+
+- **URL**: `https://gucchii.com/admin`
+- **パスワード**: 1Password の `ADMIN_PASSWORD`
+- **ログイン時**: Discord Webhook へ通知
+
+ローカル開発時は `npm run dev` のあと `http://localhost:3000/admin` にアクセスしてください。
 
 ## 📄 ライセンス
 
