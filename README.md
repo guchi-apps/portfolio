@@ -49,12 +49,12 @@ npm install
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
-| `portfolio-deploy` | `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー |
+| `portfolio` | `NEXT_PUBLIC_UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー |
+| `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
 | `Server` | `ssh-port` | SSHポート番号（例: `22`） |
 | `Server` | `private key` | SSH秘密鍵 |
-| `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
 
 ボールト名やアイテム名を変更した場合は、`.env.tpl` と `.github/workflows/deploy.yml` 内の `op://` 参照も合わせて更新してください。
 
@@ -74,7 +74,7 @@ GitHub リポジトリには **1つだけ** シークレットを登録します
 
 | Secret Name | 説明 |
 | :--- | :--- |
-| `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`portfolio-deploy` アイテムへのアクセス権限を付与） |
+| `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`apps` ボールトへのアクセス権限を付与） |
 
 `main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
 
@@ -102,7 +102,7 @@ npm run build
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.0`）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.2.1`）
 
 ## 📄 ライセンス
 
