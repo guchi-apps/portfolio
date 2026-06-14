@@ -50,7 +50,7 @@ npm install
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
 | `portfolio` | `UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー（サーバー専用） |
-| `portfolio` | `DEPLOY_PATH` | 公開ディレクトリのフルパス（例: `/var/www/html/portfolio`） |
+| `portfolio` | `DEPLOY_PATH` | アプリ本体の配置先（例: `/var/lib/portfolio`。**DocumentRoot と同じにしない**） |
 | `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
 | `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
 | `portfolio` | `DISCORD_WEBHOOK_URL` | ログイン通知用 Discord Webhook URL |
@@ -131,24 +131,53 @@ git push origin develop
 ## 📦 デプロイとバージョン表示
 
 このプロジェクトは **Next.js standalone** モードでビルドし、サーバー上で Node.js（pm2）として稼働します。
-Apache などのリバースプロキシから `http://127.0.0.1:3000` へ転送してください。
+**ブラウザから見えるのは Apache のリバースプロキシ経由の応答だけ** にし、`DEPLOY_PATH` 内のファイルを直接公開しないでください。
 
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.0`）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.1`）
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
 
 ### サーバー要件
 
 - Node.js 20+
 - [pm2](https://pm2.keymetrics.io/)（プロセス管理）
-- Apache 等でのリバースプロキシ設定例:
+
+#### ディレクトリ配置（重要）
+
+| パス | 用途 |
+| :--- | :--- |
+| `DEPLOY_PATH`（例: `/var/lib/portfolio`） | **アプリ本体**（`server.js`, `.env.production.local`, `data/` など） |
+| Apache `DocumentRoot` | `DEPLOY_PATH` と**同じにしない** |
+
+旧構成（静的 `out/` を `DocumentRoot` に置く）の名残で `DEPLOY_PATH` が `/var/www/html/...` になっていると、デプロイ後に **ディレクトリ一覧や `.env` が丸見え** になります。
+
+推奨:
+
+1. 1Password の `DEPLOY_PATH` を Web 公開ディレクトリ外に変更（例: `/var/lib/portfolio`）
+2. pm2 で `DEPLOY_PATH/server.js` を起動
+3. Apache は **プロキシのみ** 担当
+
+#### Apache リバースプロキシ設定例
 
 ```apache
-ProxyPass / http://127.0.0.1:3000/
-ProxyPassReverse / http://127.0.0.1:3000/
+<VirtualHost *:443>
+    ServerName gucchii.com
+
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:3000/
+    ProxyPassReverse / http://127.0.0.1:3000/
+</VirtualHost>
 ```
+
+`DEPLOY_PATH` をどうしても DocumentRoot 配下に置く場合は、少なくとも `Options -Indexes` を有効にしてください。デプロイ時に `deploy/.htaccess` が `DEPLOY_PATH` へコピーされ、ディレクトリ一覧と機密ファイルへの直接アクセスを拒否します。
+
+#### デプロイ後の確認
+
+- `https://gucchii.com/` → サイトが表示される
+- `https://gucchii.com/.env.production.local` → **403**
+- `DEPLOY_PATH` を URL で開いても **ファイル一覧が出ない**
 
 ## 🔧 管理画面
 
