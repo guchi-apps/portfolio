@@ -96,6 +96,26 @@ npm run dev
 npm run build
 ```
 
+## 🌿 ブランチ運用
+
+| ブランチ | 用途 |
+| :--- | :--- |
+| `develop` | 日常の開発ブランチ（ここで作業する） |
+| `main` | 本番ブランチ（`develop` から PR をマージ） |
+
+### 開発フロー
+
+```bash
+git checkout develop
+git pull origin develop
+# 機能開発・修正
+git commit -m "変更内容"
+git push origin develop
+# GitHub で develop → main の PR を作成・マージ
+```
+
+`main` へのマージ後、GitHub Actions により自動デプロイが実行されます。
+
 ## 📦 デプロイとバージョン表示
 
 このプロジェクトは GitHub Actions による自動デプロイに対応しています。
