@@ -136,7 +136,7 @@ git push origin develop
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.1`）
+- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.2`）
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
 
 ### サーバー要件
@@ -161,21 +161,35 @@ git push origin develop
 
 #### Apache リバースプロキシ設定例
 
+`ProxyPass /` で全リクエストを Next.js に転送すると、phpMyAdmin 用パスも Node 側に届き **Next.js の 404** になります。phpMyAdmin は **先にプロキシ対象から除外** してください（除外行は catch-all より上に書く）。
+
+実際の phpMyAdmin パスは **GitHub に載せない** でください。サーバー上または 1Password などで管理し、ローカル用テンプレート [`deploy/apache-vhost.local.conf.example`](deploy/apache-vhost.local.conf.example) を `deploy/apache-vhost.local.conf` にコピーして `<PHPMYADMIN_PATH>` を置き換えて使います（`apache-vhost.local.conf` は gitignore 済み）。
+
+公開用のプレースホルダー例は [`deploy/apache-vhost.example.conf`](deploy/apache-vhost.example.conf) を参照。
+
 ```apache
 <VirtualHost *:443>
     ServerName gucchii.com
 
     ProxyPreserveHost On
+
+    # phpMyAdmin（Next.js に渡さない）— <PHPMYADMIN_PATH> をサーバー固有の値に置換
+    ProxyPass <PHPMYADMIN_PATH> !
+    ProxyPassReverse <PHPMYADMIN_PATH> !
+
     ProxyPass / http://127.0.0.1:3000/
     ProxyPassReverse / http://127.0.0.1:3000/
 </VirtualHost>
 ```
+
+phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済みである前提です。設定変更後は `sudo systemctl reload apache2`（または `httpd`）で反映してください。
 
 `DEPLOY_PATH` をどうしても DocumentRoot 配下に置く場合は、少なくとも `Options -Indexes` を有効にしてください。デプロイ時に `deploy/.htaccess` が `DEPLOY_PATH` へコピーされ、ディレクトリ一覧と機密ファイルへの直接アクセスを拒否します。
 
 #### デプロイ後の確認
 
 - `https://gucchii.com/` → サイトが表示される
+- phpMyAdmin の URL（サーバー管理のパス）→ ログイン画面（Next.js の 404 ではないこと）
 - `https://gucchii.com/.env.production.local` → **403**
 - `DEPLOY_PATH` を URL で開いても **ファイル一覧が出ない**
 

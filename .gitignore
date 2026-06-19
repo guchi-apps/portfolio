@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.tpl
 
+# server-only Apache config (may contain phpMyAdmin path)
+deploy/apache-vhost.local.conf
+
 # vercel
 .vercel
 
