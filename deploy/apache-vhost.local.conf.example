@@ -1,0 +1,18 @@
+# Copy to apache-vhost.local.conf and set your real phpMyAdmin path.
+# apache-vhost.local.conf is gitignored — keep the actual path off GitHub.
+#
+#   cp deploy/apache-vhost.local.conf.example deploy/apache-vhost.local.conf
+#
+# Then replace <PHPMYADMIN_PATH> below (e.g. /your-secret-phpmyadmin-path).
+
+<VirtualHost *:443>
+    ServerName gucchii.com
+
+    ProxyPreserveHost On
+
+    ProxyPass <PHPMYADMIN_PATH> !
+    ProxyPassReverse <PHPMYADMIN_PATH> !
+
+    ProxyPass / http://127.0.0.1:3000/
+    ProxyPassReverse / http://127.0.0.1:3000/
+</VirtualHost>
