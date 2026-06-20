@@ -136,8 +136,19 @@ git push origin develop
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.2`）
+- **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
+
+### リリース手順（Git タグ）
+
+`package.json` と Git タグを揃えてリリースする例:
+
+```bash
+npm version patch   # または minor / major
+git push origin main --tags
+```
+
+手動でタグだけ付ける場合は `git tag v1.3.2` のあと `git push origin v1.3.2` でも構いません。ローカルで解決結果を確認するには `npm run version:resolve` を使います。
 
 ### サーバー要件
 

@@ -1,10 +1,20 @@
 import type { NextConfig } from "next";
-import { readFileSync } from "fs";
-import { join } from "path";
+import { execSync } from "child_process";
 
-const packageJson = JSON.parse(
-    readFileSync(join(__dirname, "package.json"), "utf8")
-) as { version: string };
+function resolveAppVersion(): string {
+    if (process.env.NEXT_PUBLIC_APP_VERSION) {
+        return process.env.NEXT_PUBLIC_APP_VERSION;
+    }
+
+    try {
+        return execSync("node scripts/resolve-version.mjs", {
+            cwd: __dirname,
+            encoding: "utf8",
+        }).trim();
+    } catch {
+        return "dev";
+    }
+}
 
 const nextConfig: NextConfig = {
     output: "standalone",
@@ -12,7 +22,7 @@ const nextConfig: NextConfig = {
         unoptimized: true,
     },
     env: {
-        NEXT_PUBLIC_APP_VERSION: packageJson.version,
+        NEXT_PUBLIC_APP_VERSION: resolveAppVersion(),
     },
 };
 

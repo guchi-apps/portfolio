@@ -7,7 +7,8 @@
     "build": "next build",
     "build:local": "op run --env-file=.env.tpl -- next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "version:resolve": "node scripts/resolve-version.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
