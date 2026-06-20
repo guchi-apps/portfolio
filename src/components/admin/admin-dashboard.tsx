@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
-import { getConnectIcon } from "@/lib/connect-icons"
 import { cn } from "@/lib/utils"
 import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type {
@@ -527,9 +526,7 @@ export function AdminDashboard() {
                         <CardTitle>Connect リンク</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        {content.connectLinks.map((link, index) => {
-                            const PreviewIcon = getConnectIcon(link.icon)
-                            return (
+                        {content.connectLinks.map((link, index) => (
                             <div
                                 key={index}
                                 className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-4"
@@ -569,16 +566,8 @@ export function AdminDashboard() {
                                         onChange={(icon) => updateConnectLink(index, { icon })}
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label>プレビュー</Label>
-                                    <div className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-4 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                        <PreviewIcon className="h-5 w-5" />
-                                        <span>{link.name || "リンク名"}</span>
-                                    </div>
-                                </div>
                             </div>
-                            )
-                        })}
+                        ))}
                         <Button type="button" variant="outline" onClick={addConnectLink}>
                             リンクを追加
                         </Button>
@@ -606,7 +595,7 @@ export function AdminDashboard() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Featured Projects</CardTitle>
+                        <CardTitle>Projects</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ProjectEditor
