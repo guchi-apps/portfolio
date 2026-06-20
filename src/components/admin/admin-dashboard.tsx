@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
+import { TechStackInput } from "@/components/admin/tech-stack-input"
 import { cn } from "@/lib/utils"
 import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type {
@@ -303,17 +304,10 @@ function ProjectEditor({
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label>技術スタック（カンマ区切り）</Label>
-                        <Input
-                            value={project.techStack.join(", ")}
-                            onChange={(e) =>
-                                updateProject(index, {
-                                    techStack: e.target.value
-                                        .split(",")
-                                        .map((s) => s.trim())
-                                        .filter(Boolean),
-                                })
-                            }
+                        <Label>技術スタック</Label>
+                        <TechStackInput
+                            value={project.techStack}
+                            onChange={(techStack) => updateProject(index, { techStack })}
                         />
                     </div>
                     <div className="space-y-1">
@@ -428,13 +422,24 @@ export function AdminDashboard() {
         setSaving(true)
         setMessage("")
 
+        const sanitized: SiteContent = {
+            ...content,
+            projects: content.projects.map((p) => ({
+                ...p,
+                techStack: p.techStack.filter(Boolean),
+            })),
+        }
+
         const res = await fetch("/api/admin/content", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(content),
+            body: JSON.stringify(sanitized),
         })
 
         setSaving(false)
+        if (res.ok) {
+            setContent(sanitized)
+        }
         setMessage(res.ok ? "保存しました" : "保存に失敗しました")
     }
 
