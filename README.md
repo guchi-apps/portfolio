@@ -142,19 +142,59 @@ git push origin develop
 - **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
 
-### リリース手順（Git タグ + GitHub Release）
+### リリース手順（develop → PR → タグ）
 
-`package.json` と Git タグを揃えてリリースする例:
+本番リリースは **PR マージ（デプロイ）** と **Git タグ push（GitHub Release）** の 2 段階です。PR マージだけでは GitHub Release は作成されず、フッターのバージョンも `git describe` 形式（例: `1.3.2-10-g2060c38`）になる場合があります。
+
+#### 1. `develop` でバージョンを上げる
+
+リリースに含める変更を `develop` にコミットしたうえで、`package.json` のバージョンを更新します。タグはこの時点では付けません（マージ後の `main` の先端に付けるため）。
 
 ```bash
-npm version patch   # または minor / major
-git push origin main --tags
+git checkout develop
+git pull origin develop
+
+npm version patch --no-git-tag-version   # または minor / major
+git add package.json
+git commit -m "v1.4.0 に更新"
+git push origin develop
 ```
 
-- `main` への push で本番デプロイ（`deploy.yml`）が走ります
-- `v*` 形式のタグ push で GitHub Release（`release.yml`）が自動作成されます（PR やコミットからリリースノートを生成）
+#### 2. PR を作成して `main` にマージ
 
-手動でタグだけ付ける場合は `git tag v1.3.2` のあと `git push origin v1.3.2` でも構いません。ローカルで解決結果を確認するには `npm run version:resolve` を使います。
+GitHub で `develop` → `main` の Pull Request を作成し、CI が通ったらマージします。
+
+- **マージで起きること**: `deploy.yml` が走り、本番デプロイが実行される
+- **マージだけでは起きないこと**: GitHub Release の作成、フッターへの正確なバージョン表示（例: `1.4.0`）
+
+#### 3. `main` の merge コミットにタグを付ける
+
+マージ直後に、**`main` の merge コミット**へ `v*` 形式のタグを push します。
+
+**CLI:**
+
+```bash
+git checkout main
+git pull origin main
+git tag v1.4.0
+git push origin v1.4.0
+```
+
+**GitHub UI:** [Releases](https://github.com/m-guchi/portfolio/releases) → 「Draft a new release」→ タグ `v1.4.0` を `main` の merge コミットに作成
+
+- **タグ push で起きること**: `release.yml` が走り、GitHub Release が自動作成される（PR やコミットからリリースノートを生成）。Discord へリリース結果も通知される
+
+#### タイミングの注意
+
+フッターのバージョンは **デプロイ時のビルド** で Git タグから解決されます。デプロイ完了後にタグを付けた場合、フッターが `git describe` 形式のままになることがあります。その場合は GitHub Actions の Deploy ワークフローを **Re-run** してください。
+
+#### ローカル確認
+
+```bash
+npm run version:resolve
+```
+
+`git describe` の結果、または `package.json` の `version` が表示されます。
 
 ### サーバー要件
 
