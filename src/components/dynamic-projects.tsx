@@ -5,8 +5,9 @@ import type { Project } from "@/types/site-content"
 
 interface DynamicProjectsProps {
     projects: Project[]
+    releaseVersions: Record<string, string>
 }
 
-export function DynamicProjects({ projects }: DynamicProjectsProps) {
-    return <ProjectGrid projects={projects} />
+export function DynamicProjects({ projects, releaseVersions }: DynamicProjectsProps) {
+    return <ProjectGrid projects={projects} releaseVersions={releaseVersions} />
 }

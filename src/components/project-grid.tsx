@@ -20,9 +20,10 @@ function getLinkIcon(label: string) {
 
 interface ProjectGridProps {
     projects: Project[]
+    releaseVersions: Record<string, string>
 }
 
-export function ProjectGrid({ projects }: ProjectGridProps) {
+export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
     const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
     return (
@@ -55,6 +56,11 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
                                         </CardTitle>
                                         <span className="text-xs text-blue-200 dark:text-slate-400 font-medium">
                                             {project.period}
+                                            {releaseVersions[project.id] && (
+                                                <span className="ml-2 font-mono">
+                                                    v{releaseVersions[project.id]}
+                                                </span>
+                                            )}
                                         </span>
                                     </div>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -93,6 +99,11 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
                             </DialogTitle>
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1 block">
                                 Development Period: {selectedProject?.period}
+                                {selectedProject && releaseVersions[selectedProject.id] && (
+                                    <span className="normal-case font-mono">
+                                        {" · "}v{releaseVersions[selectedProject.id]}
+                                    </span>
+                                )}
                             </span>
                         </div>
                         <DialogDescription className="text-base pt-2">

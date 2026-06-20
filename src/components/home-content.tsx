@@ -11,9 +11,10 @@ import { appVersion } from "@/lib/version"
 
 interface HomeContentProps {
     initialStats: StatsConfig | null
+    projectReleaseVersions: Record<string, string>
 }
 
-export function HomeContent({ initialStats }: HomeContentProps) {
+export function HomeContent({ initialStats, projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
 
     return (
@@ -73,7 +74,10 @@ export function HomeContent({ initialStats }: HomeContentProps) {
                         Projects
                     </h2>
                 </div>
-                <DynamicProjects projects={content.projects} />
+                <DynamicProjects
+                    projects={content.projects}
+                    releaseVersions={projectReleaseVersions}
+                />
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
