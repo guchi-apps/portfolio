@@ -54,6 +54,7 @@ npm install
 | `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
 | `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
 | `portfolio` | `DISCORD_WEBHOOK_URL` | ログイン通知用 Discord Webhook URL |
+| `discord_webhook` | `CI_URL` | CI / デプロイ / リリース結果通知用 Discord Webhook URL |
 | `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
@@ -80,6 +81,8 @@ GitHub リポジトリには **1つだけ** シークレットを登録します
 | `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`apps` ボールトへのアクセス権限を付与） |
 
 `main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
+
+CI / デプロイ / リリースの各ワークフロー完了時に、Discord へ成功・失敗・キャンセルの結果が通知されます（`DISCORD_CI_WEBHOOK_URL`）。
 
 ### 開発サーバーの起動
 
