@@ -142,19 +142,45 @@ git push origin develop
 - **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
 
-### リリース手順（Git タグ + GitHub Release）
+### リリース手順（develop → PR マージ）
 
-`package.json` と Git タグを揃えてリリースする例:
+`main` へのマージで **デプロイ・Git タグ・GitHub Release がすべて自動** 実行されます。手動でタグを付ける必要はありません。
+
+#### 1. `develop` でバージョンを上げる
+
+リリースに含める変更を `develop` にコミットしたうえで、`package.json` のバージョンを更新します。
 
 ```bash
-npm version patch   # または minor / major
-git push origin main --tags
+git checkout develop
+git pull origin develop
+
+npm version patch --no-git-tag-version   # または minor / major
+git add package.json
+git commit -m "v1.4.0 に更新"
+git push origin develop
 ```
 
-- `main` への push で本番デプロイ（`deploy.yml`）が走ります
-- `v*` 形式のタグ push で GitHub Release（`release.yml`）が自動作成されます（PR やコミットからリリースノートを生成）
+#### 2. PR を作成して `main` にマージ
 
-手動でタグだけ付ける場合は `git tag v1.3.2` のあと `git push origin v1.3.2` でも構いません。ローカルで解決結果を確認するには `npm run version:resolve` を使います。
+GitHub で `develop` → `main` の Pull Request を作成し、CI が通ったらマージします。
+
+マージ後、GitHub Actions が次の順で自動実行されます。
+
+| 順序 | ワークフロー | 内容 |
+| :--- | :--- | :--- |
+| 1 | `deploy.yml`（tag ジョブ） | `package.json` のバージョンから `v1.4.0` 形式の Git タグを作成・push |
+| 2 | `deploy.yml`（deploy ジョブ） | タグを参照してビルドし、本番デプロイ |
+| 3 | `release.yml` | タグ push をトリガーに GitHub Release を自動作成（リリースノート生成・Discord 通知） |
+
+`package.json` のバージョンと同名のタグが **別コミットに既に存在する** 場合、tag ジョブはエラーで止まります。リリース前に必ずバージョンを上げてください。
+
+#### ローカル確認
+
+```bash
+npm run version:resolve
+```
+
+`git describe` の結果、または `package.json` の `version` が表示されます。
 
 ### サーバー要件
 
