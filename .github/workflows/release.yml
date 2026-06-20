@@ -1,17 +1,15 @@
-name: CI
+name: Release
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
+  push:
+    tags:
+      - "v*"
 
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: write
 
 jobs:
-  verify:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,24 +18,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Detect prerelease
+        id: meta
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
+          generate_release_notes: true
+          prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
 
   notify:
     runs-on: ubuntu-latest
-    needs: verify
+    needs: release
     if: always()
 
     steps:
@@ -55,7 +53,7 @@ jobs:
       - name: Notify Discord
         env:
           DISCORD_WEBHOOK_URL: ${{ env.DISCORD_CI_WEBHOOK_URL }}
-          NOTIFY_STATUS: ${{ needs.verify.result }}
+          NOTIFY_STATUS: ${{ needs.release.result }}
           NOTIFY_APP: Portfolio
-          NOTIFY_KIND: CI
+          NOTIFY_KIND: リリース
         run: bash .github/scripts/discord-notify.sh

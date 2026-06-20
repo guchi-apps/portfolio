@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
-import { getConnectIcon } from "@/lib/connect-icons"
+import { TechStackInput } from "@/components/admin/tech-stack-input"
 import { cn } from "@/lib/utils"
 import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type {
@@ -116,7 +116,7 @@ function MonitorEditor({
                         onDisplayModeChange(e.target.value as MonitorDisplayMode)
                     }
                 >
-                    <option value="card">カード（標準）</option>
+                    <option value="card">カード</option>
                     <option value="compact">コンパクト</option>
                     <option value="badge">バッジ</option>
                 </select>
@@ -193,16 +193,33 @@ function MonitorEditor({
                             <Label className={!setting.visible ? "text-slate-400" : undefined}>
                                 リンク先 URL（任意）
                             </Label>
-                            <Input
-                                value={setting.linkUrl ?? ""}
-                                placeholder={monitor.url || "https://example.com"}
-                                disabled={!setting.visible}
-                                onChange={(e) =>
-                                    updateSetting(monitor.id, {
-                                        linkUrl: e.target.value || undefined,
-                                    })
-                                }
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    className="min-w-0 flex-1"
+                                    value={setting.linkUrl ?? ""}
+                                    placeholder={monitor.url || "https://example.com"}
+                                    disabled={!setting.visible}
+                                    onChange={(e) =>
+                                        updateSetting(monitor.id, {
+                                            linkUrl: e.target.value || undefined,
+                                        })
+                                    }
+                                />
+                                {monitor.url && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="shrink-0"
+                                        disabled={!setting.visible}
+                                        onClick={() =>
+                                            updateSetting(monitor.id, { linkUrl: monitor.url })
+                                        }
+                                    >
+                                        ヒントを使用
+                                    </Button>
+                                )}
+                            </div>
                             <p className="text-xs text-slate-500">
                                 空欄の場合はカードをクリックしても遷移しません
                             </p>
@@ -287,17 +304,10 @@ function ProjectEditor({
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label>技術スタック（カンマ区切り）</Label>
-                        <Input
-                            value={project.techStack.join(", ")}
-                            onChange={(e) =>
-                                updateProject(index, {
-                                    techStack: e.target.value
-                                        .split(",")
-                                        .map((s) => s.trim())
-                                        .filter(Boolean),
-                                })
-                            }
+                        <Label>技術スタック</Label>
+                        <TechStackInput
+                            value={project.techStack}
+                            onChange={(techStack) => updateProject(index, { techStack })}
                         />
                     </div>
                     <div className="space-y-1">
@@ -412,13 +422,24 @@ export function AdminDashboard() {
         setSaving(true)
         setMessage("")
 
+        const sanitized: SiteContent = {
+            ...content,
+            projects: content.projects.map((p) => ({
+                ...p,
+                techStack: p.techStack.filter(Boolean),
+            })),
+        }
+
         const res = await fetch("/api/admin/content", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(content),
+            body: JSON.stringify(sanitized),
         })
 
         setSaving(false)
+        if (res.ok) {
+            setContent(sanitized)
+        }
         setMessage(res.ok ? "保存しました" : "保存に失敗しました")
     }
 
@@ -510,9 +531,7 @@ export function AdminDashboard() {
                         <CardTitle>Connect リンク</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        {content.connectLinks.map((link, index) => {
-                            const PreviewIcon = getConnectIcon(link.icon)
-                            return (
+                        {content.connectLinks.map((link, index) => (
                             <div
                                 key={index}
                                 className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-4"
@@ -552,16 +571,8 @@ export function AdminDashboard() {
                                         onChange={(icon) => updateConnectLink(index, { icon })}
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <Label>プレビュー</Label>
-                                    <div className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-100 px-4 py-2 text-sm dark:border-slate-700 dark:bg-slate-800">
-                                        <PreviewIcon className="h-5 w-5" />
-                                        <span>{link.name || "リンク名"}</span>
-                                    </div>
-                                </div>
                             </div>
-                            )
-                        })}
+                        ))}
                         <Button type="button" variant="outline" onClick={addConnectLink}>
                             リンクを追加
                         </Button>
@@ -589,7 +600,7 @@ export function AdminDashboard() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Featured Projects</CardTitle>
+                        <CardTitle>Projects</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ProjectEditor

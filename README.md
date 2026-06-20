@@ -54,6 +54,7 @@ npm install
 | `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
 | `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
 | `portfolio` | `DISCORD_WEBHOOK_URL` | ログイン通知用 Discord Webhook URL |
+| `discord_webhook` | `CI_URL` | CI / デプロイ / リリース結果通知用 Discord Webhook URL |
 | `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
@@ -80,6 +81,8 @@ GitHub リポジトリには **1つだけ** シークレットを登録します
 | `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`apps` ボールトへのアクセス権限を付与） |
 
 `main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
+
+CI / デプロイ / リリースの各ワークフロー完了時に、Discord へ成功・失敗・キャンセルの結果が通知されます（`DISCORD_CI_WEBHOOK_URL`）。
 
 ### 開発サーバーの起動
 
@@ -136,8 +139,22 @@ git push origin develop
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
-- **バージョン表示**: `package.json` の `version` がフッターに表示されます（現在: `1.3.2`）
+- **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
+
+### リリース手順（Git タグ + GitHub Release）
+
+`package.json` と Git タグを揃えてリリースする例:
+
+```bash
+npm version patch   # または minor / major
+git push origin main --tags
+```
+
+- `main` への push で本番デプロイ（`deploy.yml`）が走ります
+- `v*` 形式のタグ push で GitHub Release（`release.yml`）が自動作成されます（PR やコミットからリリースノートを生成）
+
+手動でタグだけ付ける場合は `git tag v1.3.2` のあと `git push origin v1.3.2` でも構いません。ローカルで解決結果を確認するには `npm run version:resolve` を使います。
 
 ### サーバー要件
 
