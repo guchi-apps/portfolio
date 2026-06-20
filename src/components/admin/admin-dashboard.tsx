@@ -116,7 +116,7 @@ function MonitorEditor({
                         onDisplayModeChange(e.target.value as MonitorDisplayMode)
                     }
                 >
-                    <option value="card">カード（標準）</option>
+                    <option value="card">カード</option>
                     <option value="compact">コンパクト</option>
                     <option value="badge">バッジ</option>
                 </select>
@@ -193,16 +193,33 @@ function MonitorEditor({
                             <Label className={!setting.visible ? "text-slate-400" : undefined}>
                                 リンク先 URL（任意）
                             </Label>
-                            <Input
-                                value={setting.linkUrl ?? ""}
-                                placeholder={monitor.url || "https://example.com"}
-                                disabled={!setting.visible}
-                                onChange={(e) =>
-                                    updateSetting(monitor.id, {
-                                        linkUrl: e.target.value || undefined,
-                                    })
-                                }
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    className="min-w-0 flex-1"
+                                    value={setting.linkUrl ?? ""}
+                                    placeholder={monitor.url || "https://example.com"}
+                                    disabled={!setting.visible}
+                                    onChange={(e) =>
+                                        updateSetting(monitor.id, {
+                                            linkUrl: e.target.value || undefined,
+                                        })
+                                    }
+                                />
+                                {monitor.url && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="shrink-0"
+                                        disabled={!setting.visible}
+                                        onClick={() =>
+                                            updateSetting(monitor.id, { linkUrl: monitor.url })
+                                        }
+                                    >
+                                        ヒントを使用
+                                    </Button>
+                                )}
+                            </div>
                             <p className="text-xs text-slate-500">
                                 空欄の場合はカードをクリックしても遷移しません
                             </p>

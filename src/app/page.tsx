@@ -8,6 +8,8 @@ import { getStatsConfig } from "@/lib/site-config"
 import { getSiteContent } from "@/lib/site-content"
 import { appVersion } from "@/lib/version"
 
+export const dynamic = "force-dynamic"
+
 export default async function Home() {
     const stats = getStatsConfig()
     const content = getSiteContent()

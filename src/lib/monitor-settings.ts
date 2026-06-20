@@ -10,9 +10,15 @@ export function getMonitorSetting(
     return { monitorId, visible: true }
 }
 
+function normalizeExternalUrl(url: string): string {
+    if (/^https?:\/\//i.test(url)) return url
+    return `https://${url}`
+}
+
 export function getMonitorLinkUrl(setting: MonitorSetting): string | undefined {
     const url = setting.linkUrl?.trim()
-    return url || undefined
+    if (!url) return undefined
+    return normalizeExternalUrl(url)
 }
 
 export function getVisibleMonitors(

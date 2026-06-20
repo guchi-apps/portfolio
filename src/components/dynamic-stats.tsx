@@ -46,7 +46,7 @@ function UptimeCardLink({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-xl transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+            className="block h-full w-full rounded-xl transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
         >
             {children}
         </a>
@@ -72,7 +72,7 @@ function UptimeCard({
         displayMode === "badge" ? (
             <DashboardCard
                 className={cn(
-                    "flex items-center justify-between px-4 py-3",
+                    "h-full flex items-center justify-between px-4 py-3",
                     href && "cursor-pointer"
                 )}
             >
@@ -82,7 +82,7 @@ function UptimeCard({
         ) : displayMode === "compact" ? (
             <DashboardCard
                 className={cn(
-                    "flex items-center justify-between px-4 py-4",
+                    "h-full flex items-center justify-between px-4 py-4",
                     href && "cursor-pointer"
                 )}
             >
@@ -99,7 +99,7 @@ function UptimeCard({
         ) : (
             <DashboardCard
                 className={cn(
-                    "flex flex-col justify-center items-center text-center",
+                    "h-full flex flex-col justify-center items-center text-center",
                     href && "cursor-pointer"
                 )}
             >
