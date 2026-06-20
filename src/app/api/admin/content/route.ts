@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 import { isAuthenticated } from "@/lib/auth"
 import { getSiteContent, saveSiteContent } from "@/lib/site-content"
@@ -18,6 +19,7 @@ export async function PUT(request: NextRequest) {
     try {
         const content = (await request.json()) as SiteContent
         saveSiteContent(content)
+        revalidatePath("/")
         return NextResponse.json({ ok: true })
     } catch (error) {
         console.error("Save content error:", error)
