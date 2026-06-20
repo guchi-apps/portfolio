@@ -139,7 +139,7 @@ git push origin develop
 - **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
 
-### リリース手順（Git タグ）
+### リリース手順（Git タグ + GitHub Release）
 
 `package.json` と Git タグを揃えてリリースする例:
 
@@ -147,6 +147,9 @@ git push origin develop
 npm version patch   # または minor / major
 git push origin main --tags
 ```
+
+- `main` への push で本番デプロイ（`deploy.yml`）が走ります
+- `v*` 形式のタグ push で GitHub Release（`release.yml`）が自動作成されます（PR やコミットからリリースノートを生成）
 
 手動でタグだけ付ける場合は `git tag v1.3.2` のあと `git push origin v1.3.2` でも構いません。ローカルで解決結果を確認するには `npm run version:resolve` を使います。
 
