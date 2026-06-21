@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
@@ -81,7 +82,16 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
+                <p className="font-mono text-xs">
+                    © 2026 GUCCHII.com{" "}
+                    <Link
+                        href="/admin"
+                        className="text-inherit no-underline cursor-default hover:cursor-pointer"
+                        aria-label="管理画面"
+                    >
+                        v{appVersion}
+                    </Link>
+                </p>
             </footer>
         </main>
     )
