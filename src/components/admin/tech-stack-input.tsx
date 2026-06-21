@@ -28,27 +28,10 @@ export function TechStackInput({ value, onChange }: TechStackInputProps) {
         onChange(value.filter((_, i) => i !== index))
     }
 
-    const handleChange = (text: string) => {
-        if (text.includes(",")) {
-            const parts = text.split(",")
-            let next = value
-            for (const part of parts.slice(0, -1)) {
-                const trimmed = part.trim()
-                if (trimmed) {
-                    next = [...next, trimmed]
-                }
-            }
-            onChange(next)
-            setDraft(parts[parts.length - 1] ?? "")
-            return
-        }
-        setDraft(text)
-    }
-
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (isComposing) return
 
-        if (e.key === "," || e.key === "Enter") {
+        if (e.key === "Enter") {
             e.preventDefault()
             commitDraft()
             return
@@ -86,12 +69,12 @@ export function TechStackInput({ value, onChange }: TechStackInputProps) {
             <input
                 type="text"
                 value={draft}
-                onChange={(e) => handleChange(e.target.value)}
+                onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onBlur={() => commitDraft()}
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={() => setIsComposing(false)}
-                placeholder={value.length === 0 ? "技術名を入力（カンマで確定）" : ""}
+                placeholder={value.length === 0 ? "技術名を入力（Enterで確定）" : ""}
                 className="flex-1 min-w-[120px] bg-transparent text-sm outline-none dark:text-slate-100 placeholder:text-slate-400"
             />
         </div>

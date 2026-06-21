@@ -169,8 +169,10 @@ GitHub で `develop` → `main` の Pull Request を作成し、CI が通った�
 | 順序 | ワークフロー | 内容 |
 | :--- | :--- | :--- |
 | 1 | `deploy.yml`（tag ジョブ） | `package.json` のバージョンから `v1.4.0` 形式の Git タグを作成・push |
-| 2 | `deploy.yml`（deploy ジョブ） | タグを参照してビルドし、本番デプロイ |
-| 3 | `release.yml` | タグ push をトリガーに GitHub Release を自動作成（リリースノート生成・Discord 通知） |
+| 2 | `deploy.yml`（release ジョブ） | GitHub Release を自動作成（リリースノート生成・Discord 通知） |
+| 3 | `deploy.yml`（deploy ジョブ） | タグを参照してビルドし、本番デプロイ |
+
+※ Actions の `GITHUB_TOKEN` で push したタグは別ワークフローを起動しないため、Release も `deploy.yml` 内で実行します。手動でタグ push した場合のみ `release.yml` が走ります。
 
 `package.json` のバージョンと同名のタグが **別コミットに既に存在する** 場合、tag ジョブはエラーで止まります。リリース前に必ずバージョンを上げてください。
 

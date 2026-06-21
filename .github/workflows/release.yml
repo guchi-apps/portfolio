@@ -1,5 +1,7 @@
 name: Release
 
+# Manual tag pushes only. Tags created by deploy.yml use the release job there
+# because GITHUB_TOKEN pushes do not trigger other workflows.
 on:
   push:
     tags:

@@ -1,10 +1,14 @@
 "use client"
 
+import Link from "next/link"
+import { AdminModeBanner } from "@/components/admin-mode-banner"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
 import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
+import { SectionHeading } from "@/components/section-heading"
+import { ServerStats } from "@/components/server-stats"
 import { useSiteContent } from "@/components/site-content-provider"
 import type { StatsConfig } from "@/lib/site-config"
 import { appVersion } from "@/lib/version"
@@ -19,6 +23,8 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
+            <AdminModeBanner />
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <DashboardCard className="md:col-span-4 w-full flex flex-col justify-between relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 right-0 p-8 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
@@ -56,24 +62,17 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
                 />
             </section>
 
-            <section className="grid grid-cols-1">
+            <ServerStats />
+
+            <section className="space-y-4">
+                <SectionHeading title="Contribution Activity" />
                 <DashboardCard className="bg-blue-600 dark:bg-slate-950 border-none">
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="font-bold text-lg text-white dark:text-slate-100 uppercase tracking-wider text-sm opacity-80">
-                            Contribution Activity
-                        </h2>
-                    </div>
                     <GithubActivity />
                 </DashboardCard>
             </section>
 
-            <section className="pt-8 space-y-6">
-                <div className="flex items-center gap-4">
-                    <div className="h-8 w-1 bg-blue-600 rounded-full" />
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        Projects
-                    </h2>
-                </div>
+            <section className="space-y-6">
+                <SectionHeading title="Projects" />
                 <DynamicProjects
                     projects={content.projects}
                     releaseVersions={projectReleaseVersions}
@@ -81,7 +80,16 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
+                <p className="font-mono text-xs">
+                    © 2026 GUCCHII.com{" "}
+                    <Link
+                        href="/admin"
+                        className="text-inherit no-underline cursor-default hover:cursor-pointer"
+                        aria-label="管理画面"
+                    >
+                        v{appVersion}
+                    </Link>
+                </p>
             </footer>
         </main>
     )
