@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
+import { ProjectLinksInput } from "@/components/admin/project-links-input"
 import { TechStackInput } from "@/components/admin/tech-stack-input"
 import { cn } from "@/lib/utils"
 import {
@@ -395,24 +396,11 @@ function ProjectEditor({
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label>リンク（ラベル|URL を改行区切り）</Label>
-                        <Textarea
-                            value={(project.links ?? [])
-                                .map((l) => `${l.label}|${l.url}`)
-                                .join("\n")}
-                            onChange={(e) => {
-                                const links = e.target.value
-                                    .split("\n")
-                                    .map((line) => line.trim())
-                                    .filter(Boolean)
-                                    .map((line) => {
-                                        const [label, ...rest] = line.split("|")
-                                        return { label: label.trim(), url: rest.join("|").trim() }
-                                    })
-                                    .filter((l) => l.label && l.url)
-                                updateProject(index, { links: links.length ? links : undefined })
-                            }}
-                            placeholder="本番環境|https://example.com"
+                        <Label>リンク</Label>
+                        <ProjectLinksInput
+                            key={project.id}
+                            value={project.links}
+                            onChange={(links) => updateProject(index, { links })}
                         />
                     </div>
                 </div>
