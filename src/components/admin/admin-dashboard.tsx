@@ -8,6 +8,11 @@ import { Input, Label, Textarea } from "@/components/ui/input"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
 import { TechStackInput } from "@/components/admin/tech-stack-input"
 import { cn } from "@/lib/utils"
+import {
+    getMonitorSetting,
+    getOrderedMonitors,
+    reorderMonitorSettings,
+} from "@/lib/monitor-settings"
 import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type {
     ConnectLink,
@@ -89,13 +94,21 @@ function MonitorEditor({
     onDisplayModeChange: (displayMode: MonitorDisplayMode) => void
 }) {
     const updateSetting = (monitorId: number, patch: Partial<MonitorSetting>) => {
-        const current = settings.find((s) => s.monitorId === monitorId) ?? {
-            monitorId,
-            visible: true,
+        const index = settings.findIndex((s) => s.monitorId === monitorId)
+        if (index >= 0) {
+            onSettingsChange(
+                settings.map((s, i) => (i === index ? { ...s, ...patch } : s))
+            )
+        } else {
+            onSettingsChange([...settings, { monitorId, visible: true, ...patch }])
         }
-        const next = settings.filter((s) => s.monitorId !== monitorId)
-        onSettingsChange([...next, { ...current, ...patch }])
     }
+
+    const moveMonitor = (monitorId: number, direction: -1 | 1) => {
+        onSettingsChange(reorderMonitorSettings(settings, monitors, monitorId, direction))
+    }
+
+    const orderedMonitors = getOrderedMonitors(monitors, settings)
 
     if (monitors.length === 0) {
         return (
@@ -123,12 +136,8 @@ function MonitorEditor({
             </div>
 
             <div className="space-y-3">
-            {monitors.map((monitor) => {
-                const setting =
-                    settings.find((s) => s.monitorId === monitor.id) ?? {
-                        monitorId: monitor.id,
-                        visible: true,
-                    }
+            {orderedMonitors.map((monitor, index) => {
+                const setting = getMonitorSetting(settings, monitor.id)
 
                 return (
                     <div
@@ -150,7 +159,7 @@ function MonitorEditor({
                                             : "text-slate-400 dark:text-slate-500"
                                     )}
                                 >
-                                    {monitor.friendly_name}
+                                    {setting.customLabel?.trim() || monitor.friendly_name}
                                 </span>
                                 {!setting.visible && (
                                     <span className="shrink-0 rounded bg-slate-300 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
@@ -158,21 +167,43 @@ function MonitorEditor({
                                     </span>
                                 )}
                             </div>
-                            <label
-                                className={cn(
-                                    "flex items-center gap-2 text-sm shrink-0",
-                                    !setting.visible && "text-slate-400"
-                                )}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={setting.visible}
-                                    onChange={(e) =>
-                                        updateSetting(monitor.id, { visible: e.target.checked })
-                                    }
-                                />
-                                表示
-                            </label>
+                            <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={index === 0}
+                                    onClick={() => moveMonitor(monitor.id, -1)}
+                                    aria-label="上に移動"
+                                >
+                                    ↑
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={index === orderedMonitors.length - 1}
+                                    onClick={() => moveMonitor(monitor.id, 1)}
+                                    aria-label="下に移動"
+                                >
+                                    ↓
+                                </Button>
+                                <label
+                                    className={cn(
+                                        "flex items-center gap-2 text-sm",
+                                        !setting.visible && "text-slate-400"
+                                    )}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={setting.visible}
+                                        onChange={(e) =>
+                                            updateSetting(monitor.id, { visible: e.target.checked })
+                                        }
+                                    />
+                                    表示
+                                </label>
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <Label className={!setting.visible ? "text-slate-400" : undefined}>
@@ -510,6 +541,15 @@ export function AdminDashboard() {
         })
     }
 
+    const moveConnectLink = (index: number, direction: -1 | 1) => {
+        if (!content) return
+        const newIndex = index + direction
+        if (newIndex < 0 || newIndex >= content.connectLinks.length) return
+        const next = [...content.connectLinks]
+        ;[next[index], next[newIndex]] = [next[newIndex], next[index]]
+        setContent({ ...content, connectLinks: next })
+    }
+
     if (authenticated === null) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -568,7 +608,42 @@ export function AdminDashboard() {
                                 key={index}
                                 className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-4"
                             >
-                                <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-3 items-end">
+                                <div className="flex justify-between items-center gap-2">
+                                    <span className="font-medium truncate min-w-0">
+                                        {link.name.trim() || "（無題）"}
+                                    </span>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={index === 0}
+                                            onClick={() => moveConnectLink(index, -1)}
+                                            aria-label="上に移動"
+                                        >
+                                            ↑
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={index === content.connectLinks.length - 1}
+                                            onClick={() => moveConnectLink(index, 1)}
+                                            aria-label="下に移動"
+                                        >
+                                            ↓
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => removeConnectLink(index)}
+                                        >
+                                            削除
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <Label>名前</Label>
                                         <Input
@@ -587,14 +662,6 @@ export function AdminDashboard() {
                                             }
                                         />
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => removeConnectLink(index)}
-                                    >
-                                        削除
-                                    </Button>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>アイコン</Label>
