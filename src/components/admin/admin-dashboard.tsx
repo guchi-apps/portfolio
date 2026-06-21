@@ -224,9 +224,9 @@ function MonitorEditor({
                             <Label className={!setting.visible ? "text-slate-400" : undefined}>
                                 リンク先 URL（任意）
                             </Label>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                                 <Input
-                                    className="min-w-0 flex-1"
+                                    className="min-w-0 flex-1 w-full"
                                     value={setting.linkUrl ?? ""}
                                     placeholder={monitor.url || "https://example.com"}
                                     disabled={!setting.visible}
@@ -241,13 +241,13 @@ function MonitorEditor({
                                         type="button"
                                         variant="outline"
                                         size="sm"
-                                        className="shrink-0"
+                                        className="shrink-0 self-start sm:self-auto"
                                         disabled={!setting.visible}
                                         onClick={() =>
                                             updateSetting(monitor.id, { linkUrl: monitor.url })
                                         }
                                     >
-                                        ヒントを使用
+                                        モニター先URLを使用
                                     </Button>
                                 )}
                             </div>
