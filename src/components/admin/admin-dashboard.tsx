@@ -260,6 +260,14 @@ function ProjectEditor({
         onChange(projects.filter((_, i) => i !== index))
     }
 
+    const moveProject = (index: number, direction: -1 | 1) => {
+        const newIndex = index + direction
+        if (newIndex < 0 || newIndex >= projects.length) return
+        const next = [...projects]
+        ;[next[index], next[newIndex]] = [next[newIndex], next[index]]
+        onChange(next)
+    }
+
     return (
         <div className="space-y-4">
             {projects.map((project, index) => (
@@ -267,16 +275,40 @@ function ProjectEditor({
                     key={project.id}
                     className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-3"
                 >
-                    <div className="flex justify-between items-center">
-                        <span className="font-medium">プロジェクト {index + 1}</span>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => removeProject(index)}
-                        >
-                            削除
-                        </Button>
+                    <div className="flex justify-between items-center gap-2">
+                        <span className="font-medium truncate min-w-0">
+                            {project.title.trim() || "（無題）"}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={index === 0}
+                                onClick={() => moveProject(index, -1)}
+                                aria-label="上に移動"
+                            >
+                                ↑
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={index === projects.length - 1}
+                                onClick={() => moveProject(index, 1)}
+                                aria-label="下に移動"
+                            >
+                                ↓
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeProject(index)}
+                            >
+                                削除
+                            </Button>
+                        </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-1">
