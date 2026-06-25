@@ -3,6 +3,8 @@ import path from "path"
 import type { MonitorDisplayMode, MonitorSetting, SiteContent } from "@/types/site-content"
 
 const DEFAULT_PATH = path.join(process.cwd(), "data", "site-content.json")
+const TEMPLATE_PATH = path.join(process.cwd(), "data", "site-content.example.json")
+const BUNDLED_TEMPLATE_PATH = path.join(process.cwd(), "data", "site-content.default.json")
 
 type LegacyMonitorSetting = MonitorSetting & { displayMode?: MonitorDisplayMode }
 type LegacySiteContent = Omit<SiteContent, "monitorDisplayMode" | "monitorSettings"> & {
@@ -46,16 +48,35 @@ function ensureDataDir(filePath: string) {
     }
 }
 
-export function getSiteContent(): SiteContent {
-    const filePath = getContentPath()
-    ensureDataDir(filePath)
-
-    if (!fs.existsSync(filePath)) {
-        const fallback = path.join(process.cwd(), "data", "site-content.json")
-        if (fallback !== filePath && fs.existsSync(fallback)) {
-            fs.copyFileSync(fallback, filePath)
+function getTemplatePath(): string | null {
+    for (const candidate of [TEMPLATE_PATH, BUNDLED_TEMPLATE_PATH]) {
+        if (fs.existsSync(candidate)) {
+            return candidate
         }
     }
+    return null
+}
+
+function ensureContentFile(filePath: string) {
+    if (fs.existsSync(filePath)) {
+        return
+    }
+
+    ensureDataDir(filePath)
+
+    const templatePath = getTemplatePath()
+    if (!templatePath) {
+        throw new Error(
+            `Site content file not found: ${filePath}. Copy data/site-content.example.json to data/site-content.json.`
+        )
+    }
+
+    fs.copyFileSync(templatePath, filePath)
+}
+
+export function getSiteContent(): SiteContent {
+    const filePath = getContentPath()
+    ensureContentFile(filePath)
 
     const raw = JSON.parse(fs.readFileSync(filePath, "utf8")) as LegacySiteContent
     return normalizeSiteContent(raw)
