@@ -201,7 +201,7 @@ jobs:
   notify-release:
     runs-on: ubuntu-latest
     needs: [tag, release]
-    if: always()
+    if: always() && needs.release.result != 'skipped'
 
     steps:
       - name: Checkout code
@@ -221,4 +221,5 @@ jobs:
           NOTIFY_STATUS: ${{ needs.release.result }}
           NOTIFY_APP: Portfolio
           NOTIFY_KIND: リリース
+          NOTIFY_VERSION: ${{ needs.tag.outputs.tag }}
         run: bash .github/scripts/discord-notify.sh
