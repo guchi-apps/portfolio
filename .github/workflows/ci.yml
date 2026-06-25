@@ -44,7 +44,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Determine workflow status
+        id: status
+        run: |
+          verify="${{ needs.verify.result }}"
+          if [ "$verify" = "success" ]; then
+            result=success
+          elif [ "$verify" = "cancelled" ]; then
+            result=cancelled
+          else
+            result=failure
+          fi
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          if [ "$verify" != "success" ]; then
+            echo "jobs=verify: $verify" >> "$GITHUB_OUTPUT"
+          else
+            echo "jobs=verify" >> "$GITHUB_OUTPUT"
+          fi
+          # main 向け PR: 成功・失敗・キャンセルを通知。それ以外は失敗時のみ。
+          if [ "$result" = "failure" ]; then
+            echo "should_notify=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.base_ref }}" = "main" ]; then
+            echo "should_notify=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_notify=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Load secrets from 1Password
+        if: steps.status.outputs.should_notify == 'true'
         uses: 1password/load-secrets-action@v4
         with:
           export-env: true
@@ -53,9 +80,11 @@ jobs:
           OP_ENV_FILE: .env.tpl
 
       - name: Notify Discord
+        if: steps.status.outputs.should_notify == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ env.DISCORD_CI_WEBHOOK_URL }}
-          NOTIFY_STATUS: ${{ needs.verify.result }}
+          NOTIFY_STATUS: ${{ steps.status.outputs.result }}
           NOTIFY_APP: Portfolio
           NOTIFY_KIND: CI
+          NOTIFY_JOB: ${{ steps.status.outputs.jobs }}
         run: bash .github/scripts/discord-notify.sh

@@ -119,7 +119,7 @@ jobs:
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
           mkdir -p .next/standalone/data
-          cp data/site-content.json .next/standalone/data/site-content.default.json
+          cp data/site-content.example.json .next/standalone/data/site-content.default.json
           cp deploy/.htaccess .next/standalone/.htaccess
 
       - name: Deploy to Server
@@ -201,7 +201,7 @@ jobs:
   notify-release:
     runs-on: ubuntu-latest
     needs: [tag, release]
-    if: always()
+    if: always() && needs.release.result != 'skipped'
 
     steps:
       - name: Checkout code
@@ -221,4 +221,5 @@ jobs:
           NOTIFY_STATUS: ${{ needs.release.result }}
           NOTIFY_APP: Portfolio
           NOTIFY_KIND: リリース
+          NOTIFY_VERSION: ${{ needs.tag.outputs.tag }}
         run: bash .github/scripts/discord-notify.sh

@@ -20,6 +20,9 @@
 # production
 /build
 
+# local / production runtime content (seed from data/site-content.example.json)
+/data/site-content.json
+
 # misc
 .DS_Store
 *.pem

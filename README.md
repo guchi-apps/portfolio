@@ -37,7 +37,10 @@
 git clone https://github.com/m-guchi/portfolio.git
 cd portfolio
 npm install
+cp data/site-content.example.json data/site-content.json
 ```
+
+`data/site-content.json` はローカル専用のランタイムデータです（Git 管理外）。初回のみテンプレートからコピーしてください。未作成の場合は起動時に自動生成されます。
 
 ### 環境変数の設定（1Password）
 
@@ -140,7 +143,7 @@ git push origin develop
 
 - **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
 - **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
-- **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）
+- **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）。リポジトリには `data/site-content.example.json` のみ含め、実データは Git 管理しない
 
 ### リリース手順（develop → PR マージ）
 
