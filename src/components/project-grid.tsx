@@ -64,11 +64,17 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                             {project.title}
                                         </CardTitle>
                                         <span className="text-xs text-blue-200 dark:text-slate-400 font-medium">
-                                            {project.period}
-                                            {releaseVersions[project.id] && (
-                                                <span className="ml-2 font-mono">
-                                                    v{releaseVersions[project.id].version}
-                                                </span>
+                                            {releaseVersions[project.id] ? (
+                                                <>
+                                                    <span className="font-mono">v{releaseVersions[project.id].version}</span>
+                                                    {releaseVersions[project.id].publishedAt && (
+                                                        <span className="ml-2">
+                                                            {formatPublishedAt(releaseVersions[project.id].publishedAt!)}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                project.period
                                             )}
                                         </span>
                                     </div>
@@ -107,16 +113,18 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                 {selectedProject?.title}
                             </DialogTitle>
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1 block">
-                                Development Period: {selectedProject?.period}
-                                {selectedProject && releaseVersions[selectedProject.id] && (
-                                    <span className="normal-case font-mono">
-                                        {" · "}v{releaseVersions[selectedProject.id].version}
+                                {selectedProject && releaseVersions[selectedProject.id] ? (
+                                    <>
+                                        <span className="normal-case font-mono">
+                                            v{releaseVersions[selectedProject.id].version}
+                                        </span>
+                                        {" · "}Start Project: {selectedProject.period}
                                         {releaseVersions[selectedProject.id].publishedAt && (
-                                            <span className="ml-2 not-italic font-sans normal-case font-medium text-muted-foreground/70">
-                                                最終更新: {formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}
-                                            </span>
+                                            <>{" ~ "}Last Updated: {formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}</>
                                         )}
-                                    </span>
+                                    </>
+                                ) : (
+                                    <>Start Project: {selectedProject?.period}</>
                                 )}
                             </span>
                         </div>
