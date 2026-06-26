@@ -52,6 +52,8 @@ export interface MonitorSetting {
     linkUrl?: string
 }
 
+export type AppAccessibility = "public" | "registration-required" | "inaccessible"
+
 export interface ProjectLink {
     label: string
     url: string
@@ -65,6 +67,8 @@ export interface Project {
     period: string
     githubUrl?: string | string[]
     demoUrl?: string
+    appUrl?: string
+    appAccessibility?: AppAccessibility
     links?: ProjectLink[]
     imageUrl?: string
 }

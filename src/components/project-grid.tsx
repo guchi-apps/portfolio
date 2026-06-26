@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Github, Globe, ExternalLink, FileText, Youtube } from "lucide-react"
+import { Github, Globe, ExternalLink, FileText, Youtube, Lock } from "lucide-react"
 import type { Project } from "@/types/site-content"
 
 function getLinkIcon(label: string) {
@@ -151,6 +151,23 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                     )}
                                 </>
                             )}
+                            {selectedProject?.appUrl && selectedProject.appAccessibility !== "inaccessible" && (
+                                <Button asChild className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                                    <a href={selectedProject.appUrl} target="_blank" rel="noopener noreferrer">
+                                        {selectedProject.appAccessibility === "registration-required" ? (
+                                            <><Lock className="h-4 w-4" />アプリ（要登録）</>
+                                        ) : (
+                                            <><Globe className="h-4 w-4" />アプリ</>
+                                        )}
+                                    </a>
+                                </Button>
+                            )}
+                            {selectedProject?.appUrl && selectedProject.appAccessibility === "inaccessible" && (
+                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500">
+                                    <Globe className="h-4 w-4" />
+                                    アクセス不可
+                                </span>
+                            )}
                             {selectedProject?.demoUrl && (
                                 <Button asChild className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
                                     <a href={selectedProject.demoUrl} target="_blank" rel="noopener noreferrer">
@@ -161,14 +178,12 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                             )}
                             {selectedProject?.links?.map((link, idx) => {
                                 const Icon = getLinkIcon(link.label);
-                                const isGithub = link.label.toLowerCase().includes('github') || link.label.toLowerCase().includes('repo');
-
                                 return (
                                     <Button
                                         key={idx}
                                         asChild
-                                        variant={isGithub ? "outline" : "default"}
-                                        className={isGithub ? "gap-2" : "gap-2 bg-blue-600 hover:bg-blue-700 text-white"}
+                                        variant="secondary"
+                                        className="gap-2"
                                     >
                                         <a href={link.url} target="_blank" rel="noopener noreferrer">
                                             <Icon className="h-4 w-4" />
