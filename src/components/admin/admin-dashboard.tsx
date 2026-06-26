@@ -731,6 +731,9 @@ export function AdminDashboard() {
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? "保存中..." : "変更を保存"}
                     </Button>
+                    <Button asChild variant="outline">
+                        <Link href="/">サイトを見る</Link>
+                    </Button>
                     {message && (
                         <span
                             className={
