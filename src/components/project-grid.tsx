@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Github, Globe, ExternalLink, FileText, Youtube, Lock } from "lucide-react"
+import type { ReleaseInfo } from "@/lib/project-releases"
 import type { Project } from "@/types/site-content"
 
 function getLinkIcon(label: string) {
@@ -18,9 +19,17 @@ function getLinkIcon(label: string) {
     return ExternalLink;
 }
 
+function formatPublishedAt(iso: string): string {
+    const d = new Date(iso)
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${y}.${m}.${day}`
+}
+
 interface ProjectGridProps {
     projects: Project[]
-    releaseVersions: Record<string, string>
+    releaseVersions: Record<string, ReleaseInfo>
 }
 
 export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
@@ -58,7 +67,7 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                             {project.period}
                                             {releaseVersions[project.id] && (
                                                 <span className="ml-2 font-mono">
-                                                    v{releaseVersions[project.id]}
+                                                    v{releaseVersions[project.id].version}
                                                 </span>
                                             )}
                                         </span>
@@ -101,7 +110,12 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                 Development Period: {selectedProject?.period}
                                 {selectedProject && releaseVersions[selectedProject.id] && (
                                     <span className="normal-case font-mono">
-                                        {" · "}v{releaseVersions[selectedProject.id]}
+                                        {" · "}v{releaseVersions[selectedProject.id].version}
+                                        {releaseVersions[selectedProject.id].publishedAt && (
+                                            <span className="ml-2 not-italic font-sans normal-case font-medium text-muted-foreground/70">
+                                                最終更新: {formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}
+                                            </span>
+                                        )}
                                     </span>
                                 )}
                             </span>
