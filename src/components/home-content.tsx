@@ -15,11 +15,12 @@ import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
 import { useAdminSession } from "@/hooks/use-admin-session"
 import type { StatsConfig } from "@/lib/site-config"
+import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
 interface HomeContentProps {
     initialStats: StatsConfig | null
-    projectReleaseVersions: Record<string, string>
+    projectReleaseVersions: Record<string, ReleaseInfo>
 }
 
 export function HomeContent({ initialStats, projectReleaseVersions }: HomeContentProps) {

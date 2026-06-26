@@ -5,10 +5,21 @@ interface GitHubRepo {
 
 interface GitHubRelease {
     tag_name: string
+    published_at: string
 }
 
 interface GitHubTag {
     name: string
+    commit: { sha: string }
+}
+
+interface GitHubCommit {
+    commit: { committer: { date: string } }
+}
+
+export interface ReleaseInfo {
+    version: string
+    publishedAt: string | null
 }
 
 function githubHeaders(): HeadersInit {
@@ -67,20 +78,32 @@ async function fetchGitHubJson<T>(url: string): Promise<T | null> {
     }
 }
 
-export async function fetchLatestReleaseVersion(
+export async function fetchLatestReleaseInfo(
     owner: string,
     repo: string,
-): Promise<string | null> {
+): Promise<ReleaseInfo | null> {
     const release = await fetchGitHubJson<GitHubRelease>(
         `https://api.github.com/repos/${owner}/${repo}/releases/latest`,
     )
     if (release?.tag_name) {
-        return stripLeadingV(release.tag_name)
+        return {
+            version: stripLeadingV(release.tag_name),
+            publishedAt: release.published_at ?? null,
+        }
     }
 
     const tags = await fetchGitHubJson<GitHubTag[]>(
         `https://api.github.com/repos/${owner}/${repo}/tags?per_page=1`,
     )
-    const latestTag = tags?.[0]?.name
-    return latestTag ? stripLeadingV(latestTag) : null
+    const latestTag = tags?.[0]
+    if (!latestTag) return null
+
+    const commitData = await fetchGitHubJson<GitHubCommit>(
+        `https://api.github.com/repos/${owner}/${repo}/commits/${latestTag.commit.sha}`,
+    )
+
+    return {
+        version: stripLeadingV(latestTag.name),
+        publishedAt: commitData?.commit?.committer?.date ?? null,
+    }
 }

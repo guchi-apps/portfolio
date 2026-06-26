@@ -16,6 +16,7 @@ import {
 } from "@/lib/monitor-settings"
 import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type {
+    AppAccessibility,
     ConnectLink,
     MonitorDisplayMode,
     MonitorSetting,
@@ -395,6 +396,35 @@ function ProjectEditor({
                             }}
                         />
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label>アプリURL</Label>
+                            <Input
+                                value={project.appUrl ?? ""}
+                                placeholder="https://example.com"
+                                onChange={(e) => {
+                                    const val = e.target.value.trim()
+                                    updateProject(index, { appUrl: val || undefined })
+                                }}
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label>アクセス可否</Label>
+                            <select
+                                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                                value={project.appAccessibility ?? "public"}
+                                onChange={(e) =>
+                                    updateProject(index, {
+                                        appAccessibility: e.target.value as AppAccessibility,
+                                    })
+                                }
+                            >
+                                <option value="public">誰でもアクセス可</option>
+                                <option value="registration-required">登録が必要</option>
+                                <option value="inaccessible">アクセス不可</option>
+                            </select>
+                        </div>
+                    </div>
                     <div className="space-y-1">
                         <Label>リンク</Label>
                         <ProjectLinksInput
@@ -700,6 +730,9 @@ export function AdminDashboard() {
                 <div className="flex items-center gap-4 sticky bottom-4 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? "保存中..." : "変更を保存"}
+                    </Button>
+                    <Button asChild variant="outline">
+                        <Link href="/">サイトを見る</Link>
                     </Button>
                     {message && (
                         <span
