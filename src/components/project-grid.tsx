@@ -112,19 +112,21 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
                                 {selectedProject?.title}
                             </DialogTitle>
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1 block">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1 flex flex-wrap items-baseline">
                                 {selectedProject && releaseVersions[selectedProject.id] ? (
                                     <>
-                                        <span className="normal-case font-mono">
+                                        <span className="normal-case font-mono whitespace-nowrap">
                                             v{releaseVersions[selectedProject.id].version}
                                         </span>
-                                        {" · "}Start Project: {selectedProject.period}
-                                        {releaseVersions[selectedProject.id].publishedAt && (
-                                            <>{" ~ "}Last Updated: {formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}</>
-                                        )}
+                                        <span className="whitespace-nowrap before:content-['_'] sm:before:content-['_·_']">
+                                            <span className="font-normal text-[10px]">Start Project:</span>{" "}{selectedProject.period}
+                                            {releaseVersions[selectedProject.id].publishedAt && (
+                                                <>{" ~ "}<span className="font-normal text-[10px]">Last Updated:</span>{" "}{formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}</>
+                                            )}
+                                        </span>
                                     </>
                                 ) : (
-                                    <>Start Project: {selectedProject?.period}</>
+                                    <span className="whitespace-nowrap"><span className="font-normal text-[10px]">Start Project:</span>{" "}{selectedProject?.period}</span>
                                 )}
                             </span>
                         </div>
