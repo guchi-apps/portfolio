@@ -19,10 +19,12 @@ import type {
     AppAccessibility,
     ConnectLink,
     MonitorDisplayMode,
+    MonitorLinkVisibility,
     MonitorSetting,
     Project,
     SiteContent,
 } from "@/types/site-content"
+import { parseProjectPeriodForInput } from "@/lib/project-period"
 
 function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     const [password, setPassword] = useState("")
@@ -257,6 +259,27 @@ function MonitorEditor({
                                 空欄の場合はカードをクリックしても遷移しません
                             </p>
                         </div>
+                        <div className="space-y-1">
+                            <Label className={!setting.visible ? "text-slate-400" : undefined}>
+                                リンクの表示
+                            </Label>
+                            <select
+                                className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                value={setting.linkVisibility ?? "public"}
+                                disabled={!setting.visible}
+                                onChange={(e) =>
+                                    updateSetting(monitor.id, {
+                                        linkVisibility: e.target.value as MonitorLinkVisibility,
+                                    })
+                                }
+                            >
+                                <option value="public">全員に表示</option>
+                                <option value="admin-only">管理者モードのみ表示</option>
+                            </select>
+                            <p className="text-xs text-slate-500">
+                                リンク先 URL を設定した場合、カードから遷移できるようになります
+                            </p>
+                        </div>
                     </div>
                 )
             })}
@@ -352,10 +375,13 @@ function ProjectEditor({
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label>期間</Label>
+                            <Label>プロジェクト開始</Label>
                             <Input
-                                value={project.period}
-                                onChange={(e) => updateProject(index, { period: e.target.value })}
+                                type="date"
+                                value={parseProjectPeriodForInput(project.period)}
+                                onChange={(e) =>
+                                    updateProject(index, { period: e.target.value })
+                                }
                             />
                         </div>
                     </div>

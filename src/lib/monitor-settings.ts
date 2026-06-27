@@ -21,6 +21,19 @@ export function getMonitorLinkUrl(setting: MonitorSetting): string | undefined {
     return normalizeExternalUrl(url)
 }
 
+export function getMonitorLinkHref(
+    setting: MonitorSetting,
+    isAdmin: boolean
+): string | undefined {
+    const url = getMonitorLinkUrl(setting)
+    if (!url) return undefined
+
+    const visibility = setting.linkVisibility ?? "public"
+    if (visibility === "admin-only" && !isAdmin) return undefined
+
+    return url
+}
+
 export function getOrderedMonitors(
     monitors: UptimeRobotMonitor[],
     settings: MonitorSetting[]

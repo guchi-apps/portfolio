@@ -2,11 +2,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Link as LinkIcon } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
-import { getMonitorLinkUrl, getVisibleMonitors } from "@/lib/monitor-settings"
+import { getMonitorLinkHref, getVisibleMonitors } from "@/lib/monitor-settings"
 import { UptimeRobotMonitor } from "@/lib/uptimerobot"
 import { useStatsConfig } from "@/hooks/use-stats-config"
+import { useAdminSession } from "@/hooks/use-admin-session"
 import { cn } from "@/lib/utils"
 import type { MonitorDisplayMode, MonitorSetting } from "@/types/site-content"
 
@@ -32,11 +34,26 @@ function getStatusInfo(status: number) {
     }
 }
 
+function formatLinkDisplay(href: string): string {
+    return href.replace(/^https?:\/\//i, "")
+}
+
+function BoldLinkLabel({ href, className }: { href: string; className?: string }) {
+    return (
+        <div className={cn("flex items-center gap-1.5 min-w-0 max-w-full", className)}>
+            <span className="font-bold truncate">{formatLinkDisplay(href)}</span>
+            <LinkIcon className="h-4 w-4 shrink-0" aria-hidden />
+        </div>
+    )
+}
+
 function UptimeCardLink({
     href,
+    label,
     children,
 }: {
     href?: string
+    label: string
     children: React.ReactNode
 }) {
     if (!href) return <>{children}</>
@@ -46,6 +63,7 @@ function UptimeCardLink({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`${label}（外部リンク）`}
             className="block h-full w-full rounded-xl transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
         >
             {children}
@@ -71,54 +89,62 @@ function UptimeCard({
     const content =
         displayMode === "badge" ? (
             <DashboardCard
-                className={cn(
-                    "h-full flex items-center justify-between px-4 py-3",
-                    href && "cursor-pointer"
-                )}
+                className={cn("h-full flex items-center justify-between gap-3 px-4 py-3", href && "cursor-pointer")}
             >
-                <span className="text-sm font-medium truncate">{label}</span>
-                <span className={`text-sm font-bold ${status.color}`}>{status.text}</span>
+                {href ? (
+                    <BoldLinkLabel href={href} className="text-sm" />
+                ) : (
+                    <span className="text-sm font-medium truncate">{label}</span>
+                )}
+                <span className={`text-sm font-bold shrink-0 ${status.color}`}>{status.text}</span>
             </DashboardCard>
         ) : displayMode === "compact" ? (
             <DashboardCard
-                className={cn(
-                    "h-full flex items-center justify-between px-4 py-4",
-                    href && "cursor-pointer"
-                )}
+                className={cn("h-full flex items-center justify-between gap-3 px-4 py-4", href && "cursor-pointer")}
             >
                 <div className="min-w-0">
-                    <span className="text-xs opacity-70 uppercase tracking-widest block truncate">
-                        {label}
-                    </span>
+                    {href ? (
+                        <BoldLinkLabel href={href} className="text-sm mb-1" />
+                    ) : (
+                        <span className="text-xs opacity-70 uppercase tracking-widest block truncate">
+                            {label}
+                        </span>
+                    )}
                     <span className={`text-lg font-bold font-mono ${status.color}`}>{status.text}</span>
                 </div>
-                <span className="text-sm text-blue-100 dark:text-slate-400 shrink-0 ml-2">
+                <span className="text-sm text-blue-100 dark:text-slate-400 shrink-0">
                     {ratio}%
                 </span>
             </DashboardCard>
         ) : (
             <DashboardCard
                 className={cn(
-                    "h-full flex flex-col justify-center items-center text-center",
+                    "h-full flex flex-col justify-center items-center text-center gap-1",
                     href && "cursor-pointer"
                 )}
             >
-                <span
-                    className="text-xs opacity-70 uppercase tracking-widest mb-2 truncate w-full px-2"
-                    title={label}
-                >
-                    {label}
-                </span>
-                <div className={`text-2xl font-bold font-mono ${status.color} mb-2`}>
-                    {status.text}
-                </div>
+                {href ? (
+                    <BoldLinkLabel href={href} className="text-sm px-2" />
+                ) : (
+                    <span
+                        className="text-xs opacity-70 uppercase tracking-widest truncate w-full px-2"
+                        title={label}
+                    >
+                        {label}
+                    </span>
+                )}
+                <div className={`text-2xl font-bold font-mono ${status.color}`}>{status.text}</div>
                 <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
                     {ratio}% uptime (30d)
                 </div>
             </DashboardCard>
         )
 
-    return <UptimeCardLink href={href}>{content}</UptimeCardLink>
+    return (
+        <UptimeCardLink href={href} label={label}>
+            {content}
+        </UptimeCardLink>
+    )
 }
 
 function LiveSinceCard({ startString }: { startString: string }) {
@@ -166,6 +192,7 @@ export function DynamicStats({
 }: DynamicStatsProps) {
     const { stats: fetchedStats, loading: statsLoading } = useStatsConfig()
     const stats = initialStats || fetchedStats
+    const { isAdmin } = useAdminSession()
 
     const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
     const [monitorsLoading, setMonitorsLoading] = useState(true)
@@ -215,7 +242,7 @@ export function DynamicStats({
                         monitor={m}
                         label={m.setting.customLabel || m.friendly_name}
                         displayMode={monitorDisplayMode}
-                        href={getMonitorLinkUrl(m.setting)}
+                        href={getMonitorLinkHref(m.setting, isAdmin)}
                     />
                 ))
             ) : (

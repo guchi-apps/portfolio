@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Github, Globe, ExternalLink, FileText, Youtube, Lock } from "lucide-react"
 import type { ReleaseInfo } from "@/lib/project-releases"
+import { formatProjectPeriod } from "@/lib/project-period"
+import { useAdminSession } from "@/hooks/use-admin-session"
 import type { Project } from "@/types/site-content"
 
 function getLinkIcon(label: string) {
@@ -34,6 +36,7 @@ interface ProjectGridProps {
 
 export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
     const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+    const { isAdmin } = useAdminSession()
 
     return (
         <>
@@ -74,7 +77,7 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                                     )}
                                                 </>
                                             ) : (
-                                                project.period
+                                                formatProjectPeriod(project.period)
                                             )}
                                         </span>
                                     </div>
@@ -119,14 +122,18 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                             v{releaseVersions[selectedProject.id].version}
                                         </span>
                                         <span className="whitespace-nowrap before:content-['_'] sm:before:content-['_·_']">
-                                            <span className="font-normal text-[10px]">Start Project:</span>{" "}{selectedProject.period}
+                                            <span className="font-normal text-[10px]">Start Project:</span>{" "}
+                                            {formatProjectPeriod(selectedProject.period)}
                                             {releaseVersions[selectedProject.id].publishedAt && (
                                                 <>{" ~ "}<span className="font-normal text-[10px]">Last Updated:</span>{" "}{formatPublishedAt(releaseVersions[selectedProject.id].publishedAt!)}</>
                                             )}
                                         </span>
                                     </>
                                 ) : (
-                                    <span className="whitespace-nowrap"><span className="font-normal text-[10px]">Start Project:</span>{" "}{selectedProject?.period}</span>
+                                    <span className="whitespace-nowrap">
+                                        <span className="font-normal text-[10px]">Start Project:</span>{" "}
+                                        {formatProjectPeriod(selectedProject?.period ?? "")}
+                                    </span>
                                 )}
                             </span>
                         </div>
@@ -187,10 +194,23 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                                 </Button>
                             )}
                             {selectedProject?.appUrl && selectedProject.appAccessibility === "inaccessible" && (
-                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500">
-                                    <Globe className="h-4 w-4" />
-                                    アクセス不可
-                                </span>
+                                isAdmin ? (
+                                    <Button asChild variant="outline" className="gap-2">
+                                        <a
+                                            href={selectedProject.appUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <Globe className="h-4 w-4" />
+                                            アプリ（アクセス不可）
+                                        </a>
+                                    </Button>
+                                ) : (
+                                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500">
+                                        <Globe className="h-4 w-4" />
+                                        アクセス不可
+                                    </span>
+                                )
                             )}
                             {selectedProject?.demoUrl && (
                                 <Button asChild className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
