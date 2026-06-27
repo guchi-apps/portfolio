@@ -52,7 +52,7 @@
         "Prisma",
         "Tailwind CSS"
       ],
-      "period": "2026.02",
+      "period": "2026-02-15",
       "githubUrl": "https://github.com/m-guchi/asset-manager",
       "links": [
         {
@@ -68,7 +68,7 @@
       "techStack": [
         "Typescript"
       ],
-      "period": "2026.02",
+      "period": "2026-02-15",
       "githubUrl": "https://github.com/m-guchi/portfolio"
     },
     {

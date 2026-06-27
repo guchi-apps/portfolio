@@ -20,11 +20,12 @@ function normalizeSiteContent(raw: LegacySiteContent): SiteContent {
         "card"
 
     const monitorSettings: MonitorSetting[] = settings.map(
-        ({ monitorId, visible, customLabel, linkUrl }) => ({
+        ({ monitorId, visible, customLabel, linkUrl, linkVisibility }) => ({
             monitorId,
             visible,
             ...(customLabel ? { customLabel } : {}),
             ...(linkUrl ? { linkUrl } : {}),
+            ...(linkVisibility ? { linkVisibility } : {}),
         })
     )
 

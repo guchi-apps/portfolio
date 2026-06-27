@@ -39,6 +39,8 @@ export type ConnectIconName =
 
 export type MonitorDisplayMode = "card" | "compact" | "badge"
 
+export type MonitorLinkVisibility = "public" | "admin-only"
+
 export interface ConnectLink {
     name: string
     icon: ConnectIconName
@@ -50,6 +52,7 @@ export interface MonitorSetting {
     visible: boolean
     customLabel?: string
     linkUrl?: string
+    linkVisibility?: MonitorLinkVisibility
 }
 
 export type AppAccessibility = "public" | "registration-required" | "inaccessible"
