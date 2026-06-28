@@ -34,14 +34,10 @@ function getStatusInfo(status: number) {
     }
 }
 
-function formatLinkDisplay(href: string): string {
-    return href.replace(/^https?:\/\//i, "")
-}
-
-function BoldLinkLabel({ href, className }: { href: string; className?: string }) {
+function BoldLinkLabel({ label, className }: { label: string; className?: string }) {
     return (
         <div className={cn("flex items-center gap-1.5 min-w-0 max-w-full", className)}>
-            <span className="font-bold truncate">{formatLinkDisplay(href)}</span>
+            <span className="font-bold truncate">{label}</span>
             <LinkIcon className="h-4 w-4 shrink-0" aria-hidden />
         </div>
     )
@@ -92,7 +88,7 @@ function UptimeCard({
                 className={cn("h-full flex items-center justify-between gap-3 px-4 py-3", href && "cursor-pointer")}
             >
                 {href ? (
-                    <BoldLinkLabel href={href} className="text-sm" />
+                    <BoldLinkLabel label={label} className="text-sm" />
                 ) : (
                     <span className="text-sm font-medium truncate">{label}</span>
                 )}
@@ -104,7 +100,7 @@ function UptimeCard({
             >
                 <div className="min-w-0">
                     {href ? (
-                        <BoldLinkLabel href={href} className="text-sm mb-1" />
+                        <BoldLinkLabel label={label} className="text-sm mb-1" />
                     ) : (
                         <span className="text-xs opacity-70 uppercase tracking-widest block truncate">
                             {label}
@@ -124,7 +120,7 @@ function UptimeCard({
                 )}
             >
                 {href ? (
-                    <BoldLinkLabel href={href} className="text-sm px-2" />
+                    <BoldLinkLabel label={label} className="text-sm px-2" />
                 ) : (
                     <span
                         className="text-xs opacity-70 uppercase tracking-widest truncate w-full px-2"
