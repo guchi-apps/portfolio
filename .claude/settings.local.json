@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git config *)",
+      "Bash(xargs grep -l \"githubUrl\\\\|ProjectLink\\\\|project.*links\")",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
