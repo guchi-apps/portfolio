@@ -43,6 +43,9 @@ deploy/apache-vhost.local.conf
 # vercel
 .vercel
 
+# IDE
+.cursor
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
