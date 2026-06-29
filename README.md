@@ -52,14 +52,13 @@ cp data/site-content.example.json data/site-content.json
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
-| `portfolio` | `UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー（サーバー専用） |
-| `portfolio` | `DEPLOY_PATH` | アプリ本体の配置先（例: `/var/lib/portfolio`。**DocumentRoot と同じにしない**） |
-| `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
-| `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
+| `portfolio` | `next-public-uptimerobot-read-only-key` | UptimeRobot Read-Only APIキー（サーバー専用） |
+| `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
+| `portfolio` | `admin-password` | 管理画面のログインパスワード |
+| `portfolio` | `session-secret` | セッション署名用のランダム文字列 |
 | `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース通知用 Signaly Webhook URL |
 | `portfolio` | `login-webhook-url` | ログイン通知用 Signaly Webhook URL |
-| `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース結果通知用 Signaly Webhook URL |
-| `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
+| `githubaction-sshkey` | `private_key` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
 | `Server` | `ssh-port` | SSHポート番号（例: `22`） |
@@ -193,18 +192,16 @@ npm run version:resolve
 - Node.js 20+
 - [pm2](https://pm2.keymetrics.io/)（プロセス管理）
 
-#### ディレクトリ配置（重要）
+#### ディレクトリ配置
 
 | パス | 用途 |
 | :--- | :--- |
-| `DEPLOY_PATH`（例: `/var/lib/portfolio`） | **アプリ本体**（`server.js`, `.env.production.local`, `data/` など） |
-| Apache `DocumentRoot` | `DEPLOY_PATH` と**同じにしない** |
+| `deploy-path`（例: `/var/lib/portfolio`） | **アプリ本体**（`server.js`, `.env.production.local`, `data/` など） |
 
-旧構成（静的 `out/` を `DocumentRoot` に置く）の名残で `DEPLOY_PATH` が `/var/www/html/...` になっていると、デプロイ後に **ディレクトリ一覧や `.env` が丸見え** になります。
 
 推奨:
 
-1. 1Password の `DEPLOY_PATH` を Web 公開ディレクトリ外に変更（例: `/var/lib/portfolio`）
+1. 1Password の `deploy-path` を Web 公開ディレクトリ外に変更（例: `/var/lib/portfolio`）
 2. pm2 で `DEPLOY_PATH/server.js` を起動
 3. Apache は **プロキシのみ** 担当
 
@@ -239,7 +236,6 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 
 - `https://gucchii.com/` → サイトが表示される
 - phpMyAdmin の URL（サーバー管理のパス）→ ログイン画面（Next.js の 404 ではないこと）
-- `https://gucchii.com/.env.production.local` → **403**
 - `DEPLOY_PATH` を URL で開いても **ファイル一覧が出ない**
 
 ## 🔧 管理画面
