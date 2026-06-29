@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { setSessionCookie, verifyPassword } from "@/lib/auth"
-import { notifyDiscordLogin } from "@/lib/discord"
+import { notifySignalyLogin } from "@/lib/signaly"
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
             request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
             request.headers.get("x-real-ip")
 
-        await notifyDiscordLogin(ip)
+        await notifySignalyLogin(ip)
 
         return NextResponse.json({ ok: true })
     } catch (error) {
