@@ -52,13 +52,13 @@ cp data/site-content.example.json data/site-content.json
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
-| `portfolio` | `UPTIMEROBOT_READ_ONLY_KEY` | UptimeRobot Read-Only APIキー（サーバー専用） |
-| `portfolio` | `DEPLOY_PATH` | アプリ本体の配置先（例: `/var/lib/portfolio`。**DocumentRoot と同じにしない**） |
-| `portfolio` | `ADMIN_PASSWORD` | 管理画面のログインパスワード |
-| `portfolio` | `SESSION_SECRET` | セッション署名用のランダム文字列 |
-| `portfolio` | `DISCORD_WEBHOOK_URL` | ログイン通知用 Discord Webhook URL |
-| `discord_webhook` | `CI_URL` | CI / デプロイ / リリース結果通知用 Discord Webhook URL |
-| `githubaction-sshkey` | `PRIVATE_KEY` | SSH秘密鍵（デプロイ用） |
+| `portfolio` | `next-public-uptimerobot-read-only-key` | UptimeRobot Read-Only APIキー（サーバー専用） |
+| `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
+| `portfolio` | `admin-password` | 管理画面のログインパスワード |
+| `portfolio` | `session-secret` | セッション署名用のランダム文字列 |
+| `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース通知用 Signaly Webhook URL |
+| `portfolio` | `login-webhook-url` | ログイン通知用 Signaly Webhook URL |
+| `githubaction-sshkey` | `private_key` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
 | `Server` | `ssh-port` | SSHポート番号（例: `22`） |
@@ -85,7 +85,7 @@ GitHub リポジトリには **1つだけ** シークレットを登録します
 
 `main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
 
-CI / デプロイ / リリースの各ワークフロー完了時に、Discord へ成功・失敗・キャンセルの結果が通知されます（`DISCORD_CI_WEBHOOK_URL`）。
+CI / デプロイ / リリースの各ワークフロー完了時に Signaly へ通知されます（`SIGNALY_WEBHOOK_URL`）。
 
 ### 開発サーバーの起動
 
@@ -172,7 +172,7 @@ GitHub で `develop` → `main` の Pull Request を作成し、CI が通った�
 | 順序 | ワークフロー | 内容 |
 | :--- | :--- | :--- |
 | 1 | `deploy.yml`（tag ジョブ） | `package.json` のバージョンから `v1.4.0` 形式の Git タグを作成・push |
-| 2 | `deploy.yml`（release ジョブ） | GitHub Release を自動作成（リリースノート生成・Discord 通知） |
+| 2 | `deploy.yml`（release ジョブ） | GitHub Release を自動作成（リリースノート生成・Signaly 通知） |
 | 3 | `deploy.yml`（deploy ジョブ） | タグを参照してビルドし、本番デプロイ |
 
 ※ Actions の `GITHUB_TOKEN` で push したタグは別ワークフローを起動しないため、Release も `deploy.yml` 内で実行します。手動でタグ push した場合のみ `release.yml` が走ります。
@@ -192,18 +192,16 @@ npm run version:resolve
 - Node.js 20+
 - [pm2](https://pm2.keymetrics.io/)（プロセス管理）
 
-#### ディレクトリ配置（重要）
+#### ディレクトリ配置
 
 | パス | 用途 |
 | :--- | :--- |
-| `DEPLOY_PATH`（例: `/var/lib/portfolio`） | **アプリ本体**（`server.js`, `.env.production.local`, `data/` など） |
-| Apache `DocumentRoot` | `DEPLOY_PATH` と**同じにしない** |
+| `deploy-path`（例: `/var/lib/portfolio`） | **アプリ本体**（`server.js`, `.env.production.local`, `data/` など） |
 
-旧構成（静的 `out/` を `DocumentRoot` に置く）の名残で `DEPLOY_PATH` が `/var/www/html/...` になっていると、デプロイ後に **ディレクトリ一覧や `.env` が丸見え** になります。
 
 推奨:
 
-1. 1Password の `DEPLOY_PATH` を Web 公開ディレクトリ外に変更（例: `/var/lib/portfolio`）
+1. 1Password の `deploy-path` を Web 公開ディレクトリ外に変更（例: `/var/lib/portfolio`）
 2. pm2 で `DEPLOY_PATH/server.js` を起動
 3. Apache は **プロキシのみ** 担当
 
@@ -225,8 +223,8 @@ npm run version:resolve
     ProxyPass <PHPMYADMIN_PATH> !
     ProxyPassReverse <PHPMYADMIN_PATH> !
 
-    ProxyPass / http://127.0.0.1:3000/
-    ProxyPassReverse / http://127.0.0.1:3000/
+    ProxyPass / http://127.0.0.1:3105/
+    ProxyPassReverse / http://127.0.0.1:3105/
 </VirtualHost>
 ```
 
@@ -238,7 +236,6 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 
 - `https://gucchii.com/` → サイトが表示される
 - phpMyAdmin の URL（サーバー管理のパス）→ ログイン画面（Next.js の 404 ではないこと）
-- `https://gucchii.com/.env.production.local` → **403**
 - `DEPLOY_PATH` を URL で開いても **ファイル一覧が出ない**
 
 ## 🔧 管理画面
@@ -254,7 +251,7 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 
 - **URL**: `https://gucchii.com/admin`
 - **パスワード**: 1Password の `ADMIN_PASSWORD`
-- **ログイン時**: Discord Webhook へ通知
+- **ログイン時**: Signaly へ通知
 
 ローカル開発時は `npm run dev` のあと `http://localhost:3000/admin` にアクセスしてください。
 

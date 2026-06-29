@@ -139,7 +139,7 @@ jobs:
         env:
           ADMIN_PASSWORD: ${{ env.ADMIN_PASSWORD }}
           SESSION_SECRET: ${{ env.SESSION_SECRET }}
-          DISCORD_WEBHOOK_URL: ${{ env.DISCORD_WEBHOOK_URL }}
+          SIGNALY_LOGIN_WEBHOOK_URL: ${{ env.SIGNALY_LOGIN_WEBHOOK_URL }}
           UPTIMEROBOT_READ_ONLY_KEY: ${{ env.UPTIMEROBOT_READ_ONLY_KEY }}
           DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
         with:
@@ -147,17 +147,17 @@ jobs:
           username: ${{ env.SSH_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           port: ${{ env.SSH_PORT }}
-          envs: ADMIN_PASSWORD,SESSION_SECRET,DISCORD_WEBHOOK_URL,UPTIMEROBOT_READ_ONLY_KEY,DEPLOY_PATH
+          envs: ADMIN_PASSWORD,SESSION_SECRET,SIGNALY_LOGIN_WEBHOOK_URL,UPTIMEROBOT_READ_ONLY_KEY,DEPLOY_PATH
           script: |
             cd "$DEPLOY_PATH"
             cat > .env.production.local << EOF
             ADMIN_PASSWORD=$ADMIN_PASSWORD
             SESSION_SECRET=$SESSION_SECRET
-            DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL
+            SIGNALY_LOGIN_WEBHOOK_URL=$SIGNALY_LOGIN_WEBHOOK_URL
             UPTIMEROBOT_READ_ONLY_KEY=$UPTIMEROBOT_READ_ONLY_KEY
             SITE_CONTENT_PATH=$DEPLOY_PATH/data/site-content.json
             NODE_ENV=production
-            PORT=3000
+            PORT=3105
             HOSTNAME=127.0.0.1
             EOF
             mkdir -p data
@@ -190,13 +190,14 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           OP_ENV_FILE: .env.tpl
 
-      - name: Notify Discord
+      - name: Signaly に通知
         env:
-          DISCORD_WEBHOOK_URL: ${{ env.DISCORD_CI_WEBHOOK_URL }}
+          SIGNALY_WEBHOOK_URL: ${{ env.SIGNALY_WEBHOOK_URL }}
           NOTIFY_STATUS: ${{ needs.deploy.result }}
           NOTIFY_APP: Portfolio
           NOTIFY_KIND: デプロイ
-        run: bash .github/scripts/discord-notify.sh
+          NOTIFY_JOB: deploy
+        run: bash .github/scripts/signaly-notify.sh
 
   notify-release:
     runs-on: ubuntu-latest
@@ -215,11 +216,12 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           OP_ENV_FILE: .env.tpl
 
-      - name: Notify Discord
+      - name: Signaly に通知
         env:
-          DISCORD_WEBHOOK_URL: ${{ env.DISCORD_CI_WEBHOOK_URL }}
+          SIGNALY_WEBHOOK_URL: ${{ env.SIGNALY_WEBHOOK_URL }}
           NOTIFY_STATUS: ${{ needs.release.result }}
           NOTIFY_APP: Portfolio
           NOTIFY_KIND: リリース
           NOTIFY_VERSION: ${{ needs.tag.outputs.tag }}
-        run: bash .github/scripts/discord-notify.sh
+          NOTIFY_JOB: release
+        run: bash .github/scripts/signaly-notify.sh
