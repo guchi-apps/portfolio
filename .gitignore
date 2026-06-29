@@ -45,6 +45,7 @@ deploy/apache-vhost.local.conf
 
 # IDE
 .cursor
+.claude
 
 # typescript
 *.tsbuildinfo
