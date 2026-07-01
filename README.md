@@ -263,3 +263,11 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 ## 📄 ライセンス
 
 [MIT License](LICENSE)
+
+## CI/CD の既知の課題
+
+> 2026-06-29 時点で確認された課題です。対応が完了したら削除または更新してください。
+
+| 優先度 | 課題 | 対象ファイル |
+|--------|------|-------------|
+| 中 | **`release` ジョブがデプロイ完了を待たない** — 現状は `needs: tag` のみのため、デプロイ失敗時でも GitHub Release が作られてしまう。`needs: [tag, deploy]` に修正する（`car` / `myroom` の実装に合わせる） | `.github/workflows/deploy.yml` |
