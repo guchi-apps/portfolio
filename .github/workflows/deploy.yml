@@ -121,6 +121,7 @@ jobs:
           mkdir -p .next/standalone/data
           cp data/site-content.example.json .next/standalone/data/site-content.default.json
           cp deploy/.htaccess .next/standalone/.htaccess
+          cp ecosystem.config.js .next/standalone/ecosystem.config.js
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
@@ -166,7 +167,7 @@ jobs:
             fi
             if command -v pm2 >/dev/null; then
               pm2 delete portfolio 2>/dev/null || true
-              PORT=3105 HOSTNAME=127.0.0.1 NODE_ENV=production pm2 start server.js --name portfolio
+              pm2 start ecosystem.config.js --env production
               pm2 save
             else
               echo "pm2 is required on the server. Install: npm install -g pm2"
