@@ -367,14 +367,14 @@ function ProjectEditor({
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                             <Label>タイトル</Label>
                             <Input
                                 value={project.title}
                                 onChange={(e) => updateProject(index, { title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                             <Label>プロジェクト開始</Label>
                             <Input
                                 type="date"
@@ -382,6 +382,7 @@ function ProjectEditor({
                                 onChange={(e) =>
                                     updateProject(index, { period: e.target.value })
                                 }
+                                className="min-w-0"
                             />
                         </div>
                     </div>
