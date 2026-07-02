@@ -157,11 +157,16 @@ git push origin develop
 git checkout develop
 git pull origin develop
 
-npm version patch --no-git-tag-version   # または minor / major
+npm version patch --no-git-tag-version   # バグ修正など（例: 2.3.1 → 2.3.2）
+# npm version minor --no-git-tag-version  # 機能追加など（例: 2.3.1 → 2.4.0）
+# npm version major --no-git-tag-version  # 破壊的変更など（例: 2.3.1 → 3.0.0）
+
 git add package.json
-git commit -m "v1.4.0 に更新"
+git commit -m "v2.3.2 に更新する"
 git push origin develop
 ```
+
+`--no-git-tag-version` を付けることで、`npm version` がタグを自動作成しないようにしています（タグは `main` マージ後に GitHub Actions が作成します）。実行後に表示される `v2.3.2` などの文字列が新しいバージョン番号です。
 
 #### 2. PR を作成して `main` にマージ
 
@@ -258,3 +263,11 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 ## 📄 ライセンス
 
 [MIT License](LICENSE)
+
+## CI/CD の既知の課題
+
+> 2026-06-29 時点で確認された課題です。対応が完了したら削除または更新してください。
+
+| 優先度 | 課題 | 対象ファイル |
+|--------|------|-------------|
+| 中 | **`release` ジョブがデプロイ完了を待たない** — 現状は `needs: tag` のみのため、デプロイ失敗時でも GitHub Release が作られてしまう。`needs: [tag, deploy]` に修正する（`car` / `myroom` の実装に合わせる） | `.github/workflows/deploy.yml` |

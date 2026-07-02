@@ -1,5 +1,5 @@
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -10,6 +10,20 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
     title: "gucchii.com - System Dashboard Portfolio",
     description: "Engineer Portfolio Dashboard hosted on gucchii.com",
+    manifest: "/manifest.webmanifest",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "gucchii.com",
+    },
+    icons: {
+        icon: "/favicon.ico",
+        apple: "/apple-touch-icon.png",
+    },
+};
+
+export const viewport: Viewport = {
+    themeColor: "#0f172a",
 };
 
 export default function RootLayout({
