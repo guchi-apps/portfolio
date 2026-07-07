@@ -3,7 +3,7 @@
   "version": "2.3.3",
   "private": true,
   "scripts": {
-    "dev": "op run --env-file=.env.tpl -- next dev",
+    "dev": "bash scripts/dev.sh",
     "build": "next build",
     "build:local": "op run --env-file=.env.tpl -- next build",
     "start": "next start",

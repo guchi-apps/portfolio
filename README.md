@@ -42,13 +42,21 @@ cp data/site-content.example.json data/site-content.json
 
 `data/site-content.json` はローカル専用のランタイムデータです（Git 管理外）。初回のみテンプレートからコピーしてください。未作成の場合は起動時に自動生成されます。
 
-### 環境変数の設定（1Password）
+### 環境変数の設定
 
-秘密情報は `.env.local` ではなく **1Password** から取得します。リポジトリに含まれる `.env.tpl` に secret reference が定義されています。
+#### 1. ローカル開発（1Password は不要）
 
-#### 1. 1Password にシークレットを登録
+ローカル開発に必要な値は `.env.local` に平文で保存します（`.gitignore` 済みのためコミットされません）。1Password は本番デプロイ・CI にのみ使用します。
 
-`apps` ボールトに以下のアイテムを作成し、フィールドを登録してください。
+```bash
+cp .env.local.example .env.local
+# 値を編集（UPTIMEROBOT_READ_ONLY_KEY / ADMIN_PASSWORD / SESSION_SECRET など）
+npm run dev
+```
+
+#### 2. 本番デプロイ・CI 用シークレットを 1Password に登録
+
+リポジトリに含まれる `.env.tpl` に secret reference が定義されています。`apps` ボールトに以下のアイテムを作成し、フィールドを登録してください。
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
@@ -63,17 +71,7 @@ cp data/site-content.example.json data/site-content.json
 | `Server` | `username` | SSH接続ユーザー名 |
 | `Server` | `ssh-port` | SSHポート番号（例: `22`） |
 
-ボールト名やアイテム名を変更した場合は、`.env.tpl` 内の `op://` 参照を合わせて更新してください。
-
-#### 2. ローカル開発
-
-[1Password CLI](https://developer.1password.com/docs/cli/) をインストールし、サインインしたうえで以下を実行します。
-
-```bash
-npm run dev
-```
-
-`npm run dev` は内部で `op run --env-file=.env.tpl` を使い、1Password から環境変数を注入します。ローカルビルドは `npm run build:local` を使用してください。
+ボールト名やアイテム名を変更した場合は、`.env.tpl` 内の `op://` 参照を合わせて更新してください。本番相当の値でローカルビルドを確認したい場合は、[1Password CLI](https://developer.1password.com/docs/cli/) をインストール・サインインのうえ `npm run build:local` を使用してください。
 
 #### 3. GitHub Actions（CI/CD）
 
