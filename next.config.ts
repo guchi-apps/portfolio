@@ -16,6 +16,11 @@ function resolveAppVersion(): string {
     }
 }
 
+const devAllowedOrigins =
+    process.env.DEV_ALLOWED_ORIGINS?.split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean) ?? [];
+
 const nextConfig: NextConfig = {
     output: "standalone",
     images: {
@@ -24,6 +29,7 @@ const nextConfig: NextConfig = {
     env: {
         NEXT_PUBLIC_APP_VERSION: resolveAppVersion(),
     },
+    allowedDevOrigins: devAllowedOrigins,
 };
 
 export default nextConfig;

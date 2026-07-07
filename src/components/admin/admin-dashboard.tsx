@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
+import { CollapsibleSection } from "@/components/admin/collapsible-section"
 import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
 import { ProjectLinksInput } from "@/components/admin/project-links-input"
 import { TechStackInput } from "@/components/admin/tech-stack-input"
@@ -374,7 +375,7 @@ function ProjectEditor({
                                 onChange={(e) => updateProject(index, { title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-1 min-w-0">
+                        <div className="space-y-1 min-w-0 overflow-hidden">
                             <Label>プロジェクト開始</Label>
                             <Input
                                 type="date"
@@ -382,7 +383,7 @@ function ProjectEditor({
                                 onChange={(e) =>
                                     updateProject(index, { period: e.target.value })
                                 }
-                                className="min-w-0"
+                                className="min-w-0 max-w-full"
                             />
                         </div>
                     </div>
@@ -616,7 +617,7 @@ export function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">管理画面</h1>
@@ -630,24 +631,16 @@ export function AdminDashboard() {
                     </div>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>自己紹介</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea
-                            value={content.intro}
-                            onChange={(e) => setContent({ ...content, intro: e.target.value })}
-                            rows={6}
-                        />
-                    </CardContent>
-                </Card>
+                <CollapsibleSection title="自己紹介">
+                    <Textarea
+                        value={content.intro}
+                        onChange={(e) => setContent({ ...content, intro: e.target.value })}
+                        rows={6}
+                    />
+                </CollapsibleSection>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Connect リンク</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
+                <CollapsibleSection title="Connect リンク">
+                    <div className="space-y-3">
                         {content.connectLinks.map((link, index) => (
                             <div
                                 key={index}
@@ -720,41 +713,32 @@ export function AdminDashboard() {
                         <Button type="button" variant="outline" onClick={addConnectLink}>
                             リンクを追加
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </CollapsibleSection>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>UptimeRobot モニター</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <MonitorEditor
-                            monitors={monitors}
-                            settings={content.monitorSettings}
-                            displayMode={content.monitorDisplayMode}
-                            onSettingsChange={(monitorSettings) =>
-                                setContent({ ...content, monitorSettings })
-                            }
-                            onDisplayModeChange={(monitorDisplayMode) =>
-                                setContent({ ...content, monitorDisplayMode })
-                            }
-                        />
-                    </CardContent>
-                </Card>
+                <CollapsibleSection title="UptimeRobot モニター">
+                    <MonitorEditor
+                        monitors={monitors}
+                        settings={content.monitorSettings}
+                        displayMode={content.monitorDisplayMode}
+                        onSettingsChange={(monitorSettings) =>
+                            setContent({ ...content, monitorSettings })
+                        }
+                        onDisplayModeChange={(monitorDisplayMode) =>
+                            setContent({ ...content, monitorDisplayMode })
+                        }
+                    />
+                </CollapsibleSection>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Projects</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ProjectEditor
-                            projects={content.projects}
-                            onChange={(projects) => setContent({ ...content, projects })}
-                        />
-                    </CardContent>
-                </Card>
-
-                <div className="flex items-center gap-4 sticky bottom-4 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">
+                <CollapsibleSection title="Projects">
+                    <ProjectEditor
+                        projects={content.projects}
+                        onChange={(projects) => setContent({ ...content, projects })}
+                    />
+                </CollapsibleSection>
+            </div>
+            <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center p-4">
+                <div className="flex items-center gap-4 w-full max-w-4xl bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? "保存中..." : "変更を保存"}
                     </Button>
