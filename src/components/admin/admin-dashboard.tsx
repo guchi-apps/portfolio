@@ -374,7 +374,7 @@ function ProjectEditor({
                                 onChange={(e) => updateProject(index, { title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-1 min-w-0">
+                        <div className="space-y-1 min-w-0 overflow-hidden">
                             <Label>プロジェクト開始</Label>
                             <Input
                                 type="date"
@@ -382,7 +382,7 @@ function ProjectEditor({
                                 onChange={(e) =>
                                     updateProject(index, { period: e.target.value })
                                 }
-                                className="min-w-0"
+                                className="min-w-0 max-w-full"
                             />
                         </div>
                     </div>
