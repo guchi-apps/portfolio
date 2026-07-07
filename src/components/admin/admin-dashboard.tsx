@@ -616,7 +616,7 @@ export function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-bold">管理画面</h1>
@@ -753,8 +753,9 @@ export function AdminDashboard() {
                         />
                     </CardContent>
                 </Card>
-
-                <div className="flex items-center gap-4 sticky bottom-4 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">
+            </div>
+            <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center p-4">
+                <div className="flex items-center gap-4 w-full max-w-4xl bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">
                     <Button onClick={handleSave} disabled={saving}>
                         {saving ? "保存中..." : "変更を保存"}
                     </Button>
