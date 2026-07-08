@@ -1,9 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ShieldCheck } from "lucide-react"
 import { useState } from "react"
-import { AdminModeBanner } from "@/components/admin-mode-banner"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
@@ -28,7 +27,15 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
-            <AdminModeBanner />
+            <div className="flex justify-end">
+                <Link
+                    href="/edit"
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                >
+                    <ShieldCheck className="size-3.5" aria-hidden />
+                    管理画面
+                </Link>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <DashboardCard
@@ -100,16 +107,7 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p className="font-mono text-xs">
-                    © 2026 GUCCHII.com{" "}
-                    <Link
-                        href="/edit"
-                        className="text-inherit no-underline cursor-default hover:cursor-pointer"
-                        aria-label="管理画面"
-                    >
-                        v{appVersion}
-                    </Link>
-                </p>
+                <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
             </footer>
         </main>
     )
