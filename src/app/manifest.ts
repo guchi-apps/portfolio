@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "gucchii.com - System Dashboard Portfolio",
+        name: "gucchii.com",
         short_name: "gucchii.com",
         description: "Engineer Portfolio Dashboard hosted on gucchii.com",
         start_url: "/",

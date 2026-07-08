@@ -1,45 +1,39 @@
 import fs from "fs"
 import path from "path"
-import type { MonitorDisplayMode, MonitorSetting, SiteContent } from "@/types/site-content"
+import type { SiteContent, UptimeKumaSettings } from "@/types/site-content"
 
 const DEFAULT_PATH = path.join(process.cwd(), "data", "site-content.json")
 const TEMPLATE_PATH = path.join(process.cwd(), "data", "site-content.example.json")
 const BUNDLED_TEMPLATE_PATH = path.join(process.cwd(), "data", "site-content.default.json")
 
-type LegacyMonitorSetting = MonitorSetting & { displayMode?: MonitorDisplayMode }
-type LegacySiteContent = Omit<SiteContent, "monitorDisplayMode" | "monitorSettings"> & {
-    monitorDisplayMode?: MonitorDisplayMode
-    monitorSettings?: LegacyMonitorSetting[]
+type LegacySiteContent = Omit<SiteContent, "uptimeKumaSettings"> & {
+    uptimeKumaSettings?: Partial<UptimeKumaSettings>
 }
 
 function normalizeSiteContent(raw: LegacySiteContent): SiteContent {
-    const settings = raw.monitorSettings ?? []
-    const monitorDisplayMode =
-        raw.monitorDisplayMode ??
-        settings.find((s) => s.displayMode)?.displayMode ??
-        "card"
-
-    const monitorSettings: MonitorSetting[] = settings.map(
-        ({ monitorId, visible, customLabel, linkUrl, linkVisibility }) => ({
-            monitorId,
-            visible,
-            ...(customLabel ? { customLabel } : {}),
-            ...(linkUrl ? { linkUrl } : {}),
-            ...(linkVisibility ? { linkVisibility } : {}),
-        })
-    )
+    const uptimeKuma = raw.uptimeKumaSettings
 
     return {
         intro: raw.intro,
         connectLinks: raw.connectLinks,
-        monitorDisplayMode,
-        monitorSettings,
+        uptimeKumaSettings: {
+            portfolioVisible: uptimeKuma?.portfolioVisible ?? false,
+            dashboardVisible: uptimeKuma?.dashboardVisible ?? true,
+        },
         projects: raw.projects,
     }
 }
 
 function getContentPath(): string {
     return process.env.SITE_CONTENT_PATH || DEFAULT_PATH
+}
+
+export function getUploadsDir(): string {
+    const dir = path.join(path.dirname(getContentPath()), "uploads")
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+    }
+    return dir
 }
 
 function ensureDataDir(filePath: string) {

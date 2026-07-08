@@ -37,22 +37,15 @@ export type ConnectIconName =
     | "Cloud"
     | "Smartphone"
 
-export type MonitorDisplayMode = "card" | "compact" | "badge"
-
-export type MonitorLinkVisibility = "public" | "admin-only"
-
 export interface ConnectLink {
     name: string
     icon: ConnectIconName
     url: string
 }
 
-export interface MonitorSetting {
-    monitorId: number
-    visible: boolean
-    customLabel?: string
-    linkUrl?: string
-    linkVisibility?: MonitorLinkVisibility
+export interface UptimeKumaSettings {
+    portfolioVisible: boolean
+    dashboardVisible: boolean
 }
 
 export type AppAccessibility = "public" | "registration-required" | "inaccessible"
@@ -73,13 +66,12 @@ export interface Project {
     appUrl?: string
     appAccessibility?: AppAccessibility
     links?: ProjectLink[]
-    imageUrl?: string
+    images?: string[]
 }
 
 export interface SiteContent {
     intro: string
     connectLinks: ConnectLink[]
-    monitorDisplayMode: MonitorDisplayMode
-    monitorSettings: MonitorSetting[]
+    uptimeKumaSettings: UptimeKumaSettings
     projects: Project[]
 }

@@ -1,29 +1,25 @@
 "use client"
 
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ShieldCheck } from "lucide-react"
 import { useState } from "react"
-import { AdminModeBanner } from "@/components/admin-mode-banner"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
 import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
 import { SectionHeading } from "@/components/section-heading"
-import { ServerStats } from "@/components/server-stats"
 import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
 import { useAdminSession } from "@/hooks/use-admin-session"
-import type { StatsConfig } from "@/lib/site-config"
 import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
 interface HomeContentProps {
-    initialStats: StatsConfig | null
     projectReleaseVersions: Record<string, ReleaseInfo>
 }
 
-export function HomeContent({ initialStats, projectReleaseVersions }: HomeContentProps) {
+export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
     const { isAdmin } = useAdminSession()
     const [showIntroInAdmin, setShowIntroInAdmin] = useState(false)
@@ -31,7 +27,15 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
-            <AdminModeBanner />
+            <div className="flex justify-end">
+                <Link
+                    href="/edit"
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                >
+                    <ShieldCheck className="size-3.5" aria-hidden />
+                    管理画面
+                </Link>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <DashboardCard
@@ -85,15 +89,7 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
                 </DashboardCard>
             </div>
 
-            <section>
-                <DynamicStats
-                    initialStats={initialStats}
-                    monitorSettings={content.monitorSettings}
-                    monitorDisplayMode={content.monitorDisplayMode}
-                />
-            </section>
-
-            <ServerStats />
+            <DynamicStats uptimeKumaSettings={content.uptimeKumaSettings} />
 
             <section className="space-y-4">
                 <SectionHeading title="Contribution Activity" />
@@ -111,16 +107,7 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p className="font-mono text-xs">
-                    © 2026 GUCCHII.com{" "}
-                    <Link
-                        href="/admin"
-                        className="text-inherit no-underline cursor-default hover:cursor-pointer"
-                        aria-label="管理画面"
-                    >
-                        v{appVersion}
-                    </Link>
-                </p>
+                <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
             </footer>
         </main>
     )
