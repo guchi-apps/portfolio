@@ -87,8 +87,7 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
             <section>
                 <DynamicStats
                     initialStats={initialStats}
-                    monitorSettings={content.monitorSettings}
-                    monitorDisplayMode={content.monitorDisplayMode}
+                    uptimeKumaSettings={content.uptimeKumaSettings}
                 />
             </section>
 

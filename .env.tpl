@@ -6,6 +6,8 @@
 # vault / item 名は環境に合わせて変更可能です。
 
 UPTIMEROBOT_READ_ONLY_KEY=op://apps/portfolio/next-public-uptimerobot-read-only-key
+UPTIMEKUMA_BASE_URL=op://apps/portfolio/uptimekuma-base-url
+UPTIMEKUMA_STATUS_SLUG=op://apps/portfolio/uptimekuma-status-slug
 ADMIN_PASSWORD=op://apps/portfolio/admin-password
 SESSION_SECRET=op://apps/portfolio/session-secret
 SSH_HOST=op://apps/Server/host

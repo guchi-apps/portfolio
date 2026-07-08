@@ -10,7 +10,7 @@
 - **ダークモード対応**: システム設定に連動したテーマ切り替え
 - **リアルタイムステータス**:
   - **GitHub Activity**: GitHubのコントリビューショングラフを表示 (`react-github-calendar`)
-  - **System Status**: UptimeRobot APIを利用してサーバーの稼働状況を表示
+  - **System Status**: UptimeRobot / Uptime Kuma APIを利用してサーバーの稼働状況を表示（ダッシュボードで確認。Uptime Kumaはポートフォリオへの表示設定も可能）
 
 ## 🛠 技術スタック
 
@@ -61,6 +61,8 @@ npm run dev
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
 | `portfolio` | `next-public-uptimerobot-read-only-key` | UptimeRobot Read-Only APIキー（サーバー専用） |
+| `portfolio` | `uptimekuma-base-url` | Uptime Kuma ステータスページの内部URL（サーバー専用・非公開） |
+| `portfolio` | `uptimekuma-status-slug` | Uptime Kuma ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
 | `portfolio` | `admin-password` | 管理画面のログインパスワード |
 | `portfolio` | `session-secret` | セッション署名用のランダム文字列 |
@@ -256,7 +258,7 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 | :--- | :--- |
 | 自己紹介 | トップページのプロフィール文 |
 | Connect リンク | 名前・アイコン・URL |
-| UptimeRobot | モニターごとの表示/非表示・表示方法（カード/コンパクト/バッジ） |
+| Uptime Kuma | ポートフォリオ/ダッシュボードそれぞれでの表示・リンク表示の可否、リンク先URL |
 | Featured Projects | プロジェクト一覧 |
 
 - **URL**: `https://gucchii.com/edit`
@@ -265,6 +267,8 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 
 - **URL**: `https://gucchii.com/admin`
 - CPU / メモリ / ディスク / ロードアベレージ / 稼働時間などの VPS ステータスを表示
+- UptimeRobot のモニター状況を常時表示
+- Uptime Kuma のモニター状況を表示（`/edit` の設定で非表示にすることも可能）
 
 ### 共通
 

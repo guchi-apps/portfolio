@@ -12,34 +12,12 @@
       "url": "https://blog.gucchii.com"
     }
   ],
-  "monitorDisplayMode": "badge",
-  "monitorSettings": [
-    {
-      "monitorId": 802361344,
-      "visible": true,
-      "linkUrl": "https://asset.gucchii.com"
-    },
-    {
-      "monitorId": 802361377,
-      "visible": true,
-      "linkUrl": "https://blog.gucchii.com"
-    },
-    {
-      "monitorId": 802362180,
-      "visible": true,
-      "linkUrl": "https://gucchii.com"
-    },
-    {
-      "monitorId": 803295963,
-      "visible": true,
-      "linkUrl": "https://klondike.game.gucchii.com"
-    },
-    {
-      "monitorId": 802382928,
-      "visible": true,
-      "linkUrl": "https://myroom.gucchii.com"
-    }
-  ],
+  "uptimeKumaSettings": {
+    "portfolioVisible": false,
+    "portfolioShowLink": true,
+    "dashboardVisible": true,
+    "dashboardShowLink": true
+  },
   "projects": [
     {
       "id": "1",

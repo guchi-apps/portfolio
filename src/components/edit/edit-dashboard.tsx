@@ -7,225 +7,86 @@ import { Input, Label, Textarea } from "@/components/ui/input"
 import { AdminLoginForm } from "@/components/admin-login-form"
 import { CollapsibleSection } from "@/components/edit/collapsible-section"
 import { ConnectIconPicker } from "@/components/edit/connect-icon-picker"
+import { ProjectImagesInput } from "@/components/edit/project-images-input"
 import { ProjectLinksInput } from "@/components/edit/project-links-input"
 import { TechStackInput } from "@/components/edit/tech-stack-input"
 import { cn } from "@/lib/utils"
-import {
-    getMonitorSetting,
-    getOrderedMonitors,
-    reorderMonitorSettings,
-} from "@/lib/monitor-settings"
-import type { UptimeRobotMonitor } from "@/lib/uptimerobot"
-import type {
-    AppAccessibility,
-    ConnectLink,
-    MonitorDisplayMode,
-    MonitorLinkVisibility,
-    MonitorSetting,
-    Project,
-    SiteContent,
-} from "@/types/site-content"
+import type { AppAccessibility, ConnectLink, Project, SiteContent } from "@/types/site-content"
 import { parseProjectPeriodForInput } from "@/lib/project-period"
 
-function MonitorEditor({
-    monitors,
+function UptimeKumaEditor({
     settings,
-    displayMode,
-    onSettingsChange,
-    onDisplayModeChange,
+    onChange,
 }: {
-    monitors: UptimeRobotMonitor[]
-    settings: MonitorSetting[]
-    displayMode: MonitorDisplayMode
-    onSettingsChange: (settings: MonitorSetting[]) => void
-    onDisplayModeChange: (displayMode: MonitorDisplayMode) => void
+    settings: SiteContent["uptimeKumaSettings"]
+    onChange: (settings: SiteContent["uptimeKumaSettings"]) => void
 }) {
-    const updateSetting = (monitorId: number, patch: Partial<MonitorSetting>) => {
-        const index = settings.findIndex((s) => s.monitorId === monitorId)
-        if (index >= 0) {
-            onSettingsChange(
-                settings.map((s, i) => (i === index ? { ...s, ...patch } : s))
-            )
-        } else {
-            onSettingsChange([...settings, { monitorId, visible: true, ...patch }])
-        }
-    }
-
-    const moveMonitor = (monitorId: number, direction: -1 | 1) => {
-        onSettingsChange(reorderMonitorSettings(settings, monitors, monitorId, direction))
-    }
-
-    const orderedMonitors = getOrderedMonitors(monitors, settings)
-
-    if (monitors.length === 0) {
-        return (
-            <p className="text-sm text-slate-500">
-                UptimeRobot のモニターが取得できません。APIキーを確認してください。
-            </p>
-        )
-    }
-
     return (
         <div className="space-y-4">
-            <div className="space-y-1">
-                <Label>表示方法（全モニター共通）</Label>
-                <select
-                    className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                    value={displayMode}
-                    onChange={(e) =>
-                        onDisplayModeChange(e.target.value as MonitorDisplayMode)
-                    }
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <label className="flex items-center gap-2 text-sm">
+                    <input
+                        type="checkbox"
+                        checked={settings.portfolioVisible}
+                        onChange={(e) =>
+                            onChange({ ...settings, portfolioVisible: e.target.checked })
+                        }
+                    />
+                    ポートフォリオに表示
+                </label>
+                <label
+                    className={cn(
+                        "flex items-center gap-2 text-sm",
+                        !settings.portfolioVisible && "text-slate-400"
+                    )}
                 >
-                    <option value="card">カード</option>
-                    <option value="compact">コンパクト</option>
-                    <option value="badge">バッジ</option>
-                </select>
+                    <input
+                        type="checkbox"
+                        checked={settings.portfolioShowLink}
+                        disabled={!settings.portfolioVisible}
+                        onChange={(e) =>
+                            onChange({ ...settings, portfolioShowLink: e.target.checked })
+                        }
+                    />
+                    ポートフォリオでリンクを表示
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                    <input
+                        type="checkbox"
+                        checked={settings.dashboardVisible}
+                        onChange={(e) =>
+                            onChange({ ...settings, dashboardVisible: e.target.checked })
+                        }
+                    />
+                    ダッシュボードに表示
+                </label>
+                <label
+                    className={cn(
+                        "flex items-center gap-2 text-sm",
+                        !settings.dashboardVisible && "text-slate-400"
+                    )}
+                >
+                    <input
+                        type="checkbox"
+                        checked={settings.dashboardShowLink}
+                        disabled={!settings.dashboardVisible}
+                        onChange={(e) =>
+                            onChange({ ...settings, dashboardShowLink: e.target.checked })
+                        }
+                    />
+                    ダッシュボードでリンクを表示
+                </label>
             </div>
-
-            <div className="space-y-3">
-            {orderedMonitors.map((monitor, index) => {
-                const setting = getMonitorSetting(settings, monitor.id)
-
-                return (
-                    <div
-                        key={monitor.id}
-                        className={cn(
-                            "rounded-lg border p-4 space-y-3 transition-colors",
-                            setting.visible
-                                ? "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950"
-                                : "border-slate-300 border-dashed bg-slate-100 opacity-70 dark:border-slate-600 dark:bg-slate-900/70"
-                        )}
-                    >
-                        <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 min-w-0">
-                                <span
-                                    className={cn(
-                                        "font-medium text-sm truncate",
-                                        setting.visible
-                                            ? "text-slate-700 dark:text-slate-200"
-                                            : "text-slate-400 dark:text-slate-500"
-                                    )}
-                                >
-                                    {setting.customLabel?.trim() || monitor.friendly_name}
-                                </span>
-                                {!setting.visible && (
-                                    <span className="shrink-0 rounded bg-slate-300 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                                        非表示
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={index === 0}
-                                    onClick={() => moveMonitor(monitor.id, -1)}
-                                    aria-label="上に移動"
-                                >
-                                    ↑
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={index === orderedMonitors.length - 1}
-                                    onClick={() => moveMonitor(monitor.id, 1)}
-                                    aria-label="下に移動"
-                                >
-                                    ↓
-                                </Button>
-                                <label
-                                    className={cn(
-                                        "flex items-center gap-2 text-sm",
-                                        !setting.visible && "text-slate-400"
-                                    )}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={setting.visible}
-                                        onChange={(e) =>
-                                            updateSetting(monitor.id, { visible: e.target.checked })
-                                        }
-                                    />
-                                    表示
-                                </label>
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <Label className={!setting.visible ? "text-slate-400" : undefined}>
-                                表示名（任意）
-                            </Label>
-                            <Input
-                                value={setting.customLabel ?? ""}
-                                placeholder={monitor.friendly_name}
-                                disabled={!setting.visible}
-                                onChange={(e) =>
-                                    updateSetting(monitor.id, {
-                                        customLabel: e.target.value || undefined,
-                                    })
-                                }
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label className={!setting.visible ? "text-slate-400" : undefined}>
-                                リンク先 URL（任意）
-                            </Label>
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                <Input
-                                    className="min-w-0 flex-1 w-full"
-                                    value={setting.linkUrl ?? ""}
-                                    placeholder={monitor.url || "https://example.com"}
-                                    disabled={!setting.visible}
-                                    onChange={(e) =>
-                                        updateSetting(monitor.id, {
-                                            linkUrl: e.target.value || undefined,
-                                        })
-                                    }
-                                />
-                                {monitor.url && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="shrink-0 self-start sm:self-auto"
-                                        disabled={!setting.visible}
-                                        onClick={() =>
-                                            updateSetting(monitor.id, { linkUrl: monitor.url })
-                                        }
-                                    >
-                                        モニター先URLを使用
-                                    </Button>
-                                )}
-                            </div>
-                            <p className="text-xs text-slate-500">
-                                空欄の場合はカードをクリックしても遷移しません
-                            </p>
-                        </div>
-                        <div className="space-y-1">
-                            <Label className={!setting.visible ? "text-slate-400" : undefined}>
-                                リンクの表示
-                            </Label>
-                            <select
-                                className="flex h-10 w-full max-w-xs rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                value={setting.linkVisibility ?? "public"}
-                                disabled={!setting.visible}
-                                onChange={(e) =>
-                                    updateSetting(monitor.id, {
-                                        linkVisibility: e.target.value as MonitorLinkVisibility,
-                                    })
-                                }
-                            >
-                                <option value="public">全員に表示</option>
-                                <option value="admin-only">管理者モードのみ表示</option>
-                            </select>
-                            <p className="text-xs text-slate-500">
-                                リンク先 URL を設定した場合、カードから遷移できるようになります
-                            </p>
-                        </div>
-                    </div>
-                )
-            })}
+            <div className="space-y-1">
+                <Label>リンク先 URL（任意）</Label>
+                <Input
+                    value={settings.linkUrl ?? ""}
+                    placeholder="https://example.com"
+                    onChange={(e) => onChange({ ...settings, linkUrl: e.target.value || undefined })}
+                />
+                <p className="text-xs text-slate-500">
+                    空欄の場合はリンクを表示する設定でもカードから遷移しません
+                </p>
             </div>
         </div>
     )
@@ -403,6 +264,13 @@ function ProjectEditor({
                             onChange={(links) => updateProject(index, { links })}
                         />
                     </div>
+                    <div className="space-y-1">
+                        <Label>写真</Label>
+                        <ProjectImagesInput
+                            value={project.images}
+                            onChange={(images) => updateProject(index, { images })}
+                        />
+                    </div>
                 </div>
             ))}
             <Button type="button" variant="outline" onClick={addProject}>
@@ -415,7 +283,6 @@ function ProjectEditor({
 export function EditDashboard() {
     const [authenticated, setAuthenticated] = useState<boolean | null>(null)
     const [content, setContent] = useState<SiteContent | null>(null)
-    const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState("")
 
@@ -428,13 +295,8 @@ export function EditDashboard() {
         }
 
         setAuthenticated(true)
-        const [contentRes, monitorsRes] = await Promise.all([
-            fetch("/api/admin/content"),
-            fetch("/api/admin/monitors"),
-        ])
+        const contentRes = await fetch("/api/admin/content")
         setContent(await contentRes.json())
-        const monitorData = await monitorsRes.json()
-        setMonitors(monitorData.monitors ?? [])
     }, [])
 
     useEffect(() => {
@@ -451,15 +313,10 @@ export function EditDashboard() {
             }
 
             setAuthenticated(true)
-            const [contentRes, monitorsRes] = await Promise.all([
-                fetch("/api/admin/content"),
-                fetch("/api/admin/monitors"),
-            ])
+            const contentRes = await fetch("/api/admin/content")
             if (cancelled) return
 
             setContent(await contentRes.json())
-            const monitorData = await monitorsRes.json()
-            setMonitors(monitorData.monitors ?? [])
         }
 
         void init()
@@ -661,16 +518,11 @@ export function EditDashboard() {
                     </div>
                 </CollapsibleSection>
 
-                <CollapsibleSection title="UptimeRobot モニター">
-                    <MonitorEditor
-                        monitors={monitors}
-                        settings={content.monitorSettings}
-                        displayMode={content.monitorDisplayMode}
-                        onSettingsChange={(monitorSettings) =>
-                            setContent({ ...content, monitorSettings })
-                        }
-                        onDisplayModeChange={(monitorDisplayMode) =>
-                            setContent({ ...content, monitorDisplayMode })
+                <CollapsibleSection title="Uptime Kuma">
+                    <UptimeKumaEditor
+                        settings={content.uptimeKumaSettings}
+                        onChange={(uptimeKumaSettings) =>
+                            setContent({ ...content, uptimeKumaSettings })
                         }
                     />
                 </CollapsibleSection>

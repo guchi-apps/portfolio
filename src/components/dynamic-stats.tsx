@@ -1,146 +1,16 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
-import { Link as LinkIcon } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
-import { getMonitorLinkHref, getVisibleMonitors } from "@/lib/monitor-settings"
-import { UptimeRobotMonitor } from "@/lib/uptimerobot"
+import { getUptimeKumaStatusInfo, type UptimeKumaMonitor } from "@/lib/uptime-kuma"
 import { useStatsConfig } from "@/hooks/use-stats-config"
-import { useAdminSession } from "@/hooks/use-admin-session"
-import { cn } from "@/lib/utils"
-import type { MonitorDisplayMode, MonitorSetting } from "@/types/site-content"
+import { MonitorCard, MonitorCardGrid } from "@/components/monitor-card"
+import type { UptimeKumaSettings } from "@/types/site-content"
 
 interface DynamicStatsProps {
     initialStats?: StatsConfig | null
-    monitorSettings: MonitorSetting[]
-    monitorDisplayMode: MonitorDisplayMode
-}
-
-function getStatusInfo(status: number) {
-    switch (status) {
-        case 2:
-            return { text: "Running", color: "text-emerald-500 dark:text-emerald-400" }
-        case 8:
-        case 9:
-            return { text: "Down", color: "text-red-500 dark:text-red-400" }
-        case 0:
-            return { text: "Paused", color: "text-yellow-500 dark:text-yellow-400" }
-        case 1:
-            return { text: "Checking...", color: "text-blue-500 dark:text-blue-400" }
-        default:
-            return { text: "Unknown", color: "text-slate-400" }
-    }
-}
-
-function BoldLinkLabel({ label, className }: { label: string; className?: string }) {
-    return (
-        <div className={cn("flex items-center gap-1.5 min-w-0 max-w-full", className)}>
-            <span className="font-bold truncate">{label}</span>
-            <LinkIcon className="h-4 w-4 shrink-0" aria-hidden />
-        </div>
-    )
-}
-
-function UptimeCardLink({
-    href,
-    label,
-    children,
-}: {
-    href?: string
-    label: string
-    children: React.ReactNode
-}) {
-    if (!href) return <>{children}</>
-
-    return (
-        <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${label}（外部リンク）`}
-            className="block h-full w-full rounded-xl transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-        >
-            {children}
-        </a>
-    )
-}
-
-function UptimeCard({
-    monitor,
-    label,
-    displayMode,
-    href,
-}: {
-    monitor: UptimeRobotMonitor
-    label: string
-    displayMode: MonitorDisplayMode
-    href?: string
-}) {
-    const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
-    const ratio = parseFloat(ratioStr.split("-")[0])
-    const status = getStatusInfo(monitor.status)
-
-    const content =
-        displayMode === "badge" ? (
-            <DashboardCard
-                className={cn("h-full flex items-center justify-between gap-3 px-4 py-3", href && "cursor-pointer")}
-            >
-                {href ? (
-                    <BoldLinkLabel label={label} className="text-sm" />
-                ) : (
-                    <span className="text-sm font-medium truncate">{label}</span>
-                )}
-                <span className={`text-sm font-bold shrink-0 ${status.color}`}>{status.text}</span>
-            </DashboardCard>
-        ) : displayMode === "compact" ? (
-            <DashboardCard
-                className={cn("h-full flex items-center justify-between gap-3 px-4 py-4", href && "cursor-pointer")}
-            >
-                <div className="min-w-0">
-                    {href ? (
-                        <BoldLinkLabel label={label} className="text-sm mb-1" />
-                    ) : (
-                        <span className="text-xs opacity-70 uppercase tracking-widest block truncate">
-                            {label}
-                        </span>
-                    )}
-                    <span className={`text-lg font-bold font-mono ${status.color}`}>{status.text}</span>
-                </div>
-                <span className="text-sm text-blue-100 dark:text-slate-400 shrink-0">
-                    {ratio}%
-                </span>
-            </DashboardCard>
-        ) : (
-            <DashboardCard
-                className={cn(
-                    "h-full flex flex-col justify-center items-center text-center gap-1",
-                    href && "cursor-pointer"
-                )}
-            >
-                {href ? (
-                    <BoldLinkLabel label={label} className="text-sm px-2" />
-                ) : (
-                    <span
-                        className="text-xs opacity-70 uppercase tracking-widest truncate w-full px-2"
-                        title={label}
-                    >
-                        {label}
-                    </span>
-                )}
-                <div className={`text-2xl font-bold font-mono ${status.color}`}>{status.text}</div>
-                <div className="text-sm font-medium text-blue-100 dark:text-slate-400">
-                    {ratio}% uptime (30d)
-                </div>
-            </DashboardCard>
-        )
-
-    return (
-        <UptimeCardLink href={href} label={label}>
-            {content}
-        </UptimeCardLink>
-    )
+    uptimeKumaSettings: UptimeKumaSettings
 }
 
 function LiveSinceCard({ startString }: { startString: string }) {
@@ -181,33 +51,30 @@ function LiveSinceCard({ startString }: { startString: string }) {
     )
 }
 
-export function DynamicStats({
-    initialStats,
-    monitorSettings,
-    monitorDisplayMode,
-}: DynamicStatsProps) {
+export function DynamicStats({ initialStats, uptimeKumaSettings }: DynamicStatsProps) {
     const { stats: fetchedStats, loading: statsLoading } = useStatsConfig()
     const stats = initialStats || fetchedStats
-    const { isAdmin } = useAdminSession()
 
-    const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
-    const [monitorsLoading, setMonitorsLoading] = useState(true)
+    const [monitors, setMonitors] = useState<UptimeKumaMonitor[]>([])
+    const [monitorsLoading, setMonitorsLoading] = useState(uptimeKumaSettings.portfolioVisible)
 
     useEffect(() => {
+        if (!uptimeKumaSettings.portfolioVisible) {
+            return
+        }
+
         const loadMonitors = async () => {
             try {
-                const res = await fetch("/api/uptime", { cache: "no-store" })
+                const res = await fetch("/api/uptime-kuma", { cache: "no-store" })
                 const data = await res.json()
                 setMonitors(data.monitors ?? [])
             } catch (err) {
-                console.error("Failed to fetch uptime data:", err)
+                console.error("Failed to fetch Uptime Kuma data:", err)
             }
             setMonitorsLoading(false)
         }
         loadMonitors()
-    }, [])
-
-    const visibleMonitors = getVisibleMonitors(monitors, monitorSettings)
+    }, [uptimeKumaSettings.portfolioVisible])
 
     if (!stats && statsLoading && monitorsLoading) {
         return (
@@ -219,31 +86,29 @@ export function DynamicStats({
         )
     }
 
-    const totalItems = visibleMonitors.length > 0 ? visibleMonitors.length : 1
-    const gridCols =
-        totalItems === 1
-            ? "grid-cols-1"
-            : totalItems === 2
-              ? "md:grid-cols-2"
-              : totalItems === 3
-                ? "md:grid-cols-3"
-                : "md:grid-cols-2 lg:grid-cols-4"
+    if (monitors.length === 0) {
+        return <LiveSinceCard startString={stats?.launchDate || ""} />
+    }
+
+    const href = uptimeKumaSettings.portfolioShowLink ? uptimeKumaSettings.linkUrl : undefined
 
     return (
-        <div className={`grid grid-cols-1 ${gridCols} gap-4 h-full`}>
-            {visibleMonitors.length > 0 ? (
-                visibleMonitors.map((m) => (
-                    <UptimeCard
-                        key={m.id}
-                        monitor={m}
-                        label={m.setting.customLabel || m.friendly_name}
-                        displayMode={monitorDisplayMode}
-                        href={getMonitorLinkHref(m.setting, isAdmin)}
+        <MonitorCardGrid count={monitors.length}>
+            {monitors.map((monitor) => {
+                const status = getUptimeKumaStatusInfo(monitor.status)
+                return (
+                    <MonitorCard
+                        key={monitor.id}
+                        label={monitor.name}
+                        statusText={status.text}
+                        statusColor={status.color}
+                        uptimeLabel={
+                            monitor.uptime24h !== null ? `${monitor.uptime24h.toFixed(2)}% uptime (24h)` : undefined
+                        }
+                        href={href}
                     />
-                ))
-            ) : (
-                <LiveSinceCard startString={stats?.launchDate || ""} />
-            )}
-        </div>
+                )
+            })}
+        </MonitorCardGrid>
     )
 }
