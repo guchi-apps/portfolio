@@ -13,16 +13,14 @@ import { SectionHeading } from "@/components/section-heading"
 import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
 import { useAdminSession } from "@/hooks/use-admin-session"
-import type { StatsConfig } from "@/lib/site-config"
 import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
 interface HomeContentProps {
-    initialStats: StatsConfig | null
     projectReleaseVersions: Record<string, ReleaseInfo>
 }
 
-export function HomeContent({ initialStats, projectReleaseVersions }: HomeContentProps) {
+export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
     const { isAdmin } = useAdminSession()
     const [showIntroInAdmin, setShowIntroInAdmin] = useState(false)
@@ -84,12 +82,7 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
                 </DashboardCard>
             </div>
 
-            <section>
-                <DynamicStats
-                    initialStats={initialStats}
-                    uptimeKumaSettings={content.uptimeKumaSettings}
-                />
-            </section>
+            <DynamicStats uptimeKumaSettings={content.uptimeKumaSettings} />
 
             <section className="space-y-4">
                 <SectionHeading title="Contribution Activity" />
