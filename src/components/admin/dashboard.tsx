@@ -170,8 +170,8 @@ export function AdminDashboard() {
                 </div>
 
                 <ServerStats />
-                <UptimeRobotSection />
                 {content.uptimeKumaSettings.dashboardVisible && <UptimeKumaSection />}
+                <UptimeRobotSection />
             </div>
         </div>
     )
