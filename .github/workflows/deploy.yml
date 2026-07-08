@@ -133,7 +133,7 @@ jobs:
           REMOTE_USER: ${{ env.SSH_USERNAME }}
           TARGET: ${{ env.DEPLOY_PATH }}
           REMOTE_PORT: ${{ env.SSH_PORT }}
-          EXCLUDE: "/data/site-content.json"
+          EXCLUDE: "/data/site-content.json, /data/uploads/"
 
       - name: Configure and restart application
         uses: appleboy/ssh-action@v1.2.0
@@ -161,7 +161,7 @@ jobs:
             PORT=3105
             HOSTNAME=127.0.0.1
             EOF
-            mkdir -p data
+            mkdir -p data/uploads
             if [ ! -f data/site-content.json ]; then
               cp data/site-content.default.json data/site-content.json
             fi
