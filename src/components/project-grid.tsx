@@ -189,7 +189,7 @@ export function ProjectGrid({ projects, releaseVersions }: ProjectGridProps) {
                     </DialogHeader>
 
                     {selectedProject?.images && selectedProject.images.length > 0 && (
-                        <div className="min-w-0 flex overflow-x-auto snap-x snap-mandatory gap-2 my-2 -mx-6 px-6">
+                        <div className="min-w-0 flex overflow-x-auto snap-x snap-mandatory gap-2 my-2 px-2">
                             {selectedProject.images.map((url, i) => (
                                 <button
                                     key={url}
