@@ -241,9 +241,16 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 - phpMyAdmin の URL（サーバー管理のパス）→ ログイン画面（Next.js の 404 ではないこと）
 - `DEPLOY_PATH` を URL で開いても **ファイル一覧が出ない**
 
-## 🔧 管理画面
+## 🔧 管理画面・ダッシュボード
 
-`/admin` でサイトコンテンツを編集できます（要ログイン）。
+管理者向けの画面は用途ごとに分かれています（いずれも要ログイン）。
+
+| パス | 用途 |
+| :--- | :--- |
+| `/edit` | サイトコンテンツの編集 |
+| `/admin` | ダッシュボード（VPS の稼働状況などを確認） |
+
+### `/edit`（サイトコンテンツの編集）
 
 | 編集項目 | 説明 |
 | :--- | :--- |
@@ -252,11 +259,19 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 | UptimeRobot | モニターごとの表示/非表示・表示方法（カード/コンパクト/バッジ） |
 | Featured Projects | プロジェクト一覧 |
 
+- **URL**: `https://gucchii.com/edit`
+
+### `/admin`（ダッシュボード）
+
 - **URL**: `https://gucchii.com/admin`
+- CPU / メモリ / ディスク / ロードアベレージ / 稼働時間などの VPS ステータスを表示
+
+### 共通
+
 - **パスワード**: 1Password の `ADMIN_PASSWORD`
 - **ログイン時**: Signaly へ通知
 
-ローカル開発時は `npm run dev` のあと `http://localhost:3000/admin` にアクセスしてください。
+ローカル開発時は `npm run dev` のあと `http://localhost:3000/edit` または `http://localhost:3000/admin` にアクセスしてください。
 
 ## 📄 ライセンス
 

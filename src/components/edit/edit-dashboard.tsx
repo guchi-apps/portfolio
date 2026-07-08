@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input, Label, Textarea } from "@/components/ui/input"
-import { CollapsibleSection } from "@/components/admin/collapsible-section"
-import { ConnectIconPicker } from "@/components/admin/connect-icon-picker"
-import { ProjectLinksInput } from "@/components/admin/project-links-input"
-import { TechStackInput } from "@/components/admin/tech-stack-input"
+import { AdminLoginForm } from "@/components/admin-login-form"
+import { CollapsibleSection } from "@/components/edit/collapsible-section"
+import { ConnectIconPicker } from "@/components/edit/connect-icon-picker"
+import { ProjectLinksInput } from "@/components/edit/project-links-input"
+import { TechStackInput } from "@/components/edit/tech-stack-input"
 import { cn } from "@/lib/utils"
 import {
     getMonitorSetting,
@@ -26,64 +26,6 @@ import type {
     SiteContent,
 } from "@/types/site-content"
 import { parseProjectPeriodForInput } from "@/lib/project-period"
-
-function LoginForm({ onSuccess }: { onSuccess: () => void }) {
-    const [password, setPassword] = useState("")
-    const [error, setError] = useState("")
-    const [loading, setLoading] = useState(false)
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-        setError("")
-
-        const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-        })
-
-        if (res.ok) {
-            onSuccess()
-        } else {
-            setError("パスワードが正しくありません")
-        }
-        setLoading(false)
-    }
-
-    return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle>管理画面ログイン</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="password">パスワード</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {error && <p className="text-sm text-red-500">{error}</p>}
-                        <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? "ログイン中..." : "ログイン"}
-                        </Button>
-                    </form>
-                    <p className="mt-4 text-center text-sm text-slate-500">
-                        <Link href="/" className="hover:underline">
-                            サイトに戻る
-                        </Link>
-                    </p>
-                </CardContent>
-            </Card>
-        </div>
-    )
-}
 
 function MonitorEditor({
     monitors,
@@ -470,7 +412,7 @@ function ProjectEditor({
     )
 }
 
-export function AdminDashboard() {
+export function EditDashboard() {
     const [authenticated, setAuthenticated] = useState<boolean | null>(null)
     const [content, setContent] = useState<SiteContent | null>(null)
     const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
@@ -605,7 +547,7 @@ export function AdminDashboard() {
     }
 
     if (!authenticated) {
-        return <LoginForm onSuccess={loadData} />
+        return <AdminLoginForm onSuccess={loadData} />
     }
 
     if (!content) {
@@ -620,10 +562,13 @@ export function AdminDashboard() {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">管理画面</h1>
+                    <h1 className="text-2xl font-bold">編集画面</h1>
                     <div className="flex gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/">サイトを見る</Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/admin">ダッシュボード</Link>
                         </Button>
                         <Button variant="outline" onClick={handleLogout}>
                             ログアウト

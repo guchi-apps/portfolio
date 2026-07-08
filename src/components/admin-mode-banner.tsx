@@ -20,12 +20,15 @@ export function AdminModeBanner() {
             <div className="flex items-center gap-2 min-w-0">
                 <ShieldCheck className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
                 <p className="text-sm font-medium">
-                    管理者モードで閲覧中 — VPS ステータスなどの管理情報が表示されています
+                    管理者モードで閲覧中
                 </p>
             </div>
             <div className="flex items-center gap-2 sm:ml-auto shrink-0">
                 <Button asChild variant="outline" size="sm" className="bg-transparent">
-                    <Link href="/admin">管理画面</Link>
+                    <Link href="/edit">編集画面</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="bg-transparent">
+                    <Link href="/admin">ダッシュボード</Link>
                 </Button>
                 <Button
                     variant="outline"

@@ -1,7 +1,7 @@
-import { AdminDashboard } from "@/components/admin/admin-dashboard"
+import { AdminDashboard } from "@/components/admin/dashboard"
 
 export const metadata = {
-    title: "管理画面 | gucchii.com",
+    title: "ダッシュボード | gucchii.com",
     robots: { index: false, follow: false },
 }
 

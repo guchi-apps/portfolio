@@ -10,7 +10,6 @@ import { DynamicStats } from "@/components/dynamic-stats"
 import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
 import { SectionHeading } from "@/components/section-heading"
-import { ServerStats } from "@/components/server-stats"
 import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
 import { useAdminSession } from "@/hooks/use-admin-session"
@@ -93,8 +92,6 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
                 />
             </section>
 
-            <ServerStats />
-
             <section className="space-y-4">
                 <SectionHeading title="Contribution Activity" />
                 <DashboardCard className="bg-blue-600 dark:bg-slate-950 border-none">
@@ -114,7 +111,7 @@ export function HomeContent({ initialStats, projectReleaseVersions }: HomeConten
                 <p className="font-mono text-xs">
                     © 2026 GUCCHII.com{" "}
                     <Link
-                        href="/admin"
+                        href="/edit"
                         className="text-inherit no-underline cursor-default hover:cursor-pointer"
                         aria-label="管理画面"
                     >
