@@ -1,9 +1,14 @@
+export type UptimeKumaStatus = "up" | "down" | "pending" | "maintenance"
+
 export interface UptimeKumaMonitor {
     id: number
     name: string
     url?: string
-    status: "up" | "down" | "pending"
-    uptime24h: number | null
+    status: UptimeKumaStatus
+    /** Oldest → newest, up to the last 25 heartbeats. */
+    recentStatuses: UptimeKumaStatus[]
+    currentPing: number | null
+    avgPing: number | null
 }
 
 interface StatusPageResponse {
@@ -13,27 +18,26 @@ interface StatusPageResponse {
 }
 
 interface HeartbeatResponse {
-    heartbeatList: Record<string, { status: number; time: string }[]>
-    uptimeList: Record<string, number>
+    heartbeatList: Record<string, { status: number; ping: number | null }[]>
 }
 
-export function getUptimeKumaStatusInfo(status: UptimeKumaMonitor["status"]): {
-    text: string
-    color: string
-} {
+const RECENT_HEARTBEAT_COUNT = 25
+
+function mapHeartbeatStatus(status: number): UptimeKumaStatus {
     switch (status) {
-        case "up":
-            return { text: "Running", color: "text-emerald-500 dark:text-emerald-400" }
-        case "down":
-            return { text: "Down", color: "text-red-500 dark:text-red-400" }
+        case 1:
+            return "up"
+        case 0:
+            return "down"
+        case 3:
+            return "maintenance"
         default:
-            return { text: "Checking...", color: "text-blue-500 dark:text-blue-400" }
+            return "pending"
     }
 }
 
-export async function fetchUptimeKumaMonitors(): Promise<UptimeKumaMonitor[]> {
+async function fetchMonitorsForSlug(slug: string | undefined): Promise<UptimeKumaMonitor[]> {
     const baseUrl = process.env.UPTIMEKUMA_BASE_URL
-    const slug = process.env.UPTIMEKUMA_STATUS_SLUG
     if (!baseUrl || !slug) {
         return []
     }
@@ -54,19 +58,41 @@ export async function fetchUptimeKumaMonitors(): Promise<UptimeKumaMonitor[]> {
         const monitors = page.publicGroupList.flatMap((group) => group.monitorList)
 
         return monitors.map((monitor) => {
-            const beats = heartbeat.heartbeatList[String(monitor.id)] ?? []
+            const beats = (heartbeat.heartbeatList[String(monitor.id)] ?? []).slice(
+                -RECENT_HEARTBEAT_COUNT
+            )
+            const recentStatuses = beats.map((beat) => mapHeartbeatStatus(beat.status))
             const last = beats[beats.length - 1]
-            const status: UptimeKumaMonitor["status"] = !last
-                ? "pending"
-                : last.status === 1
-                  ? "up"
-                  : "down"
-            const uptime24h = heartbeat.uptimeList[`${monitor.id}_24`] ?? null
+            const status = last ? mapHeartbeatStatus(last.status) : "pending"
+            const currentPing = last?.ping ?? null
+            const pings = beats
+                .map((beat) => beat.ping)
+                .filter((ping): ping is number => typeof ping === "number")
+            const avgPing =
+                pings.length > 0
+                    ? Math.round(pings.reduce((sum, ping) => sum + ping, 0) / pings.length)
+                    : null
 
-            return { id: monitor.id, name: monitor.name, url: monitor.url, status, uptime24h }
+            return {
+                id: monitor.id,
+                name: monitor.name,
+                url: monitor.url,
+                status,
+                recentStatuses,
+                currentPing,
+                avgPing,
+            }
         })
     } catch (err) {
         console.error("Failed to fetch Uptime Kuma data:", err)
         return []
     }
+}
+
+export async function fetchUptimeKumaPortfolioMonitors(): Promise<UptimeKumaMonitor[]> {
+    return fetchMonitorsForSlug(process.env.UPTIMEKUMA_PORTFOLIO_SLUG)
+}
+
+export async function fetchUptimeKumaDashboardMonitors(): Promise<UptimeKumaMonitor[]> {
+    return fetchMonitorsForSlug(process.env.UPTIMEKUMA_DASHBOARD_SLUG)
 }

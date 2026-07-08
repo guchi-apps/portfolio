@@ -61,8 +61,9 @@ npm run dev
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
 | `portfolio` | `next-public-uptimerobot-read-only-key` | UptimeRobot Read-Only APIキー（サーバー専用） |
-| `portfolio` | `uptimekuma-base-url` | Uptime Kuma ステータスページの内部URL（サーバー専用・非公開） |
-| `portfolio` | `uptimekuma-status-slug` | Uptime Kuma ステータスページのスラッグ（サーバー専用） |
+| `portfolio` | `uptimekuma-base-url` | Uptime Kuma のURL（Render等。サーバー専用でブラウザには渡さない） |
+| `portfolio` | `uptimekuma-portfolio-slug` | Uptime Kuma のポートフォリオ用ステータスページのスラッグ（サーバー専用） |
+| `portfolio` | `uptimekuma-dashboard-slug` | Uptime Kuma のダッシュボード用ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
 | `portfolio` | `admin-password` | 管理画面のログインパスワード |
 | `portfolio` | `session-secret` | セッション署名用のランダム文字列 |
@@ -258,7 +259,7 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 | :--- | :--- |
 | 自己紹介 | トップページのプロフィール文 |
 | Connect リンク | 名前・アイコン・URL |
-| Uptime Kuma | ポートフォリオ/ダッシュボードそれぞれでの表示・リンク表示の可否、リンク先URL |
+| Uptime Kuma | ポートフォリオ/ダッシュボードそれぞれでの表示可否 |
 | Featured Projects | プロジェクト一覧 |
 
 - **URL**: `https://gucchii.com/edit`
@@ -269,6 +270,33 @@ phpMyAdmin 本体の `Alias` や `Include` は別途サーバーに設定済み�
 - CPU / メモリ / ディスク / ロードアベレージ / 稼働時間などの VPS ステータスを表示
 - UptimeRobot のモニター状況を常時表示
 - Uptime Kuma のモニター状況を表示（`/edit` の設定で非表示にすることも可能）
+
+### Uptime Kuma の表示内容
+
+ポートフォリオとダッシュボードでは、Uptime Kuma 側に**別々のステータスページ**を用意し、表示内容を分けています。
+
+| ページ | 表示内容 |
+| :--- | :--- |
+| ポートフォリオ（`/`） | サイト名・URL・現在のステータス |
+| ダッシュボード（`/admin`） | サイト名・URL・現在のステータス・直近25回のステータス履歴・現在/平均の応答速度 |
+
+ステータスは Up（緑）/ Down（赤）/ Pending（オレンジ）/ Maintenance（青）の4種類で表示されます。
+
+### Uptime Kuma の初回セットアップ
+
+Uptime Kuma は UptimeRobot と異なり API キーは使いません。ステータスページ機能を使ってモニター一覧を取得します。
+
+このリポジトリでは Uptime Kuma を [Render](https://render.com/) 上で運用している想定です。Render の Web Service には既定で `https://<サービス名>.onrender.com` の公開URLが割り当てられ、ポートフォリオのサーバーからはこのURLへインターネット経由でアクセスします。
+
+1. Uptime Kuma の管理画面で「Status Pages」→ ポートフォリオ用・ダッシュボード用それぞれの新規ステータスページを作成し、表示したいモニターを追加する（各モニターの「Send URL」を有効にすると URL も表示される）
+2. 作成した各ステータスページの URL（例: `https://<サービス名>.onrender.com/status/<slug>`）から `<slug>` 部分を控える
+3. Uptime Kuma にはステータスページ自体へのアクセス制限機能（パスワード保護など）がないため、URLを知っていれば誰でもステータスページ自体には到達できてしまう。**URLを公開・リンクしないことで実質的に非公開を保つ**（ポートフォリオ側の `/api/uptime-kuma/*` はこのURLをブラウザに一切渡さず、選択したモニター情報のみを中継する）
+4. 環境変数に以下を設定する
+   - ローカル: `.env.local` に `UPTIMEKUMA_BASE_URL`（例: `https://<サービス名>.onrender.com`）、`UPTIMEKUMA_PORTFOLIO_SLUG`、`UPTIMEKUMA_DASHBOARD_SLUG`（手順2の各`<slug>`）を設定
+   - 本番: 1Password の `apps/portfolio` アイテムに `uptimekuma-base-url` / `uptimekuma-portfolio-slug` / `uptimekuma-dashboard-slug` フィールドを追加（`.env.tpl` から参照済み）
+5. `/edit` の「Uptime Kuma」セクションで表示/非表示を保存する
+
+未設定の場合はエラーにならず、Uptime Kuma のセクションは何も表示されません。
 
 ### 共通
 

@@ -18,10 +18,7 @@ function normalizeSiteContent(raw: LegacySiteContent): SiteContent {
         connectLinks: raw.connectLinks,
         uptimeKumaSettings: {
             portfolioVisible: uptimeKuma?.portfolioVisible ?? false,
-            portfolioShowLink: uptimeKuma?.portfolioShowLink ?? true,
             dashboardVisible: uptimeKuma?.dashboardVisible ?? true,
-            dashboardShowLink: uptimeKuma?.dashboardShowLink ?? true,
-            ...(uptimeKuma?.linkUrl ? { linkUrl: uptimeKuma.linkUrl } : {}),
         },
         projects: raw.projects,
     }

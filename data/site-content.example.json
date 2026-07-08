@@ -14,9 +14,7 @@
   ],
   "uptimeKumaSettings": {
     "portfolioVisible": false,
-    "portfolioShowLink": true,
-    "dashboardVisible": true,
-    "dashboardShowLink": true
+    "dashboardVisible": true
   },
   "projects": [
     {

@@ -8,19 +8,25 @@ import { SectionHeading } from "@/components/section-heading"
 import { ServerStats } from "@/components/server-stats"
 import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
+import { UptimeKumaDashboardCard } from "@/components/uptime-kuma-card"
 import { getUptimeRobotStatusInfo, type UptimeRobotMonitor } from "@/lib/uptimerobot"
-import { getUptimeKumaStatusInfo, type UptimeKumaMonitor } from "@/lib/uptime-kuma"
+import type { UptimeKumaMonitor } from "@/lib/uptime-kuma"
 
 function UptimeRobotSection() {
     const [monitors, setMonitors] = useState<UptimeRobotMonitor[]>([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         let cancelled = false
 
         async function load() {
-            const res = await fetch("/api/admin/monitors")
-            const data = (await res.json()) as { monitors?: UptimeRobotMonitor[] }
-            if (!cancelled) setMonitors(data.monitors ?? [])
+            try {
+                const res = await fetch("/api/admin/monitors")
+                const data = (await res.json()) as { monitors?: UptimeRobotMonitor[] }
+                if (!cancelled) setMonitors(data.monitors ?? [])
+            } finally {
+                if (!cancelled) setLoading(false)
+            }
         }
 
         void load()
@@ -28,43 +34,54 @@ function UptimeRobotSection() {
             cancelled = true
         }
     }, [])
-
-    if (monitors.length === 0) return null
 
     return (
         <section className="space-y-4">
             <SectionHeading title="UptimeRobot" />
-            <MonitorCardGrid count={monitors.length}>
-                {monitors.map((monitor) => {
-                    const status = getUptimeRobotStatusInfo(monitor.status)
-                    const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
-                    const ratio = parseFloat(ratioStr.split("-")[0])
-                    return (
-                        <MonitorCard
-                            key={monitor.id}
-                            label={monitor.friendly_name}
-                            statusText={status.text}
-                            statusColor={status.color}
-                            uptimeLabel={`${ratio}% uptime (30d)`}
-                            href={monitor.url}
-                        />
-                    )
-                })}
-            </MonitorCardGrid>
+            {loading ? (
+                <p className="text-sm text-slate-500">読み込み中...</p>
+            ) : monitors.length === 0 ? (
+                <p className="text-sm text-slate-500">
+                    UptimeRobot のモニターが取得できません。APIキーを確認してください。
+                </p>
+            ) : (
+                <MonitorCardGrid count={monitors.length}>
+                    {monitors.map((monitor) => {
+                        const status = getUptimeRobotStatusInfo(monitor.status)
+                        const ratioStr = monitor.custom_uptime_ratio || monitor.uptime_ratio || "0"
+                        const ratio = parseFloat(ratioStr.split("-")[0])
+                        return (
+                            <MonitorCard
+                                key={monitor.id}
+                                label={monitor.friendly_name}
+                                statusText={status.text}
+                                statusColor={status.color}
+                                uptimeLabel={`${ratio}% uptime (30d)`}
+                                href={monitor.url}
+                            />
+                        )
+                    })}
+                </MonitorCardGrid>
+            )}
         </section>
     )
 }
 
-function UptimeKumaSection({ showLink, linkUrl }: { showLink: boolean; linkUrl?: string }) {
+function UptimeKumaSection() {
     const [monitors, setMonitors] = useState<UptimeKumaMonitor[]>([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         let cancelled = false
 
         async function load() {
-            const res = await fetch("/api/uptime-kuma")
-            const data = (await res.json()) as { monitors?: UptimeKumaMonitor[] }
-            if (!cancelled) setMonitors(data.monitors ?? [])
+            try {
+                const res = await fetch("/api/uptime-kuma/dashboard")
+                const data = (await res.json()) as { monitors?: UptimeKumaMonitor[] }
+                if (!cancelled) setMonitors(data.monitors ?? [])
+            } finally {
+                if (!cancelled) setLoading(false)
+            }
         }
 
         void load()
@@ -73,32 +90,20 @@ function UptimeKumaSection({ showLink, linkUrl }: { showLink: boolean; linkUrl?:
         }
     }, [])
 
-    if (monitors.length === 0) return null
-
-    const href = showLink ? linkUrl : undefined
+    if (!loading && monitors.length === 0) return null
 
     return (
         <section className="space-y-4">
             <SectionHeading title="Uptime Kuma" />
-            <MonitorCardGrid count={monitors.length}>
-                {monitors.map((monitor) => {
-                    const status = getUptimeKumaStatusInfo(monitor.status)
-                    return (
-                        <MonitorCard
-                            key={monitor.id}
-                            label={monitor.name}
-                            statusText={status.text}
-                            statusColor={status.color}
-                            uptimeLabel={
-                                monitor.uptime24h !== null
-                                    ? `${monitor.uptime24h.toFixed(2)}% uptime (24h)`
-                                    : undefined
-                            }
-                            href={href}
-                        />
-                    )
-                })}
-            </MonitorCardGrid>
+            {loading ? (
+                <p className="text-sm text-slate-500">読み込み中...</p>
+            ) : (
+                <MonitorCardGrid count={monitors.length}>
+                    {monitors.map((monitor) => (
+                        <UptimeKumaDashboardCard key={monitor.id} monitor={monitor} />
+                    ))}
+                </MonitorCardGrid>
+            )}
         </section>
     )
 }
@@ -166,12 +171,7 @@ export function AdminDashboard() {
 
                 <ServerStats />
                 <UptimeRobotSection />
-                {content.uptimeKumaSettings.dashboardVisible && (
-                    <UptimeKumaSection
-                        showLink={content.uptimeKumaSettings.dashboardShowLink}
-                        linkUrl={content.uptimeKumaSettings.linkUrl}
-                    />
-                )}
+                {content.uptimeKumaSettings.dashboardVisible && <UptimeKumaSection />}
             </div>
         </div>
     )

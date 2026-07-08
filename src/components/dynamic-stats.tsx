@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { StatsConfig } from "@/lib/site-config"
-import { getUptimeKumaStatusInfo, type UptimeKumaMonitor } from "@/lib/uptime-kuma"
+import type { UptimeKumaMonitor } from "@/lib/uptime-kuma"
 import { useStatsConfig } from "@/hooks/use-stats-config"
-import { MonitorCard, MonitorCardGrid } from "@/components/monitor-card"
+import { MonitorCardGrid } from "@/components/monitor-card"
+import { UptimeKumaPortfolioCard } from "@/components/uptime-kuma-card"
 import type { UptimeKumaSettings } from "@/types/site-content"
 
 interface DynamicStatsProps {
@@ -65,7 +66,7 @@ export function DynamicStats({ initialStats, uptimeKumaSettings }: DynamicStatsP
 
         const loadMonitors = async () => {
             try {
-                const res = await fetch("/api/uptime-kuma", { cache: "no-store" })
+                const res = await fetch("/api/uptime-kuma/portfolio", { cache: "no-store" })
                 const data = await res.json()
                 setMonitors(data.monitors ?? [])
             } catch (err) {
@@ -90,25 +91,11 @@ export function DynamicStats({ initialStats, uptimeKumaSettings }: DynamicStatsP
         return <LiveSinceCard startString={stats?.launchDate || ""} />
     }
 
-    const href = uptimeKumaSettings.portfolioShowLink ? uptimeKumaSettings.linkUrl : undefined
-
     return (
         <MonitorCardGrid count={monitors.length}>
-            {monitors.map((monitor) => {
-                const status = getUptimeKumaStatusInfo(monitor.status)
-                return (
-                    <MonitorCard
-                        key={monitor.id}
-                        label={monitor.name}
-                        statusText={status.text}
-                        statusColor={status.color}
-                        uptimeLabel={
-                            monitor.uptime24h !== null ? `${monitor.uptime24h.toFixed(2)}% uptime (24h)` : undefined
-                        }
-                        href={href}
-                    />
-                )
-            })}
+            {monitors.map((monitor) => (
+                <UptimeKumaPortfolioCard key={monitor.id} monitor={monitor} />
+            ))}
         </MonitorCardGrid>
     )
 }

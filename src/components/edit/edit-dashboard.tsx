@@ -10,7 +10,6 @@ import { ConnectIconPicker } from "@/components/edit/connect-icon-picker"
 import { ProjectImagesInput } from "@/components/edit/project-images-input"
 import { ProjectLinksInput } from "@/components/edit/project-links-input"
 import { TechStackInput } from "@/components/edit/tech-stack-input"
-import { cn } from "@/lib/utils"
 import type { AppAccessibility, ConnectLink, Project, SiteContent } from "@/types/site-content"
 import { parseProjectPeriodForInput } from "@/lib/project-period"
 
@@ -22,72 +21,23 @@ function UptimeKumaEditor({
     onChange: (settings: SiteContent["uptimeKumaSettings"]) => void
 }) {
     return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 text-sm">
-                    <input
-                        type="checkbox"
-                        checked={settings.portfolioVisible}
-                        onChange={(e) =>
-                            onChange({ ...settings, portfolioVisible: e.target.checked })
-                        }
-                    />
-                    ポートフォリオに表示
-                </label>
-                <label
-                    className={cn(
-                        "flex items-center gap-2 text-sm",
-                        !settings.portfolioVisible && "text-slate-400"
-                    )}
-                >
-                    <input
-                        type="checkbox"
-                        checked={settings.portfolioShowLink}
-                        disabled={!settings.portfolioVisible}
-                        onChange={(e) =>
-                            onChange({ ...settings, portfolioShowLink: e.target.checked })
-                        }
-                    />
-                    ポートフォリオでリンクを表示
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                    <input
-                        type="checkbox"
-                        checked={settings.dashboardVisible}
-                        onChange={(e) =>
-                            onChange({ ...settings, dashboardVisible: e.target.checked })
-                        }
-                    />
-                    ダッシュボードに表示
-                </label>
-                <label
-                    className={cn(
-                        "flex items-center gap-2 text-sm",
-                        !settings.dashboardVisible && "text-slate-400"
-                    )}
-                >
-                    <input
-                        type="checkbox"
-                        checked={settings.dashboardShowLink}
-                        disabled={!settings.dashboardVisible}
-                        onChange={(e) =>
-                            onChange({ ...settings, dashboardShowLink: e.target.checked })
-                        }
-                    />
-                    ダッシュボードでリンクを表示
-                </label>
-            </div>
-            <div className="space-y-1">
-                <Label>リンク先 URL（任意）</Label>
-                <Input
-                    value={settings.linkUrl ?? ""}
-                    placeholder="https://example.com"
-                    onChange={(e) => onChange({ ...settings, linkUrl: e.target.value || undefined })}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="flex items-center gap-2 text-sm">
+                <input
+                    type="checkbox"
+                    checked={settings.portfolioVisible}
+                    onChange={(e) => onChange({ ...settings, portfolioVisible: e.target.checked })}
                 />
-                <p className="text-xs text-slate-500">
-                    空欄の場合はリンクを表示する設定でもカードから遷移しません
-                </p>
-            </div>
+                ポートフォリオに表示
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+                <input
+                    type="checkbox"
+                    checked={settings.dashboardVisible}
+                    onChange={(e) => onChange({ ...settings, dashboardVisible: e.target.checked })}
+                />
+                ダッシュボードに表示
+            </label>
         </div>
     )
 }
