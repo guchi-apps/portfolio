@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Input, Label, Textarea } from "@/components/ui/input"
 import { AdminLoginForm } from "@/components/admin-login-form"
 import { CollapsibleSection } from "@/components/edit/collapsible-section"
@@ -83,144 +90,163 @@ function ProjectEditor({
             {projects.map((project, index) => (
                 <div
                     key={project.id}
-                    className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-3"
+                    className="rounded-lg border border-slate-200 dark:border-slate-700 p-4"
                 >
-                    <div className="flex justify-between items-center gap-2">
-                        <span className="font-medium truncate min-w-0">
-                            {project.title.trim() || "（無題）"}
-                        </span>
-                        <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                disabled={index === 0}
-                                onClick={() => moveProject(index, -1)}
-                                aria-label="上に移動"
-                            >
-                                ↑
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                disabled={index === projects.length - 1}
-                                onClick={() => moveProject(index, 1)}
-                                aria-label="下に移動"
-                            >
-                                ↓
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeProject(index)}
-                            >
-                                削除
-                            </Button>
+                    <Collapsible>
+                        <div className="flex justify-between items-center gap-2">
+                            <CollapsibleTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="group flex items-center gap-2 min-w-0 text-left"
+                                >
+                                    <ChevronDown className="h-4 w-4 shrink-0 text-slate-500 transition-transform group-data-[state=open]:rotate-180" />
+                                    <span className="font-medium truncate min-w-0">
+                                        {project.title.trim() || "（無題）"}
+                                    </span>
+                                </button>
+                            </CollapsibleTrigger>
+                            <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={index === 0}
+                                    onClick={() => moveProject(index, -1)}
+                                    aria-label="上に移動"
+                                >
+                                    ↑
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={index === projects.length - 1}
+                                    onClick={() => moveProject(index, 1)}
+                                    aria-label="下に移動"
+                                >
+                                    ↓
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => removeProject(index)}
+                                >
+                                    削除
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1 min-w-0">
-                            <Label>タイトル</Label>
-                            <Input
-                                value={project.title}
-                                onChange={(e) => updateProject(index, { title: e.target.value })}
-                            />
-                        </div>
-                        <div className="space-y-1 min-w-0 overflow-hidden">
-                            <Label>プロジェクト開始</Label>
-                            <Input
-                                type="date"
-                                value={parseProjectPeriodForInput(project.period)}
-                                onChange={(e) =>
-                                    updateProject(index, { period: e.target.value })
-                                }
-                                className="min-w-0 max-w-full"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-1">
-                        <Label>説明</Label>
-                        <Textarea
-                            value={project.description}
-                            onChange={(e) =>
-                                updateProject(index, { description: e.target.value })
-                            }
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>技術スタック</Label>
-                        <TechStackInput
-                            value={project.techStack}
-                            onChange={(techStack) => updateProject(index, { techStack })}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>GitHub URL</Label>
-                        <Input
-                            value={
-                                Array.isArray(project.githubUrl)
-                                    ? project.githubUrl.join(", ")
-                                    : project.githubUrl ?? ""
-                            }
-                            onChange={(e) => {
-                                const val = e.target.value.trim()
-                                if (!val) {
-                                    updateProject(index, { githubUrl: undefined })
-                                    return
-                                }
-                                const urls = val.split(",").map((s) => s.trim()).filter(Boolean)
-                                updateProject(index, {
-                                    githubUrl: urls.length === 1 ? urls[0] : urls,
-                                })
-                            }}
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                            <Label>アプリURL</Label>
-                            <Input
-                                value={project.appUrl ?? ""}
-                                placeholder="https://example.com"
-                                onChange={(e) => {
-                                    const val = e.target.value.trim()
-                                    updateProject(index, { appUrl: val || undefined })
-                                }}
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label>アクセス可否</Label>
-                            <select
-                                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                                value={project.appAccessibility ?? "public"}
-                                onChange={(e) =>
-                                    updateProject(index, {
-                                        appAccessibility: e.target.value as AppAccessibility,
-                                    })
-                                }
-                            >
-                                <option value="public">誰でもアクセス可</option>
-                                <option value="registration-required">登録が必要</option>
-                                <option value="inaccessible">アクセス不可</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="space-y-1">
-                        <Label>リンク</Label>
-                        <ProjectLinksInput
-                            key={project.id}
-                            value={project.links}
-                            onChange={(links) => updateProject(index, { links })}
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label>写真</Label>
-                        <ProjectImagesInput
-                            value={project.images}
-                            onChange={(images) => updateProject(index, { images })}
-                        />
-                    </div>
+                        <CollapsibleContent>
+                            <div className="space-y-3 pt-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="space-y-1 min-w-0">
+                                        <Label>タイトル</Label>
+                                        <Input
+                                            value={project.title}
+                                            onChange={(e) =>
+                                                updateProject(index, { title: e.target.value })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-1 min-w-0 overflow-hidden">
+                                        <Label>プロジェクト開始</Label>
+                                        <Input
+                                            type="date"
+                                            value={parseProjectPeriodForInput(project.period)}
+                                            onChange={(e) =>
+                                                updateProject(index, { period: e.target.value })
+                                            }
+                                            className="min-w-0 max-w-full"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <Label>説明</Label>
+                                    <Textarea
+                                        value={project.description}
+                                        onChange={(e) =>
+                                            updateProject(index, { description: e.target.value })
+                                        }
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label>技術スタック</Label>
+                                    <TechStackInput
+                                        value={project.techStack}
+                                        onChange={(techStack) => updateProject(index, { techStack })}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label>GitHub URL</Label>
+                                    <Input
+                                        value={
+                                            Array.isArray(project.githubUrl)
+                                                ? project.githubUrl.join(", ")
+                                                : project.githubUrl ?? ""
+                                        }
+                                        onChange={(e) => {
+                                            const val = e.target.value.trim()
+                                            if (!val) {
+                                                updateProject(index, { githubUrl: undefined })
+                                                return
+                                            }
+                                            const urls = val
+                                                .split(",")
+                                                .map((s) => s.trim())
+                                                .filter(Boolean)
+                                            updateProject(index, {
+                                                githubUrl: urls.length === 1 ? urls[0] : urls,
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <Label>アプリURL</Label>
+                                        <Input
+                                            value={project.appUrl ?? ""}
+                                            placeholder="https://example.com"
+                                            onChange={(e) => {
+                                                const val = e.target.value.trim()
+                                                updateProject(index, { appUrl: val || undefined })
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label>アクセス可否</Label>
+                                        <select
+                                            className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                                            value={project.appAccessibility ?? "public"}
+                                            onChange={(e) =>
+                                                updateProject(index, {
+                                                    appAccessibility: e.target.value as AppAccessibility,
+                                                })
+                                            }
+                                        >
+                                            <option value="public">誰でもアクセス可</option>
+                                            <option value="registration-required">登録が必要</option>
+                                            <option value="inaccessible">アクセス不可</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <Label>リンク</Label>
+                                    <ProjectLinksInput
+                                        key={project.id}
+                                        value={project.links}
+                                        onChange={(links) => updateProject(index, { links })}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label>写真</Label>
+                                    <ProjectImagesInput
+                                        value={project.images}
+                                        onChange={(images) => updateProject(index, { images })}
+                                    />
+                                </div>
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </div>
             ))}
             <Button type="button" variant="outline" onClick={addProject}>
@@ -368,9 +394,9 @@ export function EditDashboard() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">編集画面</h1>
-                    <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h1 className="text-2xl font-bold shrink-0">編集画面</h1>
+                    <div className="flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/">サイトを見る</Link>
                         </Button>
@@ -477,12 +503,17 @@ export function EditDashboard() {
                     />
                 </CollapsibleSection>
 
-                <CollapsibleSection title="Projects">
-                    <ProjectEditor
-                        projects={content.projects}
-                        onChange={(projects) => setContent({ ...content, projects })}
-                    />
-                </CollapsibleSection>
+                <Card className="py-6">
+                    <div className="px-6">
+                        <span className="leading-none font-semibold">Projects</span>
+                    </div>
+                    <div className="px-6">
+                        <ProjectEditor
+                            projects={content.projects}
+                            onChange={(projects) => setContent({ ...content, projects })}
+                        />
+                    </div>
+                </Card>
             </div>
             <div className="fixed inset-x-0 bottom-0 z-20 flex justify-center p-4">
                 <div className="flex items-center gap-4 w-full max-w-4xl bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur p-4 rounded-lg border">

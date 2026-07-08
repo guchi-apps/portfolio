@@ -154,9 +154,9 @@ export function AdminDashboard() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
             <div className="max-w-4xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">ダッシュボード</h1>
-                    <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h1 className="text-2xl font-bold shrink-0">ダッシュボード</h1>
+                    <div className="flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/">サイトを見る</Link>
                         </Button>
