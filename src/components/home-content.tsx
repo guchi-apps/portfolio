@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ShieldCheck } from "lucide-react"
+import { LayoutDashboard, ShieldCheck } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
@@ -9,6 +9,7 @@ import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
 import { SectionHeading } from "@/components/section-heading"
 import { useSiteContent } from "@/components/site-content-provider"
+import { useAdminSession } from "@/hooks/use-admin-session"
 import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
@@ -18,10 +19,20 @@ interface HomeContentProps {
 
 export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
+    const { isAdmin } = useAdminSession()
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
-            <div className="flex justify-end">
+            <div className="flex justify-end items-center gap-4">
+                {isAdmin && (
+                    <Link
+                        href="/admin"
+                        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    >
+                        <LayoutDashboard className="size-3.5" aria-hidden />
+                        ダッシュボード
+                    </Link>
+                )}
                 <Link
                     href="/edit"
                     className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
