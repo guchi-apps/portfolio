@@ -1,17 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { Eye, EyeOff, ShieldCheck } from "lucide-react"
-import { useState } from "react"
+import { ShieldCheck } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
 import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
 import { SectionHeading } from "@/components/section-heading"
-import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
-import { useAdminSession } from "@/hooks/use-admin-session"
 import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
@@ -21,9 +18,6 @@ interface HomeContentProps {
 
 export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
-    const { isAdmin } = useAdminSession()
-    const [showIntroInAdmin, setShowIntroInAdmin] = useState(false)
-    const showIntro = !isAdmin || showIntroInAdmin
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
@@ -38,9 +32,7 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <DashboardCard
-                    className={`md:col-span-4 w-full flex flex-col justify-between relative overflow-hidden ${showIntro ? "min-h-[300px]" : "min-h-[180px]"}`}
-                >
+                <DashboardCard className="md:col-span-4 w-full flex flex-col justify-between relative overflow-hidden min-h-[300px]">
                     <div className="absolute top-0 right-0 p-8 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
                     <div className="relative z-10 w-full min-w-0 flex flex-col justify-between gap-8">
@@ -49,37 +41,18 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
                                 <h1 className="text-4xl md:text-6xl font-black tracking-tight">
                                     GUCCHII<span className="text-blue-300">.COM</span>
                                 </h1>
-                                {isAdmin && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="bg-white/10 border-white/20 text-blue-100 hover:bg-white/20 hover:text-white"
-                                        onClick={() => setShowIntroInAdmin((visible) => !visible)}
-                                        aria-expanded={showIntroInAdmin}
-                                    >
-                                        {showIntroInAdmin ? (
-                                            <EyeOff aria-hidden />
-                                        ) : (
-                                            <Eye aria-hidden />
-                                        )}
-                                        自己紹介を{showIntroInAdmin ? "隠す" : "表示"}
-                                    </Button>
-                                )}
                             </div>
 
-                            {showIntro && (
-                                <div className="w-full min-w-0 space-y-3">
-                                    {content.intro.split("\n").map((paragraph, index) => (
-                                        <p
-                                            key={index}
-                                            className="text-sm md:text-base text-blue-100 w-full max-w-none font-light leading-relaxed"
-                                        >
-                                            {paragraph}
-                                        </p>
-                                    ))}
-                                </div>
-                            )}
+                            <div className="w-full min-w-0 space-y-3">
+                                {content.intro.split("\n").map((paragraph, index) => (
+                                    <p
+                                        key={index}
+                                        className="text-sm md:text-base text-blue-100 w-full max-w-none font-light leading-relaxed"
+                                    >
+                                        {paragraph}
+                                    </p>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="w-full min-w-0">
