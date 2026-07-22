@@ -11,6 +11,23 @@ UPTIMEKUMA_PORTFOLIO_SLUG=op://apps/portfolio/uptimekuma-portfolio-slug
 UPTIMEKUMA_DASHBOARD_SLUG=op://apps/portfolio/uptimekuma-dashboard-slug
 ADMIN_PASSWORD=op://apps/portfolio/admin-password
 SESSION_SECRET=op://apps/portfolio/session-secret
+
+# 管理画面に表示するNextAuthアプリ
+# 新しいアプリを追加する場合はIDを追加し、対応するDATABASE_URLの参照も追加する。
+REGISTERED_USERS_APP_IDS=asset-manager,car-care,meisai-lab,clip-hive,subscription-lists
+REGISTERED_USERS_ASSET_MANAGER_DATABASE_URL=op://apps/asset-manager/database-url
+REGISTERED_USERS_CAR_CARE_DATABASE_URL=op://apps/car-care/database-url
+REGISTERED_USERS_MEISAI_LAB_DATABASE_URL=op://apps/meisai-lab/database-url
+REGISTERED_USERS_CLIP_HIVE_DATABASE_URL=op://apps/clip-hive/database-url
+REGISTERED_USERS_SUBSCRIPTION_LISTS_DATABASE_URL=op://apps/subscription-lists/database-url
+
+# 表示名は秘密情報ではないため、必要な場合のみここで指定する。
+REGISTERED_USERS_ASSET_MANAGER_LABEL=asset-manager
+REGISTERED_USERS_CAR_CARE_LABEL=car-care
+REGISTERED_USERS_MEISAI_LAB_LABEL=meisai-lab
+REGISTERED_USERS_CLIP_HIVE_LABEL=clip-hive
+REGISTERED_USERS_SUBSCRIPTION_LISTS_LABEL=subscription-lists
+
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
 SSH_PORT=op://apps/Server/ssh-port
