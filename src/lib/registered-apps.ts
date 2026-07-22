@@ -24,22 +24,25 @@ function getRequiredEnv(name: string): string {
     return value
 }
 
-export function getRegisteredUsersDatabaseConnection(): DatabaseConnection {
+function getConnection(userEnv: string, passwordEnv: string): DatabaseConnection {
     return {
         host: getRequiredEnv("REGISTERED_USERS_DB_HOST"),
         port: getRequiredEnv("REGISTERED_USERS_DB_PORT"),
-        user: getRequiredEnv("REGISTERED_USERS_DB_USER"),
-        password: getRequiredEnv("REGISTERED_USERS_DB_PASSWORD"),
+        user: getRequiredEnv(userEnv),
+        password: getRequiredEnv(passwordEnv),
     }
 }
 
+export function getRegisteredUsersDatabaseConnection(): DatabaseConnection {
+    return getConnection("REGISTERED_USERS_DB_USER", "REGISTERED_USERS_DB_PASSWORD")
+}
+
 function getSettingsDatabaseConnection(): DatabaseConnection {
-    return {
-        host: getRequiredEnv("REGISTERED_USERS_DB_HOST"),
-        port: getRequiredEnv("REGISTERED_USERS_DB_PORT"),
-        user: getRequiredEnv("REGISTERED_USERS_SETTINGS_DB_USER"),
-        password: getRequiredEnv("REGISTERED_USERS_SETTINGS_DB_PASSWORD"),
-    }
+    return getConnection("REGISTERED_USERS_SETTINGS_DB_USER", "REGISTERED_USERS_SETTINGS_DB_PASSWORD")
+}
+
+function getMigrateDatabaseConnection(): DatabaseConnection {
+    return getConnection("REGISTERED_USERS_MIGRATE_DB_USER", "REGISTERED_USERS_MIGRATE_DB_PASSWORD")
 }
 
 function getSettingsDatabase(): string {
@@ -87,10 +90,7 @@ let settingsInitialized = false
 async function ensureSettingsTable(): Promise<void> {
     if (settingsInitialized) return
 
-    const connection = getSettingsDatabaseConnection()
-    const database = getSettingsDatabase()
-
-    await executeSql(connection, database, `
+    await executeSql(getMigrateDatabaseConnection(), getSettingsDatabase(), `
         CREATE TABLE IF NOT EXISTS RegisteredApp (
             app_id VARCHAR(100) NOT NULL PRIMARY KEY,
             display_name VARCHAR(150) NOT NULL,
