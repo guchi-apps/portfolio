@@ -2,7 +2,7 @@
 # Local: op run --env-file=.env.tpl -- npm run dev
 # CI: loaded automatically via 1password/load-secrets-action
 #
-# 1Password の apps ボールトに各アイテムを作成し、以下のフィールドを登録してください。
+# 1Password の apps ボールトに portfolio アイテムを作成し、以下のフィールドを登録してください。
 # vault / item 名は環境に合わせて変更可能です。
 
 UPTIMEROBOT_READ_ONLY_KEY=op://apps/portfolio/next-public-uptimerobot-read-only-key
@@ -13,13 +13,14 @@ ADMIN_PASSWORD=op://apps/portfolio/admin-password
 SESSION_SECRET=op://apps/portfolio/session-secret
 
 # 管理画面に表示するNextAuthアプリ
-# 新しいアプリを追加する場合はIDを追加し、対応するDATABASE_URLの参照も追加する。
+# DB接続情報はすべて portfolio アイテム内の個別フィールドとしてまとめて管理する。
+# 新しいアプリを追加する場合はIDを追加し、portfolioアイテムに対応するフィールドを追加する。
 REGISTERED_USERS_APP_IDS=asset-manager,car-care,meisai-lab,clip-hive,subscription-lists
-REGISTERED_USERS_ASSET_MANAGER_DATABASE_URL=op://apps/asset-manager/database-url
-REGISTERED_USERS_CAR_CARE_DATABASE_URL=op://apps/car-care/database-url
-REGISTERED_USERS_MEISAI_LAB_DATABASE_URL=op://apps/meisai-lab/database-url
-REGISTERED_USERS_CLIP_HIVE_DATABASE_URL=op://apps/clip-hive/database-url
-REGISTERED_USERS_SUBSCRIPTION_LISTS_DATABASE_URL=op://apps/subscription-lists/database-url
+REGISTERED_USERS_ASSET_MANAGER_DATABASE_URL=op://apps/portfolio/registered-users-asset-manager-database-url
+REGISTERED_USERS_CAR_CARE_DATABASE_URL=op://apps/portfolio/registered-users-car-care-database-url
+REGISTERED_USERS_MEISAI_LAB_DATABASE_URL=op://apps/portfolio/registered-users-meisai-lab-database-url
+REGISTERED_USERS_CLIP_HIVE_DATABASE_URL=op://apps/portfolio/registered-users-clip-hive-database-url
+REGISTERED_USERS_SUBSCRIPTION_LISTS_DATABASE_URL=op://apps/portfolio/registered-users-subscription-lists-database-url
 
 # 表示名は秘密情報ではないため、必要な場合のみここで指定する。
 REGISTERED_USERS_ASSET_MANAGER_LABEL=asset-manager
