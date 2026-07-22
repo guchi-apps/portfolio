@@ -3,14 +3,6 @@ import { promisify } from "node:util"
 
 const execFileAsync = promisify(execFile)
 
-const DEFAULT_APP_IDS = [
-    "asset-manager",
-    "car-care",
-    "meisai-lab",
-    "clip-hive",
-    "subscription-lists",
-] as const
-
 export type RegisteredUser = {
     id: string
     name: string | null
@@ -28,59 +20,87 @@ export type RegisteredUserAppResult = {
 type AppConfig = {
     id: string
     label: string
-    databaseUrl: string
+    database: string
 }
 
-function toEnvKey(appId: string): string {
-    return appId.replace(/[^a-zA-Z0-9]/g, "_").toUpperCase()
+type DatabaseConnection = {
+    host: string
+    port: string
+    user: string
+    password: string
 }
 
-function getConfiguredAppIds(): string[] {
-    const configured = process.env.REGISTERED_USERS_APP_IDS
-        ?.split(",")
-        .map((value) => value.trim())
-        .filter(Boolean)
+function getRequiredEnv(name: string): string {
+    const value = process.env[name]?.trim()
+    if (!value) {
+        throw new Error(`${name} is not configured`)
+    }
+    return value
+}
 
-    return configured && configured.length > 0 ? configured : [...DEFAULT_APP_IDS]
+function getDatabaseConnection(): DatabaseConnection {
+    return {
+        host: getRequiredEnv("REGISTERED_USERS_DB_HOST"),
+        port: getRequiredEnv("REGISTERED_USERS_DB_PORT"),
+        user: getRequiredEnv("REGISTERED_USERS_DB_USER"),
+        password: getRequiredEnv("REGISTERED_USERS_DB_PASSWORD"),
+    }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 function getAppConfigs(): AppConfig[] {
-    return getConfiguredAppIds().map((id) => {
-        const envKey = toEnvKey(id)
-        const databaseUrl = process.env[`REGISTERED_USERS_${envKey}_DATABASE_URL`]
-        const label = process.env[`REGISTERED_USERS_${envKey}_LABEL`] || id
+    const rawConfig = getRequiredEnv("REGISTERED_USERS_CONFIG")
+    let parsed: unknown
 
-        if (!databaseUrl) {
-            throw new Error(`${id}: database URL is not configured`)
+    try {
+        parsed = JSON.parse(rawConfig)
+    } catch {
+        throw new Error("REGISTERED_USERS_CONFIG must be valid JSON")
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error("REGISTERED_USERS_CONFIG must be a non-empty array")
+    }
+
+    const ids = new Set<string>()
+
+    return parsed.map((value, index) => {
+        if (!isRecord(value)) {
+            throw new Error(`REGISTERED_USERS_CONFIG[${index}] must be an object`)
         }
 
-        return { id, label, databaseUrl }
+        const id = typeof value.id === "string" ? value.id.trim() : ""
+        const database = typeof value.database === "string" ? value.database.trim() : ""
+        const label = typeof value.label === "string" && value.label.trim() ? value.label.trim() : id
+
+        if (!id) {
+            throw new Error(`REGISTERED_USERS_CONFIG[${index}].id is required`)
+        }
+        if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+            throw new Error(`${id}: id contains unsupported characters`)
+        }
+        if (!database) {
+            throw new Error(`${id}: database is required`)
+        }
+        if (!/^[a-zA-Z0-9_$]+$/.test(database)) {
+            throw new Error(`${id}: database contains unsupported characters`)
+        }
+        if (ids.has(id)) {
+            throw new Error(`${id}: duplicate app id`)
+        }
+
+        ids.add(id)
+        return { id, label, database }
     })
 }
 
-function parseDatabaseUrl(databaseUrl: string) {
-    const url = new URL(databaseUrl)
-
-    if (url.protocol !== "mysql:") {
-        throw new Error("Only mysql:// database URLs are supported")
-    }
-
-    const database = url.pathname.replace(/^\//, "")
-    if (!database) {
-        throw new Error("Database name is missing")
-    }
-
-    return {
-        host: url.hostname,
-        port: url.port || "3306",
-        user: decodeURIComponent(url.username),
-        password: decodeURIComponent(url.password),
-        database: decodeURIComponent(database),
-    }
-}
-
-async function fetchUsers(config: AppConfig): Promise<RegisteredUser[]> {
-    const connection = parseDatabaseUrl(config.databaseUrl)
+async function fetchUsers(
+    config: AppConfig,
+    connection: DatabaseConnection,
+): Promise<RegisteredUser[]> {
     const sql = `
         SELECT JSON_OBJECT(
             'id', u.id,
@@ -106,7 +126,7 @@ async function fetchUsers(config: AppConfig): Promise<RegisteredUser[]> {
             `--host=${connection.host}`,
             `--port=${connection.port}`,
             `--user=${connection.user}`,
-            connection.database,
+            config.database,
             "--execute",
             sql,
         ],
@@ -141,9 +161,11 @@ async function fetchUsers(config: AppConfig): Promise<RegisteredUser[]> {
 
 export async function getRegisteredUsers(): Promise<RegisteredUserAppResult[]> {
     let configs: AppConfig[]
+    let connection: DatabaseConnection
 
     try {
         configs = getAppConfigs()
+        connection = getDatabaseConnection()
     } catch (error) {
         return [
             {
@@ -161,7 +183,7 @@ export async function getRegisteredUsers(): Promise<RegisteredUserAppResult[]> {
                 return {
                     id: config.id,
                     label: config.label,
-                    users: await fetchUsers(config),
+                    users: await fetchUsers(config, connection),
                 }
             } catch (error) {
                 console.error(`Failed to fetch registered users for ${config.id}`, error)
