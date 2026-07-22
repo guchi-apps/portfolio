@@ -33,17 +33,32 @@ export function getRegisteredUsersDatabaseConnection(): DatabaseConnection {
     }
 }
 
+function getSettingsDatabaseConnection(): DatabaseConnection {
+    return {
+        host: getRequiredEnv("REGISTERED_USERS_DB_HOST"),
+        port: getRequiredEnv("REGISTERED_USERS_DB_PORT"),
+        user: getRequiredEnv("REGISTERED_USERS_SETTINGS_DB_USER"),
+        password: getRequiredEnv("REGISTERED_USERS_SETTINGS_DB_PASSWORD"),
+    }
+}
+
 function getSettingsDatabase(): string {
-    return process.env.REGISTERED_USERS_SETTINGS_DATABASE?.trim()
-        || getRequiredEnv("REGISTERED_USERS_CONFIG")
+    const database = getRequiredEnv("REGISTERED_USERS_SETTINGS_DATABASE")
+    if (!/^[a-zA-Z0-9_$-]+$/.test(database)) {
+        throw new Error("REGISTERED_USERS_SETTINGS_DATABASE is invalid")
+    }
+    return database
 }
 
 function escapeSql(value: string): string {
     return value.replace(/\\/g, "\\\\").replace(/'/g, "''")
 }
 
-async function executeSettingsSql(sql: string): Promise<string> {
-    const connection = getRegisteredUsersDatabaseConnection()
+async function executeSql(
+    connection: DatabaseConnection,
+    database: string,
+    sql: string,
+): Promise<string> {
     const { stdout } = await execFileAsync(
         "mysql",
         [
@@ -54,7 +69,7 @@ async function executeSettingsSql(sql: string): Promise<string> {
             `--host=${connection.host}`,
             `--port=${connection.port}`,
             `--user=${connection.user}`,
-            getSettingsDatabase(),
+            database,
             "--execute",
             sql,
         ],
@@ -65,6 +80,41 @@ async function executeSettingsSql(sql: string): Promise<string> {
         },
     )
     return stdout
+}
+
+let settingsInitialized = false
+
+async function ensureSettingsTable(): Promise<void> {
+    if (settingsInitialized) return
+
+    const connection = getSettingsDatabaseConnection()
+    const database = getSettingsDatabase()
+
+    await executeSql(connection, database, `
+        CREATE TABLE IF NOT EXISTS RegisteredApp (
+            app_id VARCHAR(100) NOT NULL PRIMARY KEY,
+            display_name VARCHAR(150) NOT NULL,
+            database_name VARCHAR(150) NOT NULL,
+            enabled BOOLEAN NOT NULL DEFAULT TRUE,
+            sort_order INT NOT NULL DEFAULT 0,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        );
+
+        INSERT IGNORE INTO RegisteredApp (app_id, display_name, database_name, enabled, sort_order) VALUES
+            ('asset-manager', 'Asset Manager', 'AssetManager', TRUE, 10),
+            ('car-care', 'Car Care', 'Car', TRUE, 20),
+            ('meisai-lab', 'Meisai Lab', 'meisai-lab', TRUE, 30),
+            ('clip-hive', 'Clip Hive', 'clip-hive', TRUE, 40),
+            ('subscription-lists', 'Subscription Lists', 'subscribe-lists', TRUE, 50);
+    `)
+
+    settingsInitialized = true
+}
+
+async function executeSettingsSql(sql: string): Promise<string> {
+    await ensureSettingsTable()
+    return executeSql(getSettingsDatabaseConnection(), getSettingsDatabase(), sql)
 }
 
 function validateApp(input: RegisteredApp): RegisteredApp {
