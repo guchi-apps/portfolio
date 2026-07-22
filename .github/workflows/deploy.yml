@@ -145,28 +145,38 @@ jobs:
           UPTIMEKUMA_BASE_URL: ${{ env.UPTIMEKUMA_BASE_URL }}
           UPTIMEKUMA_PORTFOLIO_SLUG: ${{ env.UPTIMEKUMA_PORTFOLIO_SLUG }}
           UPTIMEKUMA_DASHBOARD_SLUG: ${{ env.UPTIMEKUMA_DASHBOARD_SLUG }}
+          REGISTERED_USERS_DB_HOST: ${{ env.REGISTERED_USERS_DB_HOST }}
+          REGISTERED_USERS_DB_PORT: ${{ env.REGISTERED_USERS_DB_PORT }}
+          REGISTERED_USERS_DB_USER: ${{ env.REGISTERED_USERS_DB_USER }}
+          REGISTERED_USERS_DB_PASSWORD: ${{ env.REGISTERED_USERS_DB_PASSWORD }}
+          REGISTERED_USERS_CONFIG: ${{ env.REGISTERED_USERS_CONFIG }}
           DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           port: ${{ env.SSH_PORT }}
-          envs: ADMIN_PASSWORD,SESSION_SECRET,SIGNALY_LOGIN_WEBHOOK_URL,UPTIMEROBOT_READ_ONLY_KEY,UPTIMEKUMA_BASE_URL,UPTIMEKUMA_PORTFOLIO_SLUG,UPTIMEKUMA_DASHBOARD_SLUG,DEPLOY_PATH
+          envs: ADMIN_PASSWORD,SESSION_SECRET,SIGNALY_LOGIN_WEBHOOK_URL,UPTIMEROBOT_READ_ONLY_KEY,UPTIMEKUMA_BASE_URL,UPTIMEKUMA_PORTFOLIO_SLUG,UPTIMEKUMA_DASHBOARD_SLUG,REGISTERED_USERS_DB_HOST,REGISTERED_USERS_DB_PORT,REGISTERED_USERS_DB_USER,REGISTERED_USERS_DB_PASSWORD,REGISTERED_USERS_CONFIG,DEPLOY_PATH
           script: |
             cd "$DEPLOY_PATH"
-            cat > .env.production.local << EOF
-            ADMIN_PASSWORD=$ADMIN_PASSWORD
-            SESSION_SECRET=$SESSION_SECRET
-            SIGNALY_LOGIN_WEBHOOK_URL=$SIGNALY_LOGIN_WEBHOOK_URL
-            UPTIMEROBOT_READ_ONLY_KEY=$UPTIMEROBOT_READ_ONLY_KEY
-            UPTIMEKUMA_BASE_URL=$UPTIMEKUMA_BASE_URL
-            UPTIMEKUMA_PORTFOLIO_SLUG=$UPTIMEKUMA_PORTFOLIO_SLUG
-            UPTIMEKUMA_DASHBOARD_SLUG=$UPTIMEKUMA_DASHBOARD_SLUG
-            SITE_CONTENT_PATH=$DEPLOY_PATH/data/site-content.json
-            NODE_ENV=production
-            PORT=3105
-            HOSTNAME=127.0.0.1
-            EOF
+            {
+              printf 'ADMIN_PASSWORD=%s\n' "$ADMIN_PASSWORD"
+              printf 'SESSION_SECRET=%s\n' "$SESSION_SECRET"
+              printf 'SIGNALY_LOGIN_WEBHOOK_URL=%s\n' "$SIGNALY_LOGIN_WEBHOOK_URL"
+              printf 'UPTIMEROBOT_READ_ONLY_KEY=%s\n' "$UPTIMEROBOT_READ_ONLY_KEY"
+              printf 'UPTIMEKUMA_BASE_URL=%s\n' "$UPTIMEKUMA_BASE_URL"
+              printf 'UPTIMEKUMA_PORTFOLIO_SLUG=%s\n' "$UPTIMEKUMA_PORTFOLIO_SLUG"
+              printf 'UPTIMEKUMA_DASHBOARD_SLUG=%s\n' "$UPTIMEKUMA_DASHBOARD_SLUG"
+              printf 'REGISTERED_USERS_DB_HOST=%s\n' "$REGISTERED_USERS_DB_HOST"
+              printf 'REGISTERED_USERS_DB_PORT=%s\n' "$REGISTERED_USERS_DB_PORT"
+              printf 'REGISTERED_USERS_DB_USER=%s\n' "$REGISTERED_USERS_DB_USER"
+              printf 'REGISTERED_USERS_DB_PASSWORD=%s\n' "$REGISTERED_USERS_DB_PASSWORD"
+              printf 'REGISTERED_USERS_CONFIG=%s\n' "$REGISTERED_USERS_CONFIG"
+              printf 'SITE_CONTENT_PATH=%s/data/site-content.json\n' "$DEPLOY_PATH"
+              printf 'NODE_ENV=production\n'
+              printf 'PORT=3105\n'
+              printf 'HOSTNAME=127.0.0.1\n'
+            } > .env.production.local
             mkdir -p data/uploads
             if [ ! -f data/site-content.json ]; then
               cp data/site-content.default.json data/site-content.json
