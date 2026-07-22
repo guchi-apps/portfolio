@@ -34,7 +34,8 @@ export function getRegisteredUsersDatabaseConnection(): DatabaseConnection {
 }
 
 function getSettingsDatabase(): string {
-    return getRequiredEnv("REGISTERED_USERS_SETTINGS_DATABASE")
+    return process.env.REGISTERED_USERS_SETTINGS_DATABASE?.trim()
+        || getRequiredEnv("REGISTERED_USERS_CONFIG")
 }
 
 function escapeSql(value: string): string {
