@@ -17,7 +17,8 @@ REGISTERED_USERS_DB_HOST=op://apps/DB/db-host
 REGISTERED_USERS_DB_PORT=op://apps/DB/db-port
 REGISTERED_USERS_DB_USER=op://apps/DB/read-user
 REGISTERED_USERS_DB_PASSWORD=op://apps/DB/read-password
-REGISTERED_USERS_SETTINGS_DATABASE=op://apps/portfolio/registered-users-settings-database
+# 互換性のため変数名はCONFIGだが、値はJSONではなくRegisteredAppテーブルを置くDB名
+REGISTERED_USERS_CONFIG=op://apps/portfolio/registered-users-settings-database
 
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
