@@ -12,13 +12,12 @@ UPTIMEKUMA_DASHBOARD_SLUG=op://apps/portfolio/uptimekuma-dashboard-slug
 ADMIN_PASSWORD=op://apps/portfolio/admin-password
 SESSION_SECRET=op://apps/portfolio/session-secret
 
-# 管理画面に表示するNextAuthアプリ
-# DB接続情報は apps/DB、対象アプリ一覧は apps/portfolio のJSON配列で管理する。
+# 登録ユーザー一覧と設定テーブルで使用するDB接続情報
 REGISTERED_USERS_DB_HOST=op://apps/DB/db-host
 REGISTERED_USERS_DB_PORT=op://apps/DB/db-port
 REGISTERED_USERS_DB_USER=op://apps/DB/read-user
 REGISTERED_USERS_DB_PASSWORD=op://apps/DB/read-password
-REGISTERED_USERS_CONFIG=op://apps/portfolio/registered-users-config
+REGISTERED_USERS_SETTINGS_DATABASE=op://apps/portfolio/registered-users-settings-database
 
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
