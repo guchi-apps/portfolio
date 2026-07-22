@@ -18,10 +18,14 @@ REGISTERED_USERS_DB_PORT=op://apps/DB/db-port
 REGISTERED_USERS_DB_USER=op://apps/DB/read-user
 REGISTERED_USERS_DB_PASSWORD=op://apps/DB/read-password
 
-# app_portfolio.RegisteredAppの作成・編集・削除用
+# app_portfolio.RegisteredAppの参照・追加・編集・削除用
 REGISTERED_USERS_SETTINGS_DB_USER=op://apps/DB/db-user
 REGISTERED_USERS_SETTINGS_DB_PASSWORD=op://apps/DB/db-password
 REGISTERED_USERS_SETTINGS_DATABASE=op://apps/portfolio/registered-users-settings-database
+
+# app_portfolio.RegisteredAppの初回作成・将来のスキーマ変更用
+REGISTERED_USERS_MIGRATE_DB_USER=op://apps/DB/migrate-user
+REGISTERED_USERS_MIGRATE_DB_PASSWORD=op://apps/DB/migrate-password
 
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
