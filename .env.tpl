@@ -2,7 +2,7 @@
 # Local: op run --env-file=.env.tpl -- npm run dev
 # CI: loaded automatically via 1password/load-secrets-action
 #
-# 1Password の apps ボールトに各アイテムを作成し、以下のフィールドを登録してください。
+# 1Password の apps ボールトに portfolio / DB アイテムを作成し、以下のフィールドを登録してください。
 # vault / item 名は環境に合わせて変更可能です。
 
 UPTIMEROBOT_READ_ONLY_KEY=op://apps/portfolio/next-public-uptimerobot-read-only-key
@@ -11,6 +11,15 @@ UPTIMEKUMA_PORTFOLIO_SLUG=op://apps/portfolio/uptimekuma-portfolio-slug
 UPTIMEKUMA_DASHBOARD_SLUG=op://apps/portfolio/uptimekuma-dashboard-slug
 ADMIN_PASSWORD=op://apps/portfolio/admin-password
 SESSION_SECRET=op://apps/portfolio/session-secret
+
+# 管理画面に表示するNextAuthアプリ
+# DB接続情報は apps/DB、対象アプリ一覧は apps/portfolio のJSON配列で管理する。
+REGISTERED_USERS_DB_HOST=op://apps/DB/db-host
+REGISTERED_USERS_DB_PORT=op://apps/DB/db-port
+REGISTERED_USERS_DB_USER=op://apps/DB/read-user
+REGISTERED_USERS_DB_PASSWORD=op://apps/DB/read-password
+REGISTERED_USERS_CONFIG=op://apps/portfolio/registered-users-config
+
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
 SSH_PORT=op://apps/Server/ssh-port

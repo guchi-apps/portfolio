@@ -9,6 +9,7 @@ import { ServerStats } from "@/components/server-stats"
 import { Button } from "@/components/ui/button"
 import { useSiteContent } from "@/components/site-content-provider"
 import { UptimeKumaDashboardCard } from "@/components/uptime-kuma-card"
+import { RegisteredUsersSection } from "@/components/admin/registered-users-section"
 import { getUptimeRobotStatusInfo, type UptimeRobotMonitor } from "@/lib/uptimerobot"
 import type { UptimeKumaMonitor } from "@/lib/uptime-kuma"
 
@@ -170,6 +171,7 @@ export function AdminDashboard() {
                 </div>
 
                 <ServerStats />
+                <RegisteredUsersSection />
                 {content.uptimeKumaSettings.dashboardVisible && <UptimeKumaSection />}
                 <UptimeRobotSection />
             </div>
