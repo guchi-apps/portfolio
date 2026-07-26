@@ -1,5 +1,16 @@
 {
   "permissions": {
-    "allow": []
+    "allow": [
+      "Bash(find / -maxdepth 8 -path \"*node_modules/playwright\" -type d)",
+      "Bash(npm root *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000/api/auth/session)",
+      "Bash(npx eslint *)",
+      "Bash(npm version *)",
+      "Bash(git push *)"
+    ],
+    "additionalDirectories": [
+      "/home/guchi/apps/ops-dashboard"
+    ]
   }
 }
