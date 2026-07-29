@@ -41,7 +41,7 @@ export function LegalPageLayout({ title, updatedAt, children }: LegalPageLayoutP
             </article>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
-                <p className="font-mono text-xs">© 2026 GUCCHII.com</p>
+                <p className="font-mono text-xs">© 2026 Gucchii Apps</p>
             </footer>
         </main>
     )

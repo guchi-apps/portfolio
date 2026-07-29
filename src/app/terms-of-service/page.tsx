@@ -1,14 +1,14 @@
 import { LegalPageLayout } from "@/components/legal-page-layout"
 
 export const metadata = {
-    title: "利用規約 | gucchii.com",
+    title: "利用規約 | Gucchii Apps",
 }
 
 export default function TermsOfServicePage() {
     return (
         <LegalPageLayout title="利用規約" updatedAt="2026年7月29日">
             <p>
-                この利用規約（以下「本規約」）は、GUCCHII.COMとして運営者が提供するウェブサイトおよび各種Webアプリケーション（当サイトを含む。以下「本サービス」）の利用条件を定めるものです。本サービスを利用したユーザーは、本規約に同意したものとみなします。
+                この利用規約（以下「本規約」）は、Gucchii Appsとして運営者が提供するウェブサイトおよび各種Webアプリケーション（当サイトを含む。以下「本サービス」）の利用条件を定めるものです。本サービスを利用したユーザーは、本規約に同意したものとみなします。
             </p>
 
             <section>
@@ -65,7 +65,7 @@ export default function TermsOfServicePage() {
             <section>
                 <h2>8. お問い合わせ</h2>
                 <p>
-                    運営者: GUCCHII.COM
+                    運営者: Gucchii Apps
                     <br />
                     連絡先: <a href="mailto:app@gucchii.com">app@gucchii.com</a>
                 </p>

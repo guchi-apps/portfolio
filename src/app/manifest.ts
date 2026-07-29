@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "gucchii.com",
-        short_name: "gucchii.com",
-        description: "Engineer Portfolio Dashboard hosted on gucchii.com",
+        name: "Gucchii Apps",
+        short_name: "Gucchii Apps",
+        description: "個人開発者のプロジェクト実績・稼働状況をまとめたポートフォリオダッシュボード「Gucchii Apps」",
         start_url: "/",
         display: "standalone",
         background_color: "#f8fafc",

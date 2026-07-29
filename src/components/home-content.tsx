@@ -39,9 +39,13 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
                         <div className="w-full min-w-0">
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4">
                                 <h1 className="text-4xl md:text-6xl font-black tracking-tight">
-                                    GUCCHII<span className="text-blue-300">.COM</span>
+                                    Gucchii Apps
                                 </h1>
                             </div>
+
+                            <p className="text-sm md:text-base text-blue-200 font-light mb-3">
+                                個人開発者のプロジェクト実績・稼働状況をまとめたポートフォリオダッシュボードです。
+                            </p>
 
                             <div className="w-full min-w-0 space-y-3">
                                 {content.intro.split("\n").map((paragraph, index) => (
@@ -80,7 +84,7 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
             </section>
 
             <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12 space-y-3">
-                <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
+                <p className="font-mono text-xs">© 2026 Gucchii Apps v{appVersion}</p>
                 <p className="flex justify-center gap-4 text-xs">
                     <Link href="/privacy-policy" className="hover:underline">
                         プライバシーポリシー

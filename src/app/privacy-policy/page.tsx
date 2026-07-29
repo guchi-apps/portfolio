@@ -1,20 +1,20 @@
 import { LegalPageLayout } from "@/components/legal-page-layout"
 
 export const metadata = {
-    title: "プライバシーポリシー | gucchii.com",
+    title: "プライバシーポリシー | Gucchii Apps",
 }
 
 export default function PrivacyPolicyPage() {
     return (
         <LegalPageLayout title="プライバシーポリシー" updatedAt="2026年7月29日">
             <p>
-                GUCCHII.COM（以下「当サイト」）は、本ポリシーに基づき、当サイトが取得する情報の取り扱いについて定めます。
+                Gucchii Apps（以下「当サイト」）は、本ポリシーに基づき、当サイトが取得する情報の取り扱いについて定めます。
             </p>
 
             <section>
                 <h2>1. 取得する情報</h2>
                 <p>
-                    運営者は、当サイト（GUCCHII.COM）を含む複数のWebアプリケーションを運営しており、これらのアプリケーションでは共通してGoogleアカウントによるログイン機能（Google
+                    運営者は、当サイト（Gucchii Apps）を含む複数のWebアプリケーションを運営しており、これらのアプリケーションでは共通してGoogleアカウントによるログイン機能（Google
                     OAuth）を提供しています。ログインの際、以下の情報を取得する場合があります。
                 </p>
                 <ul>
@@ -73,7 +73,7 @@ export default function PrivacyPolicyPage() {
                     本ポリシーに関するお問い合わせは、下記メールアドレスまでご連絡ください。
                 </p>
                 <p>
-                    運営者: GUCCHII.COM
+                    運営者: Gucchii Apps
                     <br />
                     連絡先: <a href="mailto:app@gucchii.com">app@gucchii.com</a>
                 </p>

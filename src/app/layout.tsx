@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "gucchii.com - System Dashboard Portfolio",
-    description: "Engineer Portfolio Dashboard hosted on gucchii.com",
+    title: "Gucchii Apps - System Dashboard Portfolio",
+    description: "個人開発者のプロジェクト実績・稼働状況をまとめたポートフォリオダッシュボード「Gucchii Apps」",
     manifest: "/manifest.webmanifest",
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "gucchii.com",
+        title: "Gucchii Apps",
     },
     icons: {
         icon: "/favicon.ico",
