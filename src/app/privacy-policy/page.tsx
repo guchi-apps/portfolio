@@ -18,12 +18,11 @@ export default function PrivacyPolicyPage() {
                     OAuth）を提供しています。ログインの際、以下の情報を取得する場合があります。
                 </p>
                 <ul>
-                    <li>Googleアカウントの認証（Google OAuth）を通じて取得するメールアドレスなどの基本的なプロフィール情報</li>
+                    <li>Googleアカウントの認証（Google OAuth）を通じて取得するメールアドレス・プロフィール画像などの基本的なプロフィール情報</li>
                     <li>ログイン時のIPアドレス</li>
                 </ul>
                 <p>
-                    なお、当サイトの管理画面（<code>/edit</code>、<code>/admin</code>
-                    ）へのログインは、あらかじめ許可された特定のGoogleアカウントを保有するユーザーに限定されています。
+                    なお、一部のサイトへのログインは、あらかじめ許可された特定のGoogleアカウントを保有するユーザーに限定されています。
                 </p>
             </section>
 
