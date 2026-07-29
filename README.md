@@ -50,7 +50,8 @@ cp data/site-content.example.json data/site-content.json
 
 ```bash
 cp .env.local.example .env.local
-# 値を編集（UPTIMEROBOT_READ_ONLY_KEY / NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / ADMIN_ALLOWED_EMAIL など）
+# 値を編集（UPTIMEROBOT_READ_ONLY_KEY / NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY / ALLOWED_GOOGLE_EMAILS など）
+# NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY は 1Password共有アイテム「Supabase」の dev-project-url / dev-publishable-key を使用（開発用プロジェクト。本番用と誤って混同しないよう分離）
 npm run dev
 ```
 
@@ -65,11 +66,13 @@ npm run dev
 | `portfolio` | `uptimekuma-portfolio-slug` | Uptime Kuma のポートフォリオ用ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `uptimekuma-dashboard-slug` | Uptime Kuma のダッシュボード用ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
-| `portfolio` | `next-public-supabase-url` | Supabase（本番用プロジェクト）のURL |
-| `portfolio` | `next-public-supabase-anon-key` | Supabase（本番用プロジェクト）の anon キー |
-| `portfolio` | `admin-allowed-email` | 管理画面へのログインを許可するGoogleアカウントのメールアドレス |
+| `portfolio` | `allowed-google-emails` | 管理画面へのログインを許可するGoogleアカウントのメールアドレス（複数指定はカンマ区切り） |
 | `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース通知用 Signaly Webhook URL |
 | `portfolio` | `login-webhook-url` | ログイン通知用 Signaly Webhook URL |
+| `Supabase`（複数アプリ共通） | `project-url` | 本番用 Supabase プロジェクトの URL（`NEXT_PUBLIC_SUPABASE_URL` として使用） |
+| `Supabase`（複数アプリ共通） | `publishable-key` | 本番用 Supabase の Publishable key（`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` として使用。フロントに公開してよい値） |
+| `Supabase`（複数アプリ共通） | `dev-project-url` | 開発用 Supabase プロジェクトの URL（`.env.local` に手動で設定） |
+| `Supabase`（複数アプリ共通） | `dev-publishable-key` | 開発用 Supabase の Publishable key（`.env.local` に手動で設定） |
 | `githubaction-sshkey` | `private_key` | SSH秘密鍵（デプロイ用） |
 | `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
 | `Server` | `username` | SSH接続ユーザー名 |
@@ -301,7 +304,7 @@ Uptime Kuma は UptimeRobot と異なり API キーは使いません。ステ�
 
 ### 共通
 
-- **ログイン方式**: Supabase Auth 経由の Google ログイン。`ADMIN_ALLOWED_EMAIL` に設定したメールアドレスのGoogleアカウントのみアクセスできる
+- **ログイン方式**: Supabase Auth 経由の Google ログイン。`ALLOWED_GOOGLE_EMAILS` に設定したメールアドレスのGoogleアカウントのみアクセスできる
 - **ログイン時**: Signaly へ通知
 
 ローカル開発時は `npm run dev` のあと `http://localhost:3000/edit` または `http://localhost:3000/admin` にアクセスしてください。

@@ -1,13 +1,22 @@
 import { createClient } from "@/lib/supabase/server"
 
-export async function isAuthenticated(): Promise<boolean> {
-    const allowedEmail = process.env.ADMIN_ALLOWED_EMAIL
-    if (!allowedEmail) return false
+function getAllowedEmails(): string[] {
+    return (process.env.ALLOWED_GOOGLE_EMAILS ?? "")
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean)
+}
 
+export function isAllowedEmail(email: string | null | undefined): boolean {
+    if (!email) return false
+    return getAllowedEmails().includes(email)
+}
+
+export async function isAuthenticated(): Promise<boolean> {
     const supabase = await createClient()
     const {
         data: { user },
     } = await supabase.auth.getUser()
 
-    return user?.email === allowedEmail
+    return isAllowedEmail(user?.email)
 }

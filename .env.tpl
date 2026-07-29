@@ -7,9 +7,9 @@
 
 UPTIMEKUMA_BASE_URL=op://apps/portfolio/uptimekuma-base-url
 UPTIMEKUMA_PORTFOLIO_SLUG=op://apps/portfolio/uptimekuma-portfolio-slug
-NEXT_PUBLIC_SUPABASE_URL=op://apps/portfolio/next-public-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=op://apps/portfolio/next-public-supabase-anon-key
-ADMIN_ALLOWED_EMAIL=op://apps/portfolio/admin-allowed-email
+NEXT_PUBLIC_SUPABASE_URL=op://apps/Supabase/project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=op://apps/Supabase/publishable-key
+ALLOWED_GOOGLE_EMAILS=op://apps/portfolio/allowed-google-emails
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
 SSH_PORT=op://apps/Server/ssh-port
