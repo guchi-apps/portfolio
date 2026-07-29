@@ -1,7 +1,8 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -249,23 +250,12 @@ function ProjectEditor({
 }
 
 export function EditDashboard() {
+    const searchParams = useSearchParams()
+    const loginError = searchParams.get("error") === "unauthorized_email"
     const [authenticated, setAuthenticated] = useState<boolean | null>(null)
     const [content, setContent] = useState<SiteContent | null>(null)
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState("")
-
-    const loadData = useCallback(async () => {
-        const sessionRes = await fetch("/api/auth/session")
-        const session = await sessionRes.json()
-        if (!session.authenticated) {
-            setAuthenticated(false)
-            return
-        }
-
-        setAuthenticated(true)
-        const contentRes = await fetch("/api/admin/content")
-        setContent(await contentRes.json())
-    }, [])
 
     useEffect(() => {
         let cancelled = false
@@ -372,7 +362,11 @@ export function EditDashboard() {
     }
 
     if (!authenticated) {
-        return <AdminLoginForm onSuccess={loadData} />
+        return (
+            <AdminLoginForm
+                error={loginError ? "このGoogleアカウントでは編集画面にログインできません" : undefined}
+            />
+        )
     }
 
     if (!content) {

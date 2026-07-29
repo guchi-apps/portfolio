@@ -50,7 +50,7 @@ cp data/site-content.example.json data/site-content.json
 
 ```bash
 cp .env.local.example .env.local
-# 値を編集（UPTIMEROBOT_READ_ONLY_KEY / ADMIN_PASSWORD / SESSION_SECRET など）
+# 値を編集（UPTIMEROBOT_READ_ONLY_KEY / NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / ADMIN_ALLOWED_EMAIL など）
 npm run dev
 ```
 
@@ -65,8 +65,9 @@ npm run dev
 | `portfolio` | `uptimekuma-portfolio-slug` | Uptime Kuma のポートフォリオ用ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `uptimekuma-dashboard-slug` | Uptime Kuma のダッシュボード用ステータスページのスラッグ（サーバー専用） |
 | `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
-| `portfolio` | `admin-password` | 管理画面のログインパスワード |
-| `portfolio` | `session-secret` | セッション署名用のランダム文字列 |
+| `portfolio` | `next-public-supabase-url` | Supabase（本番用プロジェクト）のURL |
+| `portfolio` | `next-public-supabase-anon-key` | Supabase（本番用プロジェクト）の anon キー |
+| `portfolio` | `admin-allowed-email` | 管理画面へのログインを許可するGoogleアカウントのメールアドレス |
 | `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース通知用 Signaly Webhook URL |
 | `portfolio` | `login-webhook-url` | ログイン通知用 Signaly Webhook URL |
 | `githubaction-sshkey` | `private_key` | SSH秘密鍵（デプロイ用） |
@@ -300,7 +301,7 @@ Uptime Kuma は UptimeRobot と異なり API キーは使いません。ステ�
 
 ### 共通
 
-- **パスワード**: 1Password の `ADMIN_PASSWORD`
+- **ログイン方式**: Supabase Auth 経由の Google ログイン。`ADMIN_ALLOWED_EMAIL` に設定したメールアドレスのGoogleアカウントのみアクセスできる
 - **ログイン時**: Signaly へ通知
 
 ローカル開発時は `npm run dev` のあと `http://localhost:3000/edit` または `http://localhost:3000/admin` にアクセスしてください。

@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { EditDashboard } from "@/components/edit/edit-dashboard"
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 }
 
 export default function EditPage() {
-    return <EditDashboard />
+    return (
+        <Suspense>
+            <EditDashboard />
+        </Suspense>
+    )
 }
