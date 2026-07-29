@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
-import { setSessionCookie, verifyPassword } from "@/lib/auth"
-import { notifySignalyLogin } from "@/lib/signaly"
+import { createClient } from "@/lib/supabase/server"
+import { getRequestOrigin } from "@/lib/request-origin"
 
-export async function POST(request: NextRequest) {
-    try {
-        const { password } = (await request.json()) as { password?: string }
-        if (!password || !verifyPassword(password)) {
-            return NextResponse.json({ error: "Invalid password" }, { status: 401 })
-        }
+export async function GET(request: NextRequest) {
+    const supabase = await createClient()
 
-        await setSessionCookie()
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: `${getRequestOrigin(request)}/auth/callback`,
+        },
+    })
 
-        const ip =
-            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            request.headers.get("x-real-ip")
-
-        await notifySignalyLogin(ip)
-
-        return NextResponse.json({ ok: true })
-    } catch (error) {
-        console.error("Login error:", error)
+    if (error || !data.url) {
         return NextResponse.json({ error: "Login failed" }, { status: 500 })
     }
+
+    return NextResponse.redirect(data.url)
 }

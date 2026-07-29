@@ -1,7 +1,8 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -36,14 +37,6 @@ function UptimeKumaEditor({
                     onChange={(e) => onChange({ ...settings, portfolioVisible: e.target.checked })}
                 />
                 ポートフォリオに表示
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-                <input
-                    type="checkbox"
-                    checked={settings.dashboardVisible}
-                    onChange={(e) => onChange({ ...settings, dashboardVisible: e.target.checked })}
-                />
-                ダッシュボードに表示
             </label>
         </div>
     )
@@ -257,23 +250,12 @@ function ProjectEditor({
 }
 
 export function EditDashboard() {
+    const searchParams = useSearchParams()
+    const loginError = searchParams.get("error") === "unauthorized_email"
     const [authenticated, setAuthenticated] = useState<boolean | null>(null)
     const [content, setContent] = useState<SiteContent | null>(null)
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState("")
-
-    const loadData = useCallback(async () => {
-        const sessionRes = await fetch("/api/auth/session")
-        const session = await sessionRes.json()
-        if (!session.authenticated) {
-            setAuthenticated(false)
-            return
-        }
-
-        setAuthenticated(true)
-        const contentRes = await fetch("/api/admin/content")
-        setContent(await contentRes.json())
-    }, [])
 
     useEffect(() => {
         let cancelled = false
@@ -380,7 +362,11 @@ export function EditDashboard() {
     }
 
     if (!authenticated) {
-        return <AdminLoginForm onSuccess={loadData} />
+        return (
+            <AdminLoginForm
+                error={loginError ? "このGoogleアカウントでは編集画面にログインできません" : undefined}
+            />
+        )
     }
 
     if (!content) {
@@ -399,9 +385,6 @@ export function EditDashboard() {
                     <div className="flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/">サイトを見る</Link>
-                        </Button>
-                        <Button variant="outline" asChild>
-                            <Link href="/admin">ダッシュボード</Link>
                         </Button>
                         <Button variant="outline" onClick={handleLogout}>
                             ログアウト

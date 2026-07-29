@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { LayoutDashboard, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 import { DashboardCard } from "@/components/dashboard-card"
 import { DynamicProjects } from "@/components/dynamic-projects"
 import { DynamicStats } from "@/components/dynamic-stats"
@@ -9,7 +9,6 @@ import { ExternalLinks } from "@/components/external-links"
 import { GithubActivity } from "@/components/github-activity"
 import { SectionHeading } from "@/components/section-heading"
 import { useSiteContent } from "@/components/site-content-provider"
-import { useAdminSession } from "@/hooks/use-admin-session"
 import type { ReleaseInfo } from "@/lib/project-releases"
 import { appVersion } from "@/lib/version"
 
@@ -19,20 +18,10 @@ interface HomeContentProps {
 
 export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
     const content = useSiteContent()
-    const { isAdmin } = useAdminSession()
 
     return (
         <main className="min-h-screen p-4 md:p-8 space-y-6 max-w-7xl mx-auto pb-20">
             <div className="flex justify-end items-center gap-4">
-                {isAdmin && (
-                    <Link
-                        href="/admin"
-                        className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
-                    >
-                        <LayoutDashboard className="size-3.5" aria-hidden />
-                        ダッシュボード
-                    </Link>
-                )}
                 <Link
                     href="/edit"
                     className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
@@ -90,8 +79,16 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
                 />
             </section>
 
-            <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
+            <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12 space-y-3">
                 <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
+                <p className="flex justify-center gap-4 text-xs">
+                    <Link href="/privacy-policy" className="hover:underline">
+                        プライバシーポリシー
+                    </Link>
+                    <Link href="/terms-of-service" className="hover:underline">
+                        利用規約
+                    </Link>
+                </p>
             </footer>
         </main>
     )
