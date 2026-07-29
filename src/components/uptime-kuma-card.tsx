@@ -26,19 +26,6 @@ function StatusBadge({ status }: { status: UptimeKumaStatus }) {
     )
 }
 
-function HeartbeatBar({ statuses }: { statuses: UptimeKumaStatus[] }) {
-    return (
-        <div className="flex items-end gap-0.5">
-            {statuses.map((status, index) => (
-                <span
-                    key={index}
-                    className={cn("h-6 w-1.5 rounded-sm", STATUS_STYLES[status].className)}
-                />
-            ))}
-        </div>
-    )
-}
-
 function MonitorUrl({ url }: { url?: string }) {
     if (!url) return null
 
@@ -65,25 +52,6 @@ export function UptimeKumaPortfolioCard({ monitor }: { monitor: UptimeKumaMonito
                 <StatusBadge status={monitor.status} />
             </div>
             <MonitorUrl url={monitor.url} />
-        </DashboardCard>
-    )
-}
-
-export function UptimeKumaDashboardCard({ monitor }: { monitor: UptimeKumaMonitor }) {
-    return (
-        <DashboardCard className="h-full flex flex-col gap-3 px-4 py-4">
-            <div className="flex items-center justify-between gap-2">
-                <span className="min-w-0 truncate text-sm font-bold" title={monitor.name}>
-                    {monitor.name}
-                </span>
-                <StatusBadge status={monitor.status} />
-            </div>
-            <MonitorUrl url={monitor.url} />
-            <HeartbeatBar statuses={monitor.recentStatuses} />
-            <div className="flex items-center justify-between text-xs text-blue-100 dark:text-slate-400">
-                <span>現在: {monitor.currentPing !== null ? `${monitor.currentPing}ms` : "-"}</span>
-                <span>平均: {monitor.avgPing !== null ? `${monitor.avgPing}ms` : "-"}</span>
-            </div>
         </DashboardCard>
     )
 }

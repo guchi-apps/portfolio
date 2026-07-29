@@ -92,7 +92,3 @@ async function fetchMonitorsForSlug(slug: string | undefined): Promise<UptimeKum
 export async function fetchUptimeKumaPortfolioMonitors(): Promise<UptimeKumaMonitor[]> {
     return fetchMonitorsForSlug(process.env.UPTIMEKUMA_PORTFOLIO_SLUG)
 }
-
-export async function fetchUptimeKumaDashboardMonitors(): Promise<UptimeKumaMonitor[]> {
-    return fetchMonitorsForSlug(process.env.UPTIMEKUMA_DASHBOARD_SLUG)
-}

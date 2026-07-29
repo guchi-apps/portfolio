@@ -18,7 +18,6 @@ function normalizeSiteContent(raw: LegacySiteContent): SiteContent {
         connectLinks: raw.connectLinks,
         uptimeKumaSettings: {
             portfolioVisible: uptimeKuma?.portfolioVisible ?? false,
-            dashboardVisible: uptimeKuma?.dashboardVisible ?? true,
         },
         projects: raw.projects,
     }

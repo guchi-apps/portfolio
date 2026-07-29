@@ -37,14 +37,6 @@ function UptimeKumaEditor({
                 />
                 ポートフォリオに表示
             </label>
-            <label className="flex items-center gap-2 text-sm">
-                <input
-                    type="checkbox"
-                    checked={settings.dashboardVisible}
-                    onChange={(e) => onChange({ ...settings, dashboardVisible: e.target.checked })}
-                />
-                ダッシュボードに表示
-            </label>
         </div>
     )
 }
@@ -399,9 +391,6 @@ export function EditDashboard() {
                     <div className="flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/">サイトを見る</Link>
-                        </Button>
-                        <Button variant="outline" asChild>
-                            <Link href="/admin">ダッシュボード</Link>
                         </Button>
                         <Button variant="outline" onClick={handleLogout}>
                             ログアウト

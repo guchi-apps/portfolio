@@ -45,7 +45,6 @@ export interface ConnectLink {
 
 export interface UptimeKumaSettings {
     portfolioVisible: boolean
-    dashboardVisible: boolean
 }
 
 export type AppAccessibility = "public" | "registration-required" | "inaccessible"
