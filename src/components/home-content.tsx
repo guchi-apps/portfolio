@@ -79,8 +79,16 @@ export function HomeContent({ projectReleaseVersions }: HomeContentProps) {
                 />
             </section>
 
-            <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12">
+            <footer className="text-center py-12 text-sm opacity-50 dark:text-slate-400 text-slate-600 border-t border-slate-200 dark:border-slate-800 mt-12 space-y-3">
                 <p className="font-mono text-xs">© 2026 GUCCHII.com v{appVersion}</p>
+                <p className="flex justify-center gap-4 text-xs">
+                    <Link href="/privacy-policy" className="hover:underline">
+                        プライバシーポリシー
+                    </Link>
+                    <Link href="/terms-of-service" className="hover:underline">
+                        利用規約
+                    </Link>
+                </p>
             </footer>
         </main>
     )
