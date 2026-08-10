@@ -173,21 +173,51 @@ export async function fetchRepo(owner: string, repo: string): Promise<GitHubRepo
     return toRepoSummary(owner, data)
 }
 
+/**
+ * READMEの取得結果。
+ * 「READMEが無い」と「取得に失敗した」は区別する必要がある。
+ * 後者を空として扱うと、AIが情報不足のまま当たり障りのない説明を生成してしまうため。
+ */
+export type RepoReadmeResult =
+    | { status: "ok"; content: string }
+    | { status: "none" }
+    | { status: "error"; httpStatus: number | null }
+
 /** READMEの本文を取得する。AIへ渡す入力なので、長すぎる場合は先頭を切り出す */
 export async function fetchRepoReadme(
     owner: string,
     repo: string,
     maxChars: number,
-): Promise<string | null> {
-    const readme = await fetchGitHubJson<{ content?: string; encoding?: string }>(
-        `https://api.github.com/repos/${owner}/${repo}/readme`,
-    )
-    if (!readme?.content || readme.encoding !== "base64") {
-        return null
+): Promise<RepoReadmeResult> {
+    let response: Response
+    try {
+        response = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, {
+            headers: githubHeaders(),
+            next: { revalidate: 3600 },
+        })
+    } catch {
+        return { status: "error", httpStatus: null }
+    }
+
+    if (response.status === 404) {
+        return { status: "none" }
+    }
+    if (!response.ok) {
+        return { status: "error", httpStatus: response.status }
+    }
+
+    const readme = (await response.json()) as { content?: string; encoding?: string }
+    if (!readme.content || readme.encoding !== "base64") {
+        return { status: "none" }
     }
 
     const decoded = Buffer.from(readme.content, "base64").toString("utf8").trim()
-    if (!decoded) return null
+    if (!decoded) {
+        return { status: "none" }
+    }
 
-    return decoded.length > maxChars ? decoded.slice(0, maxChars) : decoded
+    return {
+        status: "ok",
+        content: decoded.length > maxChars ? decoded.slice(0, maxChars) : decoded,
+    }
 }

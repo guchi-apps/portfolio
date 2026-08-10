@@ -36,9 +36,22 @@ export async function POST(request: NextRequest) {
             { status: 502 },
         )
     }
+    // READMEが読めないまま生成すると内容の薄い説明ができてしまうため、失敗時は生成しない
+    if (readme.status === "error") {
+        return NextResponse.json(
+            { error: "GitHubからREADMEを取得できませんでした。時間をおいて再度お試しください。" },
+            { status: 502 },
+        )
+    }
 
     try {
-        return NextResponse.json(await generateProjectSummary(token, repo, readme))
+        return NextResponse.json(
+            await generateProjectSummary(
+                token,
+                repo,
+                readme.status === "ok" ? readme.content : null,
+            ),
+        )
     } catch (error) {
         console.error("AI summary error:", error)
         return NextResponse.json(
