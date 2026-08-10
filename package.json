@@ -11,7 +11,6 @@
     "version:resolve": "node scripts/resolve-version.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.116.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
     "class-variance-authority": "^0.7.1",

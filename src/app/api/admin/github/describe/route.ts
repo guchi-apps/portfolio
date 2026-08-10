@@ -9,10 +9,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
+    const token = process.env.CLAUDE_CODE_OAUTH_TOKEN
+    if (!token) {
         return NextResponse.json(
-            { error: "AI生成が設定されていません（ANTHROPIC_API_KEY が未設定です）。" },
-            { status: 503 },
+            { error: "AI生成が設定されていません（CLAUDE_CODE_OAUTH_TOKEN が未設定です）。" },
+            { status: 501 },
         )
     }
 
@@ -37,13 +38,12 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const summary = await generateProjectSummary(repo, readme)
-        if (!summary) {
-            return NextResponse.json({ error: "AIが説明を生成できませんでした。" }, { status: 502 })
-        }
-        return NextResponse.json(summary)
+        return NextResponse.json(await generateProjectSummary(token, repo, readme))
     } catch (error) {
         console.error("AI summary error:", error)
-        return NextResponse.json({ error: "AIの呼び出しに失敗しました。" }, { status: 502 })
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "AIでの生成に失敗しました。" },
+            { status: 502 },
+        )
     }
 }
