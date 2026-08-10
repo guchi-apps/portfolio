@@ -15,6 +15,7 @@ import { Input, Label, Textarea } from "@/components/ui/input"
 import { AdminLoginForm } from "@/components/admin-login-form"
 import { CollapsibleSection } from "@/components/edit/collapsible-section"
 import { ConnectIconPicker } from "@/components/edit/connect-icon-picker"
+import { GithubImportDialog } from "@/components/edit/github-import-dialog"
 import { ProjectImagesInput } from "@/components/edit/project-images-input"
 import { ProjectLinksInput } from "@/components/edit/project-links-input"
 import { TechStackInput } from "@/components/edit/tech-stack-input"
@@ -64,6 +65,10 @@ function ProjectEditor({
                 period: "",
             },
         ])
+    }
+
+    const importProjects = (imported: Project[]) => {
+        onChange([...projects, ...imported])
     }
 
     const removeProject = (index: number) => {
@@ -242,9 +247,12 @@ function ProjectEditor({
                     </Collapsible>
                 </div>
             ))}
-            <Button type="button" variant="outline" onClick={addProject}>
-                プロジェクトを追加
-            </Button>
+            <div className="flex flex-wrap gap-2">
+                <GithubImportDialog projects={projects} onImport={importProjects} />
+                <Button type="button" variant="outline" onClick={addProject}>
+                    プロジェクトを追加
+                </Button>
+            </div>
         </div>
     )
 }
