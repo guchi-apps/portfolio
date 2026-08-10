@@ -5,6 +5,12 @@ import type { ConnectLink, Project } from "@/types/site-content"
 /** 技術スタックとして取り込む言語の最大件数 */
 const MAX_LANGUAGES = 5
 
+/** githubUrl は文字列でも配列でも持てるため、先頭のURLを取り出す */
+export function getPrimaryGitHubUrl(githubUrl?: string | string[]): string | undefined {
+    if (!githubUrl) return undefined
+    return Array.isArray(githubUrl) ? githubUrl[0] : githubUrl
+}
+
 /** Connect リンクから GitHub のユーザー名を取り出す */
 export function findGitHubUsername(connectLinks: ConnectLink[]): string | null {
     for (const link of connectLinks) {
@@ -65,15 +71,30 @@ function toProjectPeriod(createdAt: string): string {
     return createdAt.slice(0, 10)
 }
 
+/**
+ * リポジトリ情報を既存プロジェクトへ反映するための差分を作る。
+ * GitHub側が空の項目は、手入力した内容を消さないよう上書きしない。
+ */
+export function buildProjectPatchFromRepo(repo: GitHubRepoSummary): Partial<Project> {
+    return {
+        githubUrl: repo.htmlUrl,
+        period: toProjectPeriod(repo.createdAt),
+        ...(repo.description ? { description: repo.description } : {}),
+        ...(repo.languages.length > 0
+            ? { techStack: repo.languages.slice(0, MAX_LANGUAGES) }
+            : {}),
+        ...(repo.homepage ? { appUrl: repo.homepage } : {}),
+    }
+}
+
 /** リポジトリ情報からプロジェクトの下書きを作る */
 export function buildProjectFromRepo(repo: GitHubRepoSummary, id: string): Project {
     return {
         id,
         title: humanizeRepoName(repo.name),
-        description: repo.description ?? "",
-        techStack: repo.languages.slice(0, MAX_LANGUAGES),
-        period: toProjectPeriod(repo.createdAt),
-        githubUrl: repo.htmlUrl,
-        ...(repo.homepage ? { appUrl: repo.homepage } : {}),
+        description: "",
+        techStack: [],
+        period: "",
+        ...buildProjectPatchFromRepo(repo),
     }
 }

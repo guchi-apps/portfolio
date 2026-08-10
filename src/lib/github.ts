@@ -139,6 +139,18 @@ async function fetchRepoLanguages(owner: string, repo: string): Promise<string[]
         .map(([language]) => language)
 }
 
+async function toRepoSummary(owner: string, repo: GitHubUserRepo): Promise<GitHubRepoSummary> {
+    return {
+        name: repo.name,
+        fullName: repo.full_name,
+        description: repo.description,
+        htmlUrl: repo.html_url,
+        homepage: repo.homepage?.trim() || null,
+        createdAt: repo.created_at,
+        languages: await fetchRepoLanguages(owner, repo.name),
+    }
+}
+
 /** 指定ユーザーの公開リポジトリ一覧（fork・アーカイブ済みは除く）を取得する */
 export async function fetchUserRepos(username: string): Promise<GitHubRepoSummary[] | null> {
     const repos = await fetchGitHubJson<GitHubUserRepo[]>(
@@ -146,17 +158,36 @@ export async function fetchUserRepos(username: string): Promise<GitHubRepoSummar
     )
     if (!repos) return null
 
-    const targets = repos.filter((repo) => !repo.fork && !repo.archived)
-
     return Promise.all(
-        targets.map(async (repo) => ({
-            name: repo.name,
-            fullName: repo.full_name,
-            description: repo.description,
-            htmlUrl: repo.html_url,
-            homepage: repo.homepage?.trim() || null,
-            createdAt: repo.created_at,
-            languages: await fetchRepoLanguages(username, repo.name),
-        })),
+        repos
+            .filter((repo) => !repo.fork && !repo.archived)
+            .map((repo) => toRepoSummary(username, repo)),
     )
+}
+
+/** 単一のリポジトリ情報を取得する */
+export async function fetchRepo(owner: string, repo: string): Promise<GitHubRepoSummary | null> {
+    const data = await fetchGitHubJson<GitHubUserRepo>(`https://api.github.com/repos/${owner}/${repo}`)
+    if (!data) return null
+
+    return toRepoSummary(owner, data)
+}
+
+/** READMEの本文を取得する。AIへ渡す入力なので、長すぎる場合は先頭を切り出す */
+export async function fetchRepoReadme(
+    owner: string,
+    repo: string,
+    maxChars: number,
+): Promise<string | null> {
+    const readme = await fetchGitHubJson<{ content?: string; encoding?: string }>(
+        `https://api.github.com/repos/${owner}/${repo}/readme`,
+    )
+    if (!readme?.content || readme.encoding !== "base64") {
+        return null
+    }
+
+    const decoded = Buffer.from(readme.content, "base64").toString("utf8").trim()
+    if (!decoded) return null
+
+    return decoded.length > maxChars ? decoded.slice(0, maxChars) : decoded
 }

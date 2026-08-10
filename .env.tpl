@@ -10,6 +10,7 @@ UPTIMEKUMA_PORTFOLIO_SLUG=op://apps/portfolio/uptimekuma-portfolio-slug
 NEXT_PUBLIC_SUPABASE_URL=op://apps/Supabase/project-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=op://apps/Supabase/publishable-key
 ALLOWED_GOOGLE_EMAILS=op://apps/portfolio/allowed-google-emails
+ANTHROPIC_API_KEY=op://apps/Anthropic/api-key
 SSH_HOST=op://apps/Server/host
 SSH_USERNAME=op://apps/Server/username
 SSH_PORT=op://apps/Server/ssh-port

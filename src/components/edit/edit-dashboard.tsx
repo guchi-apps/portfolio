@@ -16,6 +16,7 @@ import { AdminLoginForm } from "@/components/admin-login-form"
 import { CollapsibleSection } from "@/components/edit/collapsible-section"
 import { ConnectIconPicker } from "@/components/edit/connect-icon-picker"
 import { GithubImportDialog } from "@/components/edit/github-import-dialog"
+import { ProjectGithubActions } from "@/components/edit/project-github-actions"
 import { ProjectImagesInput } from "@/components/edit/project-images-input"
 import { ProjectLinksInput } from "@/components/edit/project-links-input"
 import { TechStackInput } from "@/components/edit/tech-stack-input"
@@ -196,6 +197,10 @@ function ProjectEditor({
                                                 githubUrl: urls.length === 1 ? urls[0] : urls,
                                             })
                                         }}
+                                    />
+                                    <ProjectGithubActions
+                                        githubUrl={project.githubUrl}
+                                        onApply={(patch) => updateProject(index, patch)}
                                     />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

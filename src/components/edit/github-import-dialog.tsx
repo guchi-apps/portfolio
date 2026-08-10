@@ -1,8 +1,7 @@
 "use client"
 
-import { useCallback, useState } from "react"
-import { Github, Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react"
+import { Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -14,11 +13,16 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import {
+    GithubRepoListStatus,
+    GithubRepoOption,
+} from "@/components/edit/github-repo-option"
+import { useGithubRepos } from "@/hooks/use-github-repos"
+import { generateSummaries, type ProjectSummaryFields } from "@/lib/ai-summary-client"
+import {
     buildProjectFromRepo,
     collectRegisteredRepoKeys,
     normalizeRepoKey,
 } from "@/lib/github-import"
-import type { GitHubRepoSummary } from "@/types/github"
 import type { Project } from "@/types/site-content"
 
 interface GithubImportDialogProps {
@@ -27,39 +31,21 @@ interface GithubImportDialogProps {
 }
 
 export function GithubImportDialog({ projects, onImport }: GithubImportDialogProps) {
+    const { repos, loading, error, load } = useGithubRepos()
     const [open, setOpen] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState("")
-    const [repos, setRepos] = useState<GitHubRepoSummary[]>([])
     const [selected, setSelected] = useState<string[]>([])
+    const [useAi, setUseAi] = useState(false)
+    const [importing, setImporting] = useState(false)
+    const [message, setMessage] = useState("")
 
     const registeredKeys = collectRegisteredRepoKeys(projects)
-
-    const loadRepos = useCallback(async () => {
-        setLoading(true)
-        setError("")
-        setRepos([])
-        setSelected([])
-
-        try {
-            const res = await fetch("/api/admin/github/repos")
-            const data = await res.json()
-            if (!res.ok) {
-                setError(data.error ?? "リポジトリ一覧を取得できませんでした")
-                return
-            }
-            setRepos(data.repos as GitHubRepoSummary[])
-        } catch {
-            setError("リポジトリ一覧を取得できませんでした")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
 
     const handleOpenChange = (next: boolean) => {
         setOpen(next)
         if (next) {
-            void loadRepos()
+            setSelected([])
+            setMessage("")
+            void load()
         }
     }
 
@@ -69,12 +55,29 @@ export function GithubImportDialog({ projects, onImport }: GithubImportDialogPro
         )
     }
 
-    const handleImport = () => {
+    const handleImport = async () => {
+        const targets = repos.filter((repo) => selected.includes(repo.fullName))
+        setImporting(true)
+        setMessage("")
+
+        const summaries = useAi
+            ? await generateSummaries(targets)
+            : new Map<string, ProjectSummaryFields>()
+        const failed = useAi ? targets.length - summaries.size : 0
+
         onImport(
-            repos
-                .filter((repo) => selected.includes(repo.fullName))
-                .map((repo) => buildProjectFromRepo(repo, crypto.randomUUID()))
+            targets.map((repo) => {
+                const project = buildProjectFromRepo(repo, crypto.randomUUID())
+                const summary = summaries.get(repo.htmlUrl)
+                return summary ? { ...project, ...summary } : project
+            })
         )
+
+        setImporting(false)
+        if (failed > 0) {
+            setMessage(`${failed}件はAI生成に失敗したため、GitHubの情報のみ取り込みました`)
+            return
+        }
         setOpen(false)
     }
 
@@ -94,18 +97,11 @@ export function GithubImportDialog({ projects, onImport }: GithubImportDialogPro
                     </DialogDescription>
                 </DialogHeader>
 
-                {loading && (
-                    <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        読み込み中...
-                    </div>
-                )}
-
-                {!loading && error && <p className="py-6 text-sm text-red-500">{error}</p>}
-
-                {!loading && !error && repos.length === 0 && (
-                    <p className="py-6 text-sm text-slate-500">取り込めるリポジトリがありません</p>
-                )}
+                <GithubRepoListStatus
+                    loading={loading}
+                    error={error}
+                    empty={repos.length === 0}
+                />
 
                 {!loading && !error && repos.length > 0 && (
                     <div className="max-h-[50vh] space-y-2 overflow-y-auto pr-1">
@@ -115,55 +111,47 @@ export function GithubImportDialog({ projects, onImport }: GithubImportDialogPro
                             )
 
                             return (
-                                <label
+                                <GithubRepoOption
                                     key={repo.fullName}
-                                    className={`flex gap-3 rounded-lg border p-3 ${
-                                        registered
-                                            ? "cursor-not-allowed border-slate-200 opacity-60 dark:border-slate-800"
-                                            : "cursor-pointer border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
-                                    }`}
-                                >
-                                    <input
-                                        type="checkbox"
-                                        className="mt-1 shrink-0"
-                                        disabled={registered}
-                                        checked={selected.includes(repo.fullName)}
-                                        onChange={() => toggle(repo.fullName)}
-                                    />
-                                    <div className="min-w-0 space-y-1">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="font-medium">{repo.name}</span>
-                                            {registered && (
-                                                <Badge variant="secondary">登録済み</Badge>
-                                            )}
-                                        </div>
-                                        {repo.description && (
-                                            <p className="text-sm text-slate-500">
-                                                {repo.description}
-                                            </p>
-                                        )}
-                                        {repo.languages.length > 0 && (
-                                            <div className="flex flex-wrap gap-1">
-                                                {repo.languages.slice(0, 5).map((language) => (
-                                                    <Badge key={language} variant="outline">
-                                                        {language}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </label>
+                                    repo={repo}
+                                    type="checkbox"
+                                    checked={selected.includes(repo.fullName)}
+                                    disabled={registered}
+                                    badge={registered ? "登録済み" : undefined}
+                                    onSelect={() => toggle(repo.fullName)}
+                                />
                             )
                         })}
                     </div>
                 )}
 
+                <label className="flex items-center gap-2 text-sm">
+                    <input
+                        type="checkbox"
+                        checked={useAi}
+                        onChange={(e) => setUseAi(e.target.checked)}
+                    />
+                    説明と技術スタックをAIで生成する（READMEをもとに作成します）
+                </label>
+
+                {message && <p className="text-sm text-amber-600">{message}</p>}
+
                 <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                         キャンセル
                     </Button>
-                    <Button type="button" disabled={selected.length === 0} onClick={handleImport}>
-                        {selected.length > 0 ? `${selected.length}件を追加` : "追加"}
+                    <Button
+                        type="button"
+                        disabled={selected.length === 0 || importing}
+                        onClick={handleImport}
+                    >
+                        {importing
+                            ? useAi
+                                ? "AIで生成中..."
+                                : "追加中..."
+                            : selected.length > 0
+                              ? `${selected.length}件を追加`
+                              : "追加"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

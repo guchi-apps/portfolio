@@ -1,16 +1,9 @@
 import { fetchLatestReleaseInfo, parseGitHubRepoUrl } from "@/lib/github"
 import type { ReleaseInfo } from "@/lib/github"
+import { getPrimaryGitHubUrl } from "@/lib/github-import"
 import type { Project } from "@/types/site-content"
 
 export type { ReleaseInfo }
-
-function getPrimaryGitHubUrl(githubUrl?: string | string[]): string | undefined {
-    if (!githubUrl) {
-        return undefined
-    }
-
-    return Array.isArray(githubUrl) ? githubUrl[0] : githubUrl
-}
 
 export async function getProjectReleaseVersions(
     projects: Project[],
