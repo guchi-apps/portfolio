@@ -22,11 +22,13 @@ CI・無人実行では使えない。ローカルで実際の環境変数を使
 
 `@claude` コメントを起点に、計画提示〜実装〜develop向けPR作成までを GitHub Actions 上で無人実行する。
 ワークフローの実体は `guchi-apps/issue-deck` にあり、このリポジトリの `.github/workflows/` には
-`uses:` で参照する薄い caller だけを置いている（`@workflows/v9`）。
+`uses:` で参照する薄い caller だけを置いている（現在は `@workflows/v23`）。
+**caller を追加・更新するときは、`uses:` のタグと `prompts-ref` をリポジトリ内の全 caller で必ず揃える。**
 
 | ファイル | 役割 |
 |---|---|
 | `claude-issue-dispatch.yml` | `@claude` 起点の無人実行（計画提示・実装・PR作成・質問応答） |
+| `claude-conflict-resolve.yml` | develop向けPRとdevelopのコンフリクトの自動解消 |
 | `issue-labels.yml` | Issueの進捗（Project Status）の状態遷移 |
 
 **このリポジトリはDBを使わないため `runtime-setup: node` を指定している。** MySQLサービス
