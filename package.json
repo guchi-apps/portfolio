@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "bash scripts/dev.sh",
     "build": "next build",
-    "build:local": "op run --env-file=.env.tpl -- next build",
     "start": "next start",
     "lint": "eslint",
     "version:resolve": "node scripts/resolve-version.mjs"

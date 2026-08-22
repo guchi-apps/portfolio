@@ -55,38 +55,68 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-#### 2. 本番デプロイ・CI 用シークレットを 1Password に登録
+#### 2. 本番デプロイ・CI 用の値を 1Password に登録
 
-リポジトリに含まれる `.env.tpl` に secret reference が定義されています。`apps` ボールトに以下のアイテムを作成し、フィールドを登録してください。
+**実行時（GitHub Actions）は 1Password を呼びません。** 値は GitHub の secret / variable から読み、1Password は「人が管理する唯一の正」として残します。以前は実行のたびに 1Password から読んでいましたが、サービスアカウントの日次レート制限（1Password アカウント全体で 1,000 リクエスト/日）を使い切ってデプロイが止まったためです（guchi-apps/issue-deck#1302 / #1307）。
+
+どの値を GitHub のどこ（repository / organization、secret / variable）から取るかは [`.github/secrets-manifest.tsv`](.github/secrets-manifest.tsv) が正です。
+
+`apps` ボールトに以下のアイテムを作成し、フィールドを登録してください。
 
 | アイテム | フィールド名 | 説明 |
 | :--- | :--- | :--- |
 | `portfolio` | `uptimekuma-base-url` | Uptime Kuma のURL（Render等。サーバー専用でブラウザには渡さない） |
 | `portfolio` | `uptimekuma-portfolio-slug` | Uptime Kuma のポートフォリオ用ステータスページのスラッグ（サーバー専用） |
-| `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio） |
+| `portfolio` | `deploy-path` | アプリ本体の配置先（例: `/var/lib/portfolio`） |
 | `portfolio` | `allowed-google-emails` | 管理画面へのログインを許可するGoogleアカウントのメールアドレス（複数指定はカンマ区切り） |
 | `portfolio` | `ci-webhook-url` | CI / デプロイ / リリース通知用 Signaly Webhook URL |
 | `portfolio` | `login-webhook-url` | ログイン通知用 Signaly Webhook URL |
-| `Supabase`（複数アプリ共通） | `project-url` | 本番用 Supabase プロジェクトの URL（`NEXT_PUBLIC_SUPABASE_URL` として使用） |
-| `Supabase`（複数アプリ共通） | `publishable-key` | 本番用 Supabase の Publishable key（`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` として使用。フロントに公開してよい値） |
 | `Supabase`（複数アプリ共通） | `dev-project-url` | 開発用 Supabase プロジェクトの URL（`.env.local` に手動で設定） |
 | `Supabase`（複数アプリ共通） | `dev-publishable-key` | 開発用 Supabase の Publishable key（`.env.local` に手動で設定） |
-| `githubaction-sshkey` | `private_key` | SSH秘密鍵（デプロイ用） |
-| `Server` | `host` | デプロイ先サーバーのホスト名またはIP |
-| `Server` | `username` | SSH接続ユーザー名 |
-| `Server` | `ssh-port` | SSHポート番号（例: `22`） |
 
-ボールト名やアイテム名を変更した場合は、`.env.tpl` 内の `op://` 参照を合わせて更新してください。本番相当の値でローカルビルドを確認したい場合は、[1Password CLI](https://developer.1password.com/docs/cli/) をインストール・サインインのうえ `npm run build:local` を使用してください。
+Supabase の本番用プロジェクト（`project-url` / `publishable-key`）と SSH 接続情報（`githubaction-sshkey` / `Server`）は、複数アプリで共有するため organization の共通値として GitHub 側に登録済みです。このリポジトリからは同期しません。
+
+**値を変更したときだけ** GitHub へ同期します。同期はどちらか一方で行います。
+
+```bash
+# 手元から実行する場合（op は個人アカウントのセッションを使うため、サービスアカウントの枠を消費しない）
+op signin
+scripts/sync-github-secrets.sh --dry-run   # 差分の確認
+scripts/sync-github-secrets.sh             # 実行
+```
+
+issue-deck の画面からは「Sync secrets」ボタン（[`.github/workflows/sync-secrets.yml`](.github/workflows/sync-secrets.yml) の `workflow_dispatch`）でも起こせます。
+
+マニフェストに項目を足したときは、ワークフローの `env:` ブロックを [`scripts/generate-workflow-env-block.sh`](scripts/generate-workflow-env-block.sh) で生成し直して貼り替えてください。
 
 #### 3. GitHub Actions（CI/CD）
 
-GitHub リポジトリには **1つだけ** シークレットを登録します。
+このリポジトリに登録する repository の secret / variable は次の6件です。値は上記の同期スクリプトが 1Password から書き込みます。
 
-| Secret Name | 説明 |
-| :--- | :--- |
-| `OP_SERVICE_ACCOUNT_TOKEN` | 1Password Service Account のトークン（`apps` ボールトへのアクセス権限を付与） |
+| 名前 | 種別 | 用途 |
+| :--- | :--- | :--- |
+| `ALLOWED_GOOGLE_EMAILS` | secret | 管理画面のログインを許可するメールアドレス |
+| `DEPLOY_PATH` | secret | サーバー上の配置先パス |
+| `SIGNALY_LOGIN_WEBHOOK_URL` | secret | ログイン通知用 Webhook URL |
+| `SIGNALY_WEBHOOK_URL` | secret | CI / デプロイ / リリース通知用 Webhook URL |
+| `UPTIMEKUMA_BASE_URL` | variable | Uptime Kuma のURL |
+| `UPTIMEKUMA_PORTFOLIO_SLUG` | variable | Uptime Kuma のステータスページのスラッグ |
 
-`main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて 1Password から取得されます。
+残りの7件は organization の共通値をそのまま参照します（このリポジトリでは設定不要）。GitHub 側は中立的な名前のため、ワークフロー内の名前へ読み替えています。
+
+| ワークフロー内の名前 | organization 側の名前 | 種別 |
+| :--- | :--- | :--- |
+| `CLAUDE_CODE_OAUTH_TOKEN` | `CLAUDE_CODE_OAUTH_TOKEN` | secret |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `SUPABASE_PUBLISHABLE_KEY` | variable |
+| `NEXT_PUBLIC_SUPABASE_URL` | `SUPABASE_PROJECT_URL` | variable |
+| `SSH_HOST` | `SERVER_HOST` | secret |
+| `SSH_PORT` | `SERVER_SSH_PORT` | secret |
+| `SSH_PRIVATE_KEY` | `SERVER_SSH_PRIVATE_KEY` | secret |
+| `SSH_USERNAME` | `SERVER_USERNAME` | secret |
+
+このほかに `OP_SERVICE_ACCOUNT_TOKEN`（1Password Service Account のトークン）が repository secret として残っていますが、デプロイでは使いません。全リポジトリの移行が完了した時点でまとめて削除します。
+
+`main` ブランチへのプッシュで、ビルド → SSH デプロイが自動実行されます。デプロイに必要な SSH 情報や API キーはすべて GitHub の secret / variable から取得されます。
 
 CI / デプロイ / リリースの各ワークフロー完了時に Signaly へ通知されます（`SIGNALY_WEBHOOK_URL`）。
 
@@ -144,7 +174,7 @@ git push origin develop
 
 `main` ブランチへのプッシュをトリガーとしてビルドとデプロイが行われます。
 
-- **秘密情報**: 1Password から取得（詳細は「環境変数の設定（1Password）」を参照）
+- **秘密情報**: GitHub の secret / variable から取得（1Password は人が管理する正で、実行時には呼ばない。詳細は「環境変数の設定」を参照）
 - **バージョン表示**: Git タグ（`v1.2.3` 形式）を正とし、フッターに表示されます。タグがない場合は `git describe` の結果、Git 外では `package.json` の `version` にフォールバックします
 - **コンテンツデータ**: サーバー上の `data/site-content.json` に保存（デプロイ時も保持）。リポジトリには `data/site-content.example.json` のみ含め、実データは Git 管理しない
 
