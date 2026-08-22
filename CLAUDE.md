@@ -52,6 +52,10 @@ Claude が二重に走る（`subscription-lists` で実際に起きた）。
   イベントはデフォルトブランチのワークフローしか起動しないため、変更すると無人実行が動かなくなる）
 - Issue専用ブランチは `develop` から作成し、ブランチ名は **`issue-<Issue番号>`** とする（例: `issue-81`）。
   ワークフローはブランチ名から対象Issueを特定するため、**この命名規約に従わないブランチはすべて対象外**になる
+- `deploy.yml` の `workflow_dispatch`（issue-deckの「本番へ再デプロイ」ボタン）は
+  **`main` 側のファイルに書かれていないと使えない。** `gh workflow run --ref main` は指定した ref の
+  ワークフローファイルを読むため、`develop` へマージしただけでは422になる。`develop` → `main` の
+  リリースを1回通してから確認する（#122）
 
 ## Issueの進捗
 
