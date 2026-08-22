@@ -194,6 +194,22 @@ jobs:
               exit 1
             fi
 
+            # 起動できたかを確認する。固定のsleep 1回だと、起動が間に合わないだけで
+            # デプロイが赤くなる（guchi-apps/docs#29）。2秒間隔で最大60秒待つ。
+            echo "Health check..."
+            for i in $(seq 1 30); do
+              if curl -fsS -o /dev/null "http://127.0.0.1:3105/"; then
+                echo "Deployment successful."
+                exit 0
+              fi
+              sleep 2
+            done
+
+            echo "Health check failed after 60s."
+            pm2 describe portfolio || true
+            pm2 logs portfolio --lines 50 --nostream || true
+            exit 1
+
   notify:
     runs-on: ubuntu-latest
     needs: [tag, deploy]
