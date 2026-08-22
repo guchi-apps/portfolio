@@ -15,8 +15,12 @@ CI（`.github/workflows/ci.yml`）も同じ2つを実行している。**存在�
 | Lint | `npm run lint` |
 | ビルド（型チェックを含む） | `npm run build` |
 
-`npm run build:local` は **1Password CLI（`op run --env-file=.env.tpl`）経由**なので、
-CI・無人実行では使えない。ローカルで実際の環境変数を使ってビルドしたいとき専用。
+**`npm run build:local` は廃止した。** 1Password の `.env.tpl` を `op run` で読む方式をやめた
+（#97）ため、ローカルのビルドも `npm run build` を使う（Next.js が `.env.local` を自動で読む）。
+
+デプロイ・CI で使う値は GitHub の secret / variable から取る。どの値をどこから取るかは
+`.github/secrets-manifest.tsv` が正で、1Password から GitHub への同期は値を変えたときだけ
+`scripts/sync-github-secrets.sh`（または `sync-secrets.yml` の workflow_dispatch）で行う。
 
 ## マルチエージェント運用（GitHub Actions 無人実行）
 
@@ -93,7 +97,7 @@ Claude が二重に走る（`subscription-lists` で実際に起きた）。
 - 認証・認可
 - 本番環境の設定
 - GitHub Actionsやデプロイ設定（`.github/workflows/**`）
-- Secretsや環境変数（`.env*`・1Password関連の `.env.tpl`）
+- Secretsや環境変数（`.env*`・シークレットの在り処を定める `.github/secrets-manifest.tsv`）
 - 大規模な依存関係の更新
 - `develop` → `main` のマージ
 
