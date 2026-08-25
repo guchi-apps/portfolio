@@ -16,6 +16,9 @@ export async function notifySignalyLogin(ip: string | null): Promise<void> {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                // 共通チャンネルでどのアプリのログインか見分けるための送信元（guchi-apps/signaly#192）。
+                // 値はリポジトリ名に揃える（CI・デプロイ通知の Repository フィールド末尾と同じ形）。
+                source: "portfolio",
                 embeds: [
                     {
                         title: "🔐 Portfolio 管理画面にログイン",
