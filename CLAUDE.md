@@ -22,6 +22,12 @@ CI（`.github/workflows/ci.yml`）も同じ2つを実行している。**存在�
 `.github/secrets-manifest.tsv` が正で、1Password から GitHub への同期は値を変えたときだけ
 `scripts/sync-github-secrets.sh`（または `sync-secrets.yml` の workflow_dispatch）で行う。
 
+**マニフェストの行を `repo` から `inherit` へ切り替えても、`deploy.yml` の `env:` ブロックは
+変更しなくてよい。** `scripts/generate-workflow-env-block.sh` が飛ばすのは SOURCE 列が空の行だけで、
+`inherit` の行（SOURCE は `-`）も `${{ secrets.<GH_NAME> }}` として出力されるため。切り替えたら
+`diff <(scripts/generate-workflow-env-block.sh) <(sed -n '96,108p' .github/workflows/deploy.yml)` が
+差分なしになることを確認する（行の位置を動かすとここで落ちる）。
+
 ## マルチエージェント運用（GitHub Actions 無人実行）
 
 `@claude` コメントを起点に、計画提示〜実装〜develop向けPR作成までを GitHub Actions 上で無人実行する。
