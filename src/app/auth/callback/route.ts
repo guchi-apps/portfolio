@@ -20,10 +20,15 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${origin}/edit?error=unauthorized_email`)
     }
 
-    const ip =
-        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-        request.headers.get("x-real-ip")
-    await notifySignalyLogin(ip)
+    // 接続元IP・User-Agent は notifySignalyLogin がリクエストヘッダーから拾う
+    await notifySignalyLogin({
+        email: data.user?.email ?? null,
+        name:
+            (data.user?.user_metadata?.full_name as string | undefined) ??
+            (data.user?.user_metadata?.name as string | undefined) ??
+            null,
+        provider: data.user?.app_metadata?.provider ?? null,
+    })
 
     return NextResponse.redirect(`${origin}/edit`)
 }
