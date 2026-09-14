@@ -132,8 +132,6 @@ jobs:
         run: |
           cp -r public .next/standalone/public
           cp -r .next/static .next/standalone/.next/static
-          mkdir -p .next/standalone/data
-          cp data/site-content.example.json .next/standalone/data/site-content.default.json
           cp deploy/.htaccess .next/standalone/.htaccess
           cp ecosystem.config.js .next/standalone/ecosystem.config.js
 
@@ -176,15 +174,10 @@ jobs:
               printf 'SIGNALY_LOGIN_WEBHOOK_URL=%s\n' "$SIGNALY_LOGIN_WEBHOOK_URL"
               printf 'UPTIMEKUMA_BASE_URL=%s\n' "$UPTIMEKUMA_BASE_URL"
               printf 'UPTIMEKUMA_PORTFOLIO_SLUG=%s\n' "$UPTIMEKUMA_PORTFOLIO_SLUG"
-              printf 'SITE_CONTENT_PATH=%s/data/site-content.json\n' "$DEPLOY_PATH"
               printf 'NODE_ENV=production\n'
               printf 'PORT=3105\n'
               printf 'HOSTNAME=127.0.0.1\n'
             } > .env.production.local
-            mkdir -p data/uploads
-            if [ ! -f data/site-content.json ]; then
-              cp data/site-content.default.json data/site-content.json
-            fi
             if command -v pm2 >/dev/null; then
               pm2 delete portfolio 2>/dev/null || true
               pm2 start ecosystem.config.js --env production
@@ -196,9 +189,10 @@ jobs:
 
             # 起動できたかを確認する。固定のsleep 1回だと、起動が間に合わないだけで
             # デプロイが赤くなる（guchi-apps/docs#29）。2秒間隔で最大60秒待つ。
+            # トップ（/）は廃止して404を返すため、残しているページで確かめる（#172）。
             echo "Health check..."
             for i in $(seq 1 30); do
-              if curl -fsS -o /dev/null "http://127.0.0.1:3105/"; then
+              if curl -fsS -o /dev/null "http://127.0.0.1:3105/privacy-policy"; then
                 echo "Deployment successful."
                 exit 0
               fi

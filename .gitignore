@@ -20,7 +20,7 @@
 # production
 /build
 
-# local / production runtime content (seed from data/site-content.example.json)
+# runtime content of the retired portfolio pages (#172). Kept ignored for old checkouts.
 /data/site-content.json
 /data/uploads/
 
