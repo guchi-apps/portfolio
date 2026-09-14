@@ -1,6 +1,3 @@
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
-
 interface LegalPageLayoutProps {
     title: string
     updatedAt: string
@@ -10,16 +7,6 @@ interface LegalPageLayoutProps {
 export function LegalPageLayout({ title, updatedAt, children }: LegalPageLayoutProps) {
     return (
         <main className="min-h-screen p-4 md:p-8 max-w-3xl mx-auto pb-20">
-            <div className="mb-8">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
-                >
-                    <ArrowLeft className="size-4" aria-hidden />
-                    サイトに戻る
-                </Link>
-            </div>
-
             <article className="space-y-8">
                 <header className="space-y-2 border-b border-slate-200 dark:border-slate-800 pb-6">
                     <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
