@@ -48,7 +48,7 @@ npm run build   # 型チェックを含む
 
 **値を変更したときだけ** `scripts/sync-github-secrets.sh`（または `sync-secrets.yml` の workflow_dispatch）で GitHub へ同期します。
 
-> ページ廃止前の編集画面・Uptime Kuma 表示のための値（Supabase・`ALLOWED_GOOGLE_EMAILS`・`UPTIMEKUMA_*` など）がマニフェストと `deploy.yml` に残っていますが、現在のアプリは使いません。整理は後続の Issue で行います。
+現在のアプリはシークレットを読みません。デプロイに使うのはサーバーへの接続情報（`SSH_*`・`DEPLOY_PATH`）と通知先（`SIGNALY_WEBHOOK_URL`）だけです（#173 で廃止したページ用の値を外しました）。
 
 ## 📦 デプロイ
 
@@ -67,7 +67,7 @@ npm run build   # 型チェックを含む
 
 ### Apache リバースプロキシ
 
-実体は `guchi-apps/vps` の `apache/sites-available/gucchii*.conf` が一次情報源です。[`deploy/apache-vhost.example.conf`](deploy/apache-vhost.example.conf) は参考用の雛形で、phpMyAdmin のパスを catch-all の `ProxyPass /` より先に除外する必要がある点を示しています（実際のパスは GitHub に載せない）。
+設定は `guchi-apps/vps` の `apache/sites-available/gucchii*.conf` で管理しています（このリポジトリには雛形を置きません）。phpMyAdmin のパスは catch-all の `ProxyPass / http://127.0.0.1:3105/` より先に除外する必要があります（実際のパスは GitHub に載せない）。
 
 `DEPLOY_PATH` をどうしても DocumentRoot 配下に置く場合は、少なくとも `Options -Indexes` を有効にしてください。デプロイ時に `deploy/.htaccess` が `DEPLOY_PATH` へコピーされ、ディレクトリ一覧と機密ファイルへの直接アクセスを拒否します。
 

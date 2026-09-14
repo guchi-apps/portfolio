@@ -25,7 +25,7 @@ CI（`.github/workflows/ci.yml`）も同じ2つを実行している。**存在�
 **マニフェストの行を `repo` から `inherit` へ切り替えても、`deploy.yml` の `env:` ブロックは
 変更しなくてよい。** `scripts/generate-workflow-env-block.sh` が飛ばすのは SOURCE 列が空の行だけで、
 `inherit` の行（SOURCE は `-`）も `${{ secrets.<GH_NAME> }}` として出力されるため。切り替えたら
-`diff <(scripts/generate-workflow-env-block.sh) <(sed -n '96,108p' .github/workflows/deploy.yml)` が
+`diff <(scripts/generate-workflow-env-block.sh) <(sed -n '96,101p' .github/workflows/deploy.yml)` が
 差分なしになることを確認する（行の位置を動かすとここで落ちる）。
 
 ## マルチエージェント運用（GitHub Actions 無人実行）

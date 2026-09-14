@@ -36,10 +36,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.local.example
-
-# server-only Apache config (may contain phpMyAdmin path)
-deploy/apache-vhost.local.conf
 
 # vercel
 .vercel

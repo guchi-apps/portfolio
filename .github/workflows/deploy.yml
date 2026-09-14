@@ -93,19 +93,12 @@ jobs:
     #
     # このブロックは scripts/generate-workflow-env-block.sh で生成する（guchi-apps/issue-deck#1307）。
     env:
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
-      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_PROJECT_URL }}
       SSH_HOST: ${{ secrets.SERVER_HOST }}
       SSH_PORT: ${{ secrets.SERVER_SSH_PORT }}
       SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
       SSH_USERNAME: ${{ secrets.SERVER_USERNAME }}
-      ALLOWED_GOOGLE_EMAILS: ${{ secrets.ALLOWED_GOOGLE_EMAILS }}
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-      SIGNALY_LOGIN_WEBHOOK_URL: ${{ secrets.SIGNALY_LOGIN_WEBHOOK_URL }}
       SIGNALY_WEBHOOK_URL: ${{ secrets.SIGNALY_WEBHOOK_URL }}
-      UPTIMEKUMA_BASE_URL: ${{ vars.UPTIMEKUMA_BASE_URL }}
-      UPTIMEKUMA_PORTFOLIO_SLUG: ${{ vars.UPTIMEKUMA_PORTFOLIO_SLUG }}
 
     steps:
       - name: Checkout code
@@ -145,35 +138,22 @@ jobs:
           REMOTE_USER: ${{ env.SSH_USERNAME }}
           TARGET: ${{ env.DEPLOY_PATH }}
           REMOTE_PORT: ${{ env.SSH_PORT }}
-          EXCLUDE: "/data/site-content.json, /data/uploads/"
 
       - name: Configure and restart application
         uses: appleboy/ssh-action@v1.2.0
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          ALLOWED_GOOGLE_EMAILS: ${{ env.ALLOWED_GOOGLE_EMAILS }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ env.CLAUDE_CODE_OAUTH_TOKEN }}
-          SIGNALY_LOGIN_WEBHOOK_URL: ${{ env.SIGNALY_LOGIN_WEBHOOK_URL }}
-          UPTIMEKUMA_BASE_URL: ${{ env.UPTIMEKUMA_BASE_URL }}
-          UPTIMEKUMA_PORTFOLIO_SLUG: ${{ env.UPTIMEKUMA_PORTFOLIO_SLUG }}
           DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           port: ${{ env.SSH_PORT }}
-          envs: NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,ALLOWED_GOOGLE_EMAILS,CLAUDE_CODE_OAUTH_TOKEN,SIGNALY_LOGIN_WEBHOOK_URL,UPTIMEKUMA_BASE_URL,UPTIMEKUMA_PORTFOLIO_SLUG,DEPLOY_PATH
+          envs: DEPLOY_PATH
           script: |
             cd "$DEPLOY_PATH"
+            # 以前はSupabase・Claude等の値も書き出していたが、#172 でそれらを使う画面を廃止した（#173）。
+            # 毎回上書きするため、サーバーに残っている古い値もこのデプロイで消える。
             {
-              printf 'NEXT_PUBLIC_SUPABASE_URL=%s\n' "$NEXT_PUBLIC_SUPABASE_URL"
-              printf 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=%s\n' "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
-              printf 'ALLOWED_GOOGLE_EMAILS=%s\n' "$ALLOWED_GOOGLE_EMAILS"
-              printf 'CLAUDE_CODE_OAUTH_TOKEN=%s\n' "$CLAUDE_CODE_OAUTH_TOKEN"
-              printf 'SIGNALY_LOGIN_WEBHOOK_URL=%s\n' "$SIGNALY_LOGIN_WEBHOOK_URL"
-              printf 'UPTIMEKUMA_BASE_URL=%s\n' "$UPTIMEKUMA_BASE_URL"
-              printf 'UPTIMEKUMA_PORTFOLIO_SLUG=%s\n' "$UPTIMEKUMA_PORTFOLIO_SLUG"
               printf 'NODE_ENV=production\n'
               printf 'PORT=3105\n'
               printf 'HOSTNAME=127.0.0.1\n'
