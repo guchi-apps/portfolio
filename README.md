@@ -1,6 +1,11 @@
 # gucchii.com
 
-`gucchii.com` で公開している Next.js アプリのリポジトリです。
+> **運用を終了しました（#200）。** 法的ページ（`/privacy-policy`・`/terms-of-service`）は
+> [guchi-apps/vps#296](https://github.com/guchi-apps/vps/pull/296) で Apache の静的ファイルへ移管し、
+> URL は変わっていません。以後の文言の修正は `guchi-apps/vps` の `apache/www/gucchii.com/` で行います。
+> 撤去の経緯と手順は [docs/decommission.md](docs/decommission.md) を参照してください。以下は運用中の記述です。
+
+`gucchii.com` で公開していた Next.js アプリのリポジトリです。
 
 以前はポートフォリオサイト（トップページ・編集画面 `/edit`）でしたが、参照されていなかったため #172 で廃止しました。現在は、全アプリ（Gucchii Apps）共通の法的ページだけを配信しています。
 

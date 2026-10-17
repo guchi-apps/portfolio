@@ -1,10 +1,11 @@
 name: Deploy to Production
 
+# 運用を終了したため、起動できるトリガーをすべて外している（#200）。ファイルは消さない。
+# `push: main` だけを外すと、issue-deck が「mainへマージしたのにデプロイが起動していない」とみなして
+# `workflow_dispatch` で起動し直す。`workflow_dispatch` も無ければ422になり、issue-deck は
+# 「起動できないリポジトリ」として静かに見張りを畳む（issue-deck の docs/app-shutdown.md）。
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_call:
 
 concurrency:
   group: deploy-production
